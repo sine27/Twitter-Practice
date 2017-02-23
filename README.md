@@ -35,7 +35,7 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-version 2.4 review table | version 2.2 tab view & zoom image | version 2.1 detail view and filter
+version 1.1 homeline view | 
 :-------------------------:|:-------------------------:
 <img src='https://github.com/sine27/Twitter/blob/master/demo/version1_1.gif' width='270' alt='Video Walkthrough' /> | 
 
