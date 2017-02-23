@@ -1,70 +1,51 @@
-# Project 5 - *Twitter*
+# Project 4 - *Twitter*
 
-Time spent: **X** hours spent in total
+**Twitter** is a basic twitter app to read and compose tweets the [Twitter API](https://apps.twitter.com/).
+
+Time spent: 
+
+**15** howrs spent in version 1.1
+
+**15** hours spent in total
 
 ## User Stories
 
 The following **required** functionality is completed:
 
-- [ ] Tweet Details Page: User can tap on a tweet to view it, with controls to retweet, favorite, and reply.
-- [ ] Profile page:
-   - [ ] Contains the user header view
-   - [ ] Contains a section with the users basic stats: # tweets, # following, # followers
-- [ ] Home Timeline: Tapping on a user image should bring up that user's profile page
-- [ ] Compose Page: User can compose a new tweet by tapping on a compose button.
+- [x] User can sign in using OAuth login flow
+- [x] User can view last 20 tweets from their home timeline
+- [x] The current signed in user will be persisted across restarts
+- [x] In the home timeline, user can view tweet with the user profile picture, username, tweet text, and timestamp.
+- [x] Retweeting and favoriting should increment the retweet and favorite count.
 
 The following **optional** features are implemented:
 
-- [ ] When composing, you should have a countdown in the upper right for the tweet limit.
-- [ ] After creating a new tweet, a user should be able to view it in the timeline immediately without refetching the timeline from the network.
-- [ ] Profile Page
-   - [ ] Implement the paging view for the user description.
-   - [ ] As the paging view moves, increase the opacity of the background screen. See the actual Twitter app for this effect
-   - [ ] Pulling down the profile page should blur and resize the header image.
-- [ ] Account switching
-   - [ ] Long press on tab bar to bring up Account view with animation
-   - [ ] Tap account to switch to
-   - [ ] Include a plus button to Add an Account
-   - [ ] Swipe to delete an account
+- [ ] User can load more tweets once they reach the bottom of the feed using infinite loading similar to the actual Twitter client.
+- [ ] User should be able to unretweet and unfavorite and should decrement the retweet and favorite count.
+- [x] User can pull to refresh.
 
 The following **additional** features are implemented:
 
-- [ ] List anything else that you can get done to improve the app functionality!
-
-Please list two areas of the assignment you'd like to **discuss further with your peers** during the next class (examples include better ways to implement something, how to extend your app in certain ways, etc):
-
-1. 
-2. 
+- [x] User can logout
+- [x] User can open url in text view
+- [x] User can view image in the content
+- [x] User can see the alert before logout
 
 ## Video Walkthrough 
 
 Here's a walkthrough of implemented user stories:
 
+version 2.4 review table | version 2.2 tab view & zoom image | version 2.1 detail view and filter
+:-------------------------:|:-------------------------:
+<img src='https://github.com/sine27/Twitter/blob/master/demo/version1_1.gif' width='270' alt='Video Walkthrough' /> | 
 
 ## Notes
 
-``` swift
-// countdown in testfield
-override func viewDidLoad() {
-    super.viewDidLoad()
-    txtValue.delegate = self                
-}
-
-func textField(textField: UITextField, shouldChangeCharactersInRange range: NSRange, replacementString string: String) -> Bool {
-    let newLength = count(textField.text.utf16) + count(string.utf16) - range.length
-    //change the value of the label
-    mylabel.text =  String(newLength)
-    //you can save this value to a global var
-    //myCounter = newLength
-    //return true to allow the change, if you want to limit the number of characters in the text field use something like
-    return newLength <= 25 // To just allow up to 25 characters
-    return true
-}
-```
+Describe any challenges encountered while building the app.
 
 ## License
 
-    Copyright [2017] [Shayin Feng]
+    Copyright [yyyy] [name of copyright owner]
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
