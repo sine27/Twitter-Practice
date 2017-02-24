@@ -150,68 +150,97 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jgR-XD-zIa">
-                                                    <rect key="frame" x="70" y="65" width="222" height="22"/>
+                                                    <rect key="frame" x="70" y="65" width="222" height="25"/>
                                                     <subviews>
                                                         <button opaque="NO" contentMode="scaleAspectFit" semanticContentAttribute="forceRightToLeft" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="crg-v8-IHi">
-                                                            <rect key="frame" x="0.0" y="0.0" width="22" height="22"/>
+                                                            <rect key="frame" x="0.0" y="0.0" width="25" height="25"/>
                                                             <constraints>
-                                                                <constraint firstAttribute="height" constant="22" id="ikl-Xb-j2e"/>
+                                                                <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="25" id="bhD-nn-O4e"/>
+                                                                <constraint firstAttribute="height" constant="25" id="ikl-Xb-j2e"/>
                                                                 <constraint firstAttribute="width" secondItem="crg-v8-IHi" secondAttribute="height" multiplier="1:1" id="jlP-Oa-ggl"/>
                                                             </constraints>
                                                             <state key="normal" image="reply-icon"/>
+                                                            <connections>
+                                                                <action selector="replyTapped:" destination="CGF-mw-5UJ" eventType="touchUpInside" id="Lxq-hv-8h3"/>
+                                                            </connections>
                                                         </button>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="d2E-9N-4g4">
-                                                            <rect key="frame" x="22" y="0.0" width="42" height="22"/>
+                                                            <rect key="frame" x="25" y="0.0" width="40.5" height="25"/>
                                                             <constraints>
-                                                                <constraint firstAttribute="width" constant="42" id="9jN-VL-RG9"/>
+                                                                <constraint firstAttribute="height" constant="25" id="Aju-aK-b2F"/>
                                                             </constraints>
                                                             <fontDescription key="fontDescription" type="system" pointSize="11"/>
                                                             <state key="normal">
                                                                 <color key="titleColor" red="0.62791481599999999" green="0.62791481599999999" blue="0.62791481599999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                             </state>
+                                                            <connections>
+                                                                <action selector="replyTapped:" destination="CGF-mw-5UJ" eventType="touchUpInside" id="KGi-Eu-K4m"/>
+                                                            </connections>
                                                         </button>
                                                         <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Trr-7f-NIl">
-                                                            <rect key="frame" x="64" y="0.0" width="22" height="22"/>
+                                                            <rect key="frame" x="65.5" y="0.0" width="25" height="25"/>
                                                             <constraints>
+                                                                <constraint firstAttribute="height" constant="25" id="0Q6-zh-2YR"/>
                                                                 <constraint firstAttribute="width" secondItem="Trr-7f-NIl" secondAttribute="height" multiplier="1:1" id="Ojz-3a-eqq"/>
                                                             </constraints>
                                                             <state key="normal" image="retweet-icon"/>
+                                                            <connections>
+                                                                <action selector="retweetTapped:" destination="CGF-mw-5UJ" eventType="touchUpInside" id="iq6-tJ-gYB"/>
+                                                            </connections>
                                                         </button>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="evy-qH-dEn">
-                                                            <rect key="frame" x="86" y="0.0" width="46" height="22"/>
+                                                            <rect key="frame" x="90.5" y="0.0" width="41" height="25"/>
                                                             <constraints>
-                                                                <constraint firstAttribute="width" constant="46" id="KgK-Xs-Xnx"/>
+                                                                <constraint firstAttribute="height" constant="25" id="zex-ca-26d"/>
                                                             </constraints>
                                                             <fontDescription key="fontDescription" type="system" pointSize="11"/>
                                                             <state key="normal">
                                                                 <color key="titleColor" red="0.62791481599999999" green="0.62791481599999999" blue="0.62791481599999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                             </state>
+                                                            <connections>
+                                                                <action selector="retweetTapped:" destination="CGF-mw-5UJ" eventType="touchUpInside" id="Uz1-h0-W1w"/>
+                                                            </connections>
                                                         </button>
                                                         <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Da1-SL-lwb">
-                                                            <rect key="frame" x="132" y="0.0" width="22" height="22"/>
+                                                            <rect key="frame" x="131.5" y="0.0" width="25" height="25"/>
                                                             <constraints>
+                                                                <constraint firstAttribute="height" constant="25" id="EXI-eK-Frz"/>
                                                                 <constraint firstAttribute="width" secondItem="Da1-SL-lwb" secondAttribute="height" multiplier="1:1" id="X9x-Ot-VDy"/>
                                                             </constraints>
                                                             <state key="normal" image="favor-icon"/>
+                                                            <connections>
+                                                                <action selector="favoritedTapped:" destination="CGF-mw-5UJ" eventType="touchUpInside" id="tTc-KO-ir9"/>
+                                                            </connections>
                                                         </button>
                                                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dGO-n9-Y4c">
-                                                            <rect key="frame" x="154" y="0.0" width="46" height="22"/>
+                                                            <rect key="frame" x="156.5" y="0.0" width="40.5" height="25"/>
                                                             <constraints>
-                                                                <constraint firstAttribute="width" constant="46" id="xow-WR-YTV"/>
+                                                                <constraint firstAttribute="height" constant="25" id="uq4-6e-buV"/>
                                                             </constraints>
                                                             <fontDescription key="fontDescription" type="system" pointSize="11"/>
                                                             <state key="normal">
                                                                 <color key="titleColor" red="0.62791481599999999" green="0.62791481599999999" blue="0.62791481599999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                             </state>
+                                                            <connections>
+                                                                <action selector="favoritedTapped:" destination="CGF-mw-5UJ" eventType="touchUpInside" id="Mm1-Fr-aIz"/>
+                                                            </connections>
                                                         </button>
                                                         <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="deS-wS-9fQ">
-                                                            <rect key="frame" x="200" y="0.0" width="22" height="22"/>
+                                                            <rect key="frame" x="197" y="0.0" width="25" height="25"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="width" secondItem="deS-wS-9fQ" secondAttribute="height" multiplier="1:1" id="aOR-iP-Ghg"/>
+                                                                <constraint firstAttribute="height" constant="25" id="cJA-o3-CBb"/>
                                                             </constraints>
                                                             <state key="normal" image="message-icon"/>
+                                                            <connections>
+                                                                <action selector="messageTapped:" destination="CGF-mw-5UJ" eventType="touchUpInside" id="bvT-yx-QZd"/>
+                                                            </connections>
                                                         </button>
                                                     </subviews>
+                                                    <constraints>
+                                                        <constraint firstItem="dGO-n9-Y4c" firstAttribute="width" secondItem="d2E-9N-4g4" secondAttribute="width" id="6sh-I8-A9T"/>
+                                                        <constraint firstItem="evy-qH-dEn" firstAttribute="width" secondItem="d2E-9N-4g4" secondAttribute="width" id="Tvb-4O-sMV"/>
+                                                    </constraints>
                                                 </stackView>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HjQ-jG-dTz">
                                                     <rect key="frame" x="294" y="8" width="14" height="22"/>
@@ -284,7 +313,7 @@
                                             <outlet property="numFavoriteLabel" destination="dGO-n9-Y4c" id="ijd-Mz-fK7"/>
                                             <outlet property="numReplyLabel" destination="d2E-9N-4g4" id="lEf-bf-geJ"/>
                                             <outlet property="numRetwitteLabel" destination="evy-qH-dEn" id="Wxb-t5-3pn"/>
-                                            <outlet property="reTwitteButton" destination="Trr-7f-NIl" id="MAo-jd-i4Y"/>
+                                            <outlet property="reTwitteButton" destination="Trr-7f-NIl" id="FgD-oF-tGm"/>
                                             <outlet property="replyButton" destination="crg-v8-IHi" id="gOv-is-TDw"/>
                                             <outlet property="retweetLabel" destination="K3S-ax-o8O" id="vfD-eF-aoE"/>
                                             <outlet property="retweetLabelHeight" destination="8vc-ur-aAl" id="qi7-3P-TCt"/>

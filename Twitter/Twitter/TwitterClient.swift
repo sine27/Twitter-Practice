@@ -27,15 +27,19 @@ class TwitterClient: BDBOAuth1SessionManager {
         static let OAuthRequestTokenEndpoint = "oauth/request_token"
         static let OAuthAccessTokenEndpoint = "oauth/access_token"
         static let UserCredentialEndpoint = "1.1/account/verify_credentials.json"
+        
         static let HomeTimelineEndpoint = "1.1/statuses/home_timeline.json"
         static let MentionsTimelineEndpoint = "1.1/statuses/mentions_timeline.json"
+        
         static let ShowStatusEndpoint = "1.1/statuses/show/:id.json"
         static let UpdateStatusEndpoint = "1.1/statuses/update.json"
+        
         static let RetweetStatusEndpoint = "1.1/statuses/retweet/:id.json"
-        static let RetweetsOfStatusEndpoint = "1.1/statuses/retweets/:id.json"
-        static let DestroyStatusEndpoint = "1.1/statuses/destroy/:id.json"
+        static let UnretweetStatusEndpoint = "1.1/statuses/unretweet/:id.json"
+        
         static let FavoriteCreateEndpoint = "1.1/favorites/create.json"
         static let FavoriteDestroyEndpoint = "1.1/favorites/destroy.json"
+        
         static let MediaUploadEndpoint = "1.1/media/upload.json"
     }
     
@@ -104,6 +108,16 @@ class TwitterClient: BDBOAuth1SessionManager {
     func fetchTimelineData (endpoint: String, parameters: Any?, completion: @escaping ([NSDictionary]?, Error?) -> ()) {
         if let client = TwitterClient.sharedInstance {
             client.get(endpoint, parameters: parameters, progress: nil, success: { (task, response) in
+                completion(response as? [NSDictionary] ?? [], nil)
+            }, failure: { (task, error) in
+                completion(nil, error)
+            })
+        }
+    }
+    
+    func postRequest (endpoint: String, parameters: Any?, completion: @escaping ([NSDictionary]?, Error?) -> ()) {
+        if let client = TwitterClient.sharedInstance {
+            client.post(endpoint, parameters: parameters, progress: nil, success: { (task, response) in
                 completion(response as? [NSDictionary] ?? [], nil)
             }, failure: { (task, error) in
                 completion(nil, error)

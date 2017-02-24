@@ -38,7 +38,7 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     
     @IBOutlet weak var messageButton: UIButton!
     
-    @IBOutlet weak var contentToTop: NSLayoutConstraint!
+    //@IBOutlet weak var contentToTop: NSLayoutConstraint!
     
     @IBOutlet weak var contentImage: UIImageView!
     
@@ -55,6 +55,8 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     @IBOutlet weak var avatarToRetweeted: NSLayoutConstraint!
     
     var tapGesture = UITapGestureRecognizer()
+    
+    let client = TwitterClient.sharedInstance!
     
     var tweet : TweetModel! {
         didSet {
@@ -241,6 +243,70 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
         return true
     }
 
+    @IBAction func replyTapped(_ sender: UIButton) {
+        
+    }
+    
+    @IBAction func retweetTapped(_ sender: UIButton) {
+        var endpoint : String?
+        
+        if tweet.isUserRetweeted! {
+            endpoint = TwitterClient.APIScheme.RetweetStatusEndpoint
+        } else {
+            endpoint = TwitterClient.APIScheme.UnretweetStatusEndpoint
+        }
+        
+        client.postRequest(endpoint: endpoint!, parameters: ["id" : tweet.id!], completion: { (response, error) in
+            
+            if let error = error {
+                print("favorite: Error >>> \(error.localizedDescription)")
+            } else {
+                print("favorite: success")
+                if self.tweet.isUserRetweeted! {
+                    self.reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon-dark"), for: .normal)
+                    self.numRetwitteLabel.setButtonTitleColor(option: .gray)
+                    self.tweet.isUserRetweeted = false
+                } else {
+                    self.reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon-green"), for: .normal)
+                    self.numRetwitteLabel.setButtonTitleColor(option: .green)
+                    self.tweet.isUserRetweeted = true
+                }
+            }
+        })
+    }
+    
+    @IBAction func favoritedTapped(_ sender: UIButton) {
+        var endpoint : String?
+        
+        if tweet.isUserFavorited! {
+            endpoint = TwitterClient.APIScheme.FavoriteDestroyEndpoint
+        } else {
+            endpoint = TwitterClient.APIScheme.FavoriteCreateEndpoint
+        }
+        
+        client.postRequest(endpoint: endpoint!, parameters: ["id" : tweet.id!], completion: { (response, error) in
+            
+            if let error = error {
+                print("retweet: Error >>> \(error.localizedDescription)")
+            } else {
+                print("retweet: success")
+                if self.tweet.isUserFavorited! {
+                    self.favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)
+                    self.numFavoriteLabel.setButtonTitleColor(option: .gray)
+                    self.tweet.isUserFavorited = false
+                } else {
+                    self.favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon-red"), for: .normal)
+                    self.numFavoriteLabel.setButtonTitleColor(option: .red)
+                    self.tweet.isUserFavorited = true
+                }
+            }
+        })
+    }
+
+    @IBAction func messageTapped(_ sender: UIButton) {
+        
+    }
+    
 }
 
 extension NSMutableAttributedString {
