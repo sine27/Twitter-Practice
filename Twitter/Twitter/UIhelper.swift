@@ -10,18 +10,46 @@ import UIKit
 
 // set button title color for favorited, retweeted
 enum ButtonTitleColorOption: Int {
-    case green = 0, gray, red
+    case green = 0, gray, red, blue, yellow
 }
 
 extension UIButton {
     func setButtonTitleColor(option: ButtonTitleColorOption) {
         if option == ButtonTitleColorOption.gray {
-            self.setTitleColor(UIColor.init(colorLiteralRed: 0.69, green: 0.73, blue: 0.75, alpha:1.0), for: .normal)
+            self.setTitleColor(UIhelper.UIColorOption.gray, for: .normal)
         } else if option == ButtonTitleColorOption.green {
-            self.setTitleColor(UIColor.init(colorLiteralRed: 0.11, green: 0.75, blue: 0.50, alpha:1.0), for: .normal)
+            self.setTitleColor(UIhelper.UIColorOption.green, for: .normal)
         } else if option == ButtonTitleColorOption.red {
-            self.setTitleColor(UIColor.init(colorLiteralRed: 0.88, green: 0.23, blue: 0.40, alpha:1.0), for: .normal)
+            self.setTitleColor(UIhelper.UIColorOption.red, for: .normal)
+        } else if option == ButtonTitleColorOption.blue {
+            self.setTitleColor(UIhelper.UIColorOption.blue, for: .normal)
+        } else if option == ButtonTitleColorOption.yellow {
+            self.setTitleColor(UIhelper.UIColorOption.yellow, for: .normal)
         }
+    }
+}
+
+extension UIView {
+    // Name this function in a way that makes sense to you...
+    // slideFromLeft, slideRight, slideLeftToRight, etc. are great alternative names
+    func slideInFromLeft(duration: TimeInterval = 1.0, completionDelegate: AnyObject? = nil) {
+        // Create a CATransition animation
+        let slideInFromLeftTransition = CATransition()
+        
+        // Set its callback delegate to the completionDelegate that was provided (if any)
+        if let delegate: CAAnimationDelegate = completionDelegate as! CAAnimationDelegate? {
+            slideInFromLeftTransition.delegate = delegate
+        }
+        
+        // Customize the animation's properties
+        slideInFromLeftTransition.type = kCATransitionPush
+        slideInFromLeftTransition.subtype = kCATransitionFromLeft
+        slideInFromLeftTransition.duration = duration
+        slideInFromLeftTransition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
+        slideInFromLeftTransition.fillMode = kCAFillModeRemoved
+        
+        // Add the animation to the View's layer
+        self.layer.add(slideInFromLeftTransition, forKey: "slideInFromLeftTransition")
     }
 }
 
@@ -32,6 +60,14 @@ class UIhelper: NSObject {
     let notifyLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 250, height: 50))
     
     let footerLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 250, height: 50))
+    
+    struct UIColorOption {
+        static let gray = UIColor(red: 0.69, green: 0.73, blue: 0.75, alpha: 1.0)
+        static let green = UIColor(red: 0.11, green: 0.75, blue: 0.50, alpha: 1.0)
+        static let red = UIColor(red: 0.88, green: 0.23, blue: 0.40, alpha: 1.0)
+        static let blue = UIColor(red: 0.28, green: 0.56, blue: 0.76, alpha: 1.0)
+        static let yellow = UIColor(red: 0.95, green: 0.84, blue: 0.0, alpha: 1.0)
+    }
     
     open func subviewSetup (sender : AnyObject) {
         
@@ -131,11 +167,21 @@ class UIhelper: NSObject {
         footerLabel.removeFromSuperview()
     }
     
-    class func displayAlertMessage(_ userTitle: String, userMessage: String, sender: AnyObject)
+    class func alertMessage(_ userTitle: String, userMessage: String, action: ((UIAlertAction) -> Void)?, sender: AnyObject)
     {
         let myAlert = UIAlertController(title: userTitle, message: userMessage, preferredStyle: UIAlertControllerStyle.alert)
-        let okAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: nil)
+        let okAction = UIAlertAction(title: "OK", style: UIAlertActionStyle.default, handler: action)
         myAlert.addAction(okAction)
-        sender.present(myAlert, animated:true, completion:nil)
+        sender.present(myAlert, animated: true, completion: nil)
+    }
+    
+    class func alertMessageWithAction(_ userTitle: String, userMessage: String, left: String, right: String, leftAction: ((UIAlertAction) -> Void)?, rightAction: ((UIAlertAction) -> Void)?, sender: AnyObject)
+    {
+        let myAlert = UIAlertController(title: userTitle, message: userMessage, preferredStyle: UIAlertControllerStyle.alert)
+        
+        myAlert.addAction(UIAlertAction(title: left, style: .cancel, handler: leftAction))
+        
+        myAlert.addAction(UIAlertAction(title: right, style: .destructive, handler: rightAction))
+        sender.present(myAlert, animated: true, completion: nil)
     }
 }

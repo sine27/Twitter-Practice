@@ -58,13 +58,13 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     
     let client = TwitterClient.sharedInstance!
     
-    var tweet : TweetModel! {
+    var tweet: TweetModel! {
         didSet {
             updateUIWithTweetDetails()
         }
     }
     
-    var userName : String?
+    var userTweetForRetweet: TweetModel?
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -96,22 +96,25 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     }
     
     func setupCell () {
-        userName = nil
+
+        userTweetForRetweet = nil
+        
         contentImage.isHidden = true
-        retweetStack.isHidden = true
         stackToContentImage.constant = 5
         contentImageHeight.constant = 0
+        
+        retweetStack.isHidden = true
         retweetLabelHeight.constant = 0
         avatarToRetweeted.constant = 5
     }
     
     private func updateUIWithTweetDetails () {
         
-        if userName != nil {
-            if userName == (UserModel.currentUser!.name) {
+        if let username = userTweetForRetweet?.user?.name {
+            if username == (UserModel.currentUser!.name) {
                 retweetLabel.text = " You Retweeted"
             } else {
-                retweetLabel.text = " \(userName!) Retweeted"
+                retweetLabel.text = " \(username) Retweeted"
             }
             avatarToRetweeted.constant = 5
             retweetLabelHeight.constant = 20
@@ -218,19 +221,11 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
         
         numReplyLabel.setTitle("", for: .normal)
         
-        if let numRetweet = tweet?.retweetCount, numRetweet > 0 {
-            numRetwitteLabel.setTitle(numRetweet.displayCountWithFormat(), for: .normal)
-        } else {
-            numRetwitteLabel.setTitle("", for: .normal)
-        }
-        
-        if let numFavorite = tweet?.favoriteCount, numFavorite > 0 {
-            numFavoriteLabel.setTitle(numFavorite.displayCountWithFormat(), for: .normal)
-        } else {
-            numFavoriteLabel.setTitle("", for: .normal)
-        }
+        numRetwitteLabel.setTitle(self.tweet.retweetCount?.displayCountWithFormat(), for: .normal)
+        numFavoriteLabel.setTitle(self.tweet.favoriteCount?.displayCountWithFormat(), for: .normal)
     }
     
+    /// detect link only
     func isLinkTapped (sender: UITapGestureRecognizer) {
         print("Tapped")
     }
@@ -250,33 +245,85 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     @IBAction func retweetTapped(_ sender: UIButton) {
         var endpoint : String?
         
+        // pop up menu
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        reTwitteButton.isUserInteractionEnabled = false
+        numRetwitteLabel.isUserInteractionEnabled = false
+        
+        let tweetid = tweet.id!
+        var title = "Retweet"
+        var style = UIAlertActionStyle.default
+        
         if tweet.isUserRetweeted! {
-            endpoint = TwitterClient.APIScheme.RetweetStatusEndpoint
-        } else {
+            title = "Unretweet"
+            style = UIAlertActionStyle.destructive
             endpoint = TwitterClient.APIScheme.UnretweetStatusEndpoint
+        } else {
+            endpoint = TwitterClient.APIScheme.RetweetStatusEndpoint
+        }
+
+        if let range = endpoint?.range(of: ":id") {
+            endpoint = endpoint?.replacingCharacters(in: range, with: "\(tweetid)")
         }
         
-        client.postRequest(endpoint: endpoint!, parameters: ["id" : tweet.id!], completion: { (response, error) in
+        let retweetAction = UIAlertAction(title: title, style: style) { (action) in
             
-            if let error = error {
-                print("favorite: Error >>> \(error.localizedDescription)")
-            } else {
-                print("favorite: success")
+            self.reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon-blue"), for: .normal)
+            self.numRetwitteLabel.setButtonTitleColor(option: .blue)
+            
+            self.client.post(endpoint!, parameters: nil, progress: nil, success: { (task, response) in
+                print("retweet: success")
+                
+                var count = self.tweet.retweetCount!
+                
                 if self.tweet.isUserRetweeted! {
-                    self.reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon-dark"), for: .normal)
+                    self.reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon"), for: .normal)
                     self.numRetwitteLabel.setButtonTitleColor(option: .gray)
+                    count -= 1
                     self.tweet.isUserRetweeted = false
                 } else {
                     self.reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon-green"), for: .normal)
                     self.numRetwitteLabel.setButtonTitleColor(option: .green)
                     self.tweet.isUserRetweeted = true
+                    count += 1
                 }
+                self.tweet.retweetCount = count
+                
+                self.numRetwitteLabel.setTitle((count as Int).displayCountWithFormat(), for: .normal)
+            }) { (task, error) in
+                print(error)
+                print("retweet: Error >>> \(error.localizedDescription)")
+                self.reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon-yellow"), for: .normal)
+                self.numRetwitteLabel.setButtonTitleColor(option: .yellow)
             }
-        })
+        }
+        alertController.addAction(retweetAction)
+        
+        if !tweet.isUserRetweeted! {
+            let quoteTweetAction = UIAlertAction(title: "Quote Tweet(Unavailable)", style: .default) { (action) in
+                /// handle case of quote tweet
+            }
+            alertController.addAction(quoteTweetAction)
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        alertController.addAction(cancelAction)
+        
+        UIApplication.shared.keyWindow?.rootViewController?.present(alertController, animated: true, completion: nil)
+        
+        reTwitteButton.isUserInteractionEnabled = true
+        numRetwitteLabel.isUserInteractionEnabled = true
     }
     
     @IBAction func favoritedTapped(_ sender: UIButton) {
         var endpoint : String?
+        
+        favoriteButton.isUserInteractionEnabled = false
+        numFavoriteLabel.isUserInteractionEnabled = false
+        
+        favoriteButton.setImage(#imageLiteral(resourceName: "favorited-icon-blue"), for: .normal)
+        numFavoriteLabel.setButtonTitleColor(option: .blue)
         
         if tweet.isUserFavorited! {
             endpoint = TwitterClient.APIScheme.FavoriteDestroyEndpoint
@@ -284,23 +331,34 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
             endpoint = TwitterClient.APIScheme.FavoriteCreateEndpoint
         }
         
-        client.postRequest(endpoint: endpoint!, parameters: ["id" : tweet.id!], completion: { (response, error) in
+        client.post(endpoint!, parameters: ["id" : tweet.id!], progress: nil, success: { (task, response) in
+            print("retweet: success")
             
-            if let error = error {
-                print("retweet: Error >>> \(error.localizedDescription)")
+            var count = self.tweet.favoriteCount!
+            
+            if self.tweet.isUserFavorited! {
+                self.favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)
+                self.numFavoriteLabel.setButtonTitleColor(option: .gray)
+                self.tweet.isUserFavorited = false
+                count -= 1
             } else {
-                print("retweet: success")
-                if self.tweet.isUserFavorited! {
-                    self.favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)
-                    self.numFavoriteLabel.setButtonTitleColor(option: .gray)
-                    self.tweet.isUserFavorited = false
-                } else {
-                    self.favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon-red"), for: .normal)
-                    self.numFavoriteLabel.setButtonTitleColor(option: .red)
-                    self.tweet.isUserFavorited = true
-                }
+                self.favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon-red"), for: .normal)
+                self.numFavoriteLabel.setButtonTitleColor(option: .red)
+                self.tweet.isUserFavorited = true
+                count += 1
             }
-        })
+            
+            self.tweet.favoriteCount = count
+            
+            self.numFavoriteLabel.setTitle((count as Int).displayCountWithFormat(), for: .normal)
+        }) { (task, error) in
+            print("retweet: Error >>> \(error.localizedDescription)")
+            self.favoriteButton.setImage(#imageLiteral(resourceName: "favorited-icon-yellow"), for: .normal)
+            self.numFavoriteLabel.setButtonTitleColor(option: .yellow)
+        }
+        
+        favoriteButton.isUserInteractionEnabled = true
+        numFavoriteLabel.isUserInteractionEnabled = true
     }
 
     @IBAction func messageTapped(_ sender: UIButton) {

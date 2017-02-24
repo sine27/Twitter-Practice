@@ -115,16 +115,6 @@ class TwitterClient: BDBOAuth1SessionManager {
         }
     }
     
-    func postRequest (endpoint: String, parameters: Any?, completion: @escaping ([NSDictionary]?, Error?) -> ()) {
-        if let client = TwitterClient.sharedInstance {
-            client.post(endpoint, parameters: parameters, progress: nil, success: { (task, response) in
-                completion(response as? [NSDictionary] ?? [], nil)
-            }, failure: { (task, error) in
-                completion(nil, error)
-            })
-        }
-    }
-    
     func logout () {
         UserModel.currentUser = nil
         deauthorize()

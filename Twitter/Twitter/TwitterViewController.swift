@@ -13,7 +13,7 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     @IBOutlet weak var twitterTableView: UITableView!
     
-    var tweets: [NSDictionary] = []
+    var tweets: [TweetModel] = []
     
     var uiHelper = UIhelper()
     
@@ -69,7 +69,10 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
                     self.twitterTableView.es_stopPullToRefresh()
                 }
                 else if let dictionary = dictionary {
-                    self.tweets = dictionary
+                    
+                    for tweet in dictionary {
+                        self.tweets.append(TweetModel(dictionary: tweet))
+                    }
                     
                     self.uiHelper.stopActivityIndicator()
                     UIView.animate(withDuration: 1.0, animations: {
@@ -88,21 +91,19 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         let tweet = tweets[indexPath.row]
         
-        let tweetmodel = TweetModel(dictionary: tweet)
-        
-        if tweetmodel.isUserRetweeted! == true {
+        if tweet.isUserRetweeted! == true {
             cell.reTwitteButton.imageView?.image = #imageLiteral(resourceName: "retweet-icon-green")
         } else {
             cell.reTwitteButton.imageView?.image = #imageLiteral(resourceName: "retweet-icon")
         }
         
-        if tweetmodel.isUserFavorited! == true {
+        if tweet.isUserFavorited! == true {
             cell.favoriteButton.imageView?.image = #imageLiteral(resourceName: "favor-icon-red")
         } else {
             cell.favoriteButton.imageView?.image = #imageLiteral(resourceName: "favor-icon")
         }
         
-        if let timeCreated = tweetmodel.createdAt {
+        if let timeCreated = tweet.createdAt {
             let now = Date()
             let difference = now.offset(from: timeCreated)
             cell.timeCreateLabel.text = difference
@@ -110,11 +111,11 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
             cell.timeCreateLabel.text = "unkown"
         }
         
-        if let retweeted_status = tweetmodel.retweeted_status {
-            cell.userName = tweetmodel.user?.name
+        if let retweeted_status = tweet.retweeted_status {
+            cell.userTweetForRetweet = tweet
             cell.tweet = retweeted_status
         } else {
-            cell.tweet = tweetmodel
+            cell.tweet = tweet
         }
         
         return cell
@@ -131,18 +132,11 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
 
     @IBAction func logoutTapped(_ sender: Any) {
         
-        let myAlert = UIAlertController(title: "Log Out", message: "Are you sure to logout?", preferredStyle: UIAlertControllerStyle.alert)
-        
-        myAlert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (action: UIAlertAction!) in
-            myAlert .dismiss(animated: true, completion: nil)
-        }))
-        
-        myAlert.addAction(UIAlertAction(title: "Logout", style: .destructive, handler: { (action: UIAlertAction!) in
+        UIhelper.alertMessageWithAction("Log Out", userMessage: "Are you sure to logout?", left: "Cancel", right: "Logout", leftAction: nil, rightAction: { (action) in
             if let client = TwitterClient.sharedInstance {
                 client.logout()
             }
-        }))
-        present(myAlert, animated: true, completion: nil)
+        }, sender: self)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -152,7 +146,6 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
             let indexPath = twitterTableView.indexPathForSelectedRow
             if let index = indexPath {
                 print(self.tweets[index.row])
-                vc.tweet = TweetModel(dictionary: self.tweets[index.row])
             }
         }
 

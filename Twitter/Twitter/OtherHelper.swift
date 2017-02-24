@@ -56,13 +56,18 @@ struct Number {
 extension Int {
     func displayCountWithFormat () -> String {
         var newNum = 0.0
+        if self == 0 {
+            return ""
+        }
         if self >= 10000, self < 1000000 {
             newNum = Double(self) / 1000
             return "\(Number.withSeparator.string(from: NSNumber(value: (round(newNum * 10) / 10))) ?? "")K"
-        } else if self >= 1000000, self < 1000000000 {
+        }
+        if self >= 1000000, self < 1000000000 {
             newNum = Double(self) / 1000000
             return "\(Number.withSeparator.string(from: NSNumber(value: (round(newNum * 10) / 10))) ?? "")M"
-        } else if self >= 1000000000 {
+        }
+        if self >= 1000000000 {
             newNum = Double(self) / 1000000000
             return "\(Number.withSeparator.string(from: NSNumber(value: (round(newNum * 10) / 10))) ?? "")B"
         }

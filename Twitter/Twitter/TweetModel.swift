@@ -70,7 +70,7 @@ class TweetModel: NSObject {
         if let retweetCount = dictionary["retweet_count"] as? Int {
             self.retweetCount = retweetCount
         } else {
-            self.retweetCount = nil
+            self.retweetCount = 0
         }
         
         if let isUserRetweeted = dictionary["retweeted"] as? Bool {
@@ -82,7 +82,7 @@ class TweetModel: NSObject {
         if let favoriteCount = dictionary["favorite_count"] as? Int {
             self.favoriteCount = favoriteCount
         } else {
-            self.favoriteCount = nil
+            self.favoriteCount = 0
         }
         
         if let isUserFavorited = dictionary["favorited"] as? Bool {
