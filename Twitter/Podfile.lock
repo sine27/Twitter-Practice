@@ -1,4 +1,5 @@
 PODS:
+  - ActiveLabel (0.7.1)
   - AFNetworking (3.0.0):
     - AFNetworking/NSURLSession (= 3.0.0)
     - AFNetworking/Reachability (= 3.0.0)
@@ -16,21 +17,20 @@ PODS:
     - AFNetworking/NSURLSession
   - BDBOAuth1Manager (2.0.0):
     - AFNetworking/NSURLSession (~> 3.0.0)
-  - CCHLinkTextView (1.2.0)
   - ESPullToRefresh (2.6)
 
 DEPENDENCIES:
+  - ActiveLabel
   - AFNetworking
   - BDBOAuth1Manager
-  - CCHLinkTextView
   - ESPullToRefresh
 
 SPEC CHECKSUMS:
+  ActiveLabel: 68625f22775f51c31bb691ca8de20f1e5a3bc825
   AFNetworking: 932ff751f9d6fb1dad0b3af58b7e3ffba0a4e7fd
   BDBOAuth1Manager: 92d17d06f8a648602962304cd2f35ae7394fa001
-  CCHLinkTextView: bfe688e0b7d34088375a466524158765832f7657
   ESPullToRefresh: 85f4990acf87f78c6a1466bbbee7a75d7de24db9
 
-PODFILE CHECKSUM: 2c885e0f007ae3a750bcf75bb732381aeb635658
+PODFILE CHECKSUM: 58d17a43e1dba6bdd2898c9a19fc5b2789c951e9
 
 COCOAPODS: 1.1.1

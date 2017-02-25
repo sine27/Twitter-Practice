@@ -216,7 +216,7 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
             
             let indexPath = twitterTableView.indexPathForSelectedRow
             if let index = indexPath {
-                print(self.tweets[index.row])
+                print(self.tweets[index.row].dictionary ?? "[]")
             }
         }
         // popover segue

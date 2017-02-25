@@ -1,6 +1,0 @@
-framework module CCHLinkTextView {
-  umbrella header "CCHLinkTextView-umbrella.h"
-
-  export *
-  module * { export * }
-}

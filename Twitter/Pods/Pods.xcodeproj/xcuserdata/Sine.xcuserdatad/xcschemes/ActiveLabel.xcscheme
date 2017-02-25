@@ -14,10 +14,10 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = 'primary'
-               BlueprintIdentifier = 'FF75326923404303C5B6B819F62DDED8'
-               BlueprintName = 'CCHLinkTextView'
+               BlueprintIdentifier = 'A1EBDD3BC77EFE921F5EFB115E0E3B3D'
+               BlueprintName = 'ActiveLabel'
                ReferencedContainer = 'container:Pods.xcodeproj'
-               BuildableName = 'CCHLinkTextView.framework'>
+               BuildableName = 'ActiveLabel.framework'>
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>

@@ -104,6 +104,7 @@ class PostViewController: UIViewController, UITextViewDelegate {
             placeholderLabel.isHidden = true
             wordCountLabel.text = "\(140 - data.characters.count)"
             tweetButton.isEnabled = true
+            buttonColorChange(hidden: false)
         }
         
         avatarImage.image = #imageLiteral(resourceName: "noImage")

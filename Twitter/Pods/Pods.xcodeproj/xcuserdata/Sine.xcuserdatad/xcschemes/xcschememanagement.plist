@@ -9,12 +9,12 @@
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>BDBOAuth1Manager.xcscheme</key>
+		<key>ActiveLabel.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
 		</dict>
-		<key>CCHLinkTextView.xcscheme</key>
+		<key>BDBOAuth1Manager.xcscheme</key>
 		<dict>
 			<key>isShown</key>
 			<false/>
@@ -62,12 +62,17 @@
 			<key>primary</key>
 			<true/>
 		</dict>
+		<key>19971EF75D8D9AD4E32ECEAAA0D04F59</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>83D04EDAE5838FE3657C87DD12181688</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
-		<key>C99E0908D06190E22297425CCE3B3F81</key>
+		<key>A1EBDD3BC77EFE921F5EFB115E0E3B3D</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -78,11 +83,6 @@
 			<true/>
 		</dict>
 		<key>DD08B071644C635261E151819F7F6FA8</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>FF75326923404303C5B6B819F62DDED8</key>
 		<dict>
 			<key>primary</key>
 			<true/>

@@ -62,9 +62,7 @@ class TwitterClient: BDBOAuth1SessionManager {
                     
                     // switch out of the app
                     let url = URL(string: "https://api.twitter.com/oauth/authorize?oauth_token=\(token)")!
-                    
-                    UIApplication.shared.openURL(url)
-
+                    UIApplication.shared.open(url)
                 }
                 
             }, failure: { (error) in

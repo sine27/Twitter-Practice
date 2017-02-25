@@ -8,6 +8,7 @@
 
 import UIKit
 import AFNetworking
+import ActiveLabel
 
 class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     
@@ -22,7 +23,7 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     @IBOutlet weak var menuButton: UIButton!
     
     // @IBOutlet weak var contentLabel: UITextView!
-    @IBOutlet weak var contentLabel: UITextView!
+    @IBOutlet weak var contentLabel: ActiveLabel!
     
     @IBOutlet weak var replyButton: UIButton!
     
@@ -76,13 +77,25 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
         userAvatar.layer.masksToBounds = true
         userAvatar.layer.cornerRadius = 5
         userAvatar.image = UIImage(named: "noImage")
-        contentLabel.delegate = self
         contentImage.layer.masksToBounds = true
         contentImage.layer.cornerRadius = 5
         reTwitteButton.isEnabled = true
         numRetwitteLabel.isEnabled = true
         favoriteButton.isEnabled = true
         numFavoriteLabel.isEnabled = true
+
+        contentLabel.customize { contentLabel in
+            
+            contentLabel.handleHashtagTap { hashtag in
+                print("Success. You just tapped the \(hashtag) hashtag")
+            }
+            contentLabel.handleURLTap { (url) in
+                print("Success. You just tapped the \(url) url")
+            }
+            contentLabel.handleMentionTap { (mention) in
+                print("Success. You just tapped the \(mention) mention")
+            }
+        }
         
         setupCell()
     }
@@ -161,30 +174,9 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
             screenNameLabel.text = ""
         }
         
-        if let contentString = tweet?.text {
-            
-            var attributedString = NSMutableAttributedString(string: contentString)
-            
-            var newContentString = ""
+        if var contentString = tweet?.text {
             
             var tmpContentString = contentString
-            
-            if let urls = tweet.urls {
-                for item in urls {
-                    if let urlDictionary = item as? NSDictionary {
-                        let display_url = urlDictionary["display_url"] as! String
-                        let url = urlDictionary["url"] as! String
-                        
-                        // find the range in contentString where contains url
-                        if let range = tmpContentString.range(of: url) {
-                            // replace url to displayed url
-                            newContentString = tmpContentString.replacingCharacters(in: range, with: display_url)
-                            // reset attributedString with displayed url
-                            tmpContentString = newContentString
-                        }
-                    }
-                }
-            }
             
             if let media = tweet.media {
                 if let mediaDictionary = media[0] as? NSDictionary {
@@ -194,9 +186,9 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
                     let type = mediaDictionary["type"] as! String
                     if type == "photo" {
                         if let range = tmpContentString.range(of: display_url) {
-                            newContentString = tmpContentString.replacingCharacters(in: range, with: "")
+                            tmpContentString = contentString.replacingCharacters(in: range, with: "")
                             // reset attributedString with displayed url
-                            tmpContentString = newContentString
+                            contentString = tmpContentString
                         }
                         contentImage.isHidden = false
                         contentImage.alpha = 1.0
@@ -212,17 +204,37 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
                     }
                 }
             }
-            attributedString = NSMutableAttributedString(string: tmpContentString)
-            // *** Create instance of `NSMutableParagraphStyle`
-            let paragraphStyle = NSMutableParagraphStyle()
-            // *** set LineSpacing property in points ***
-            paragraphStyle.lineSpacing = 2
-            // *** Apply attribute to string ***
-            attributedString.addAttribute(NSParagraphStyleAttributeName, value:paragraphStyle, range:NSMakeRange(0, attributedString.length))
-            // set the font size
-            attributedString.addAttribute(NSFontAttributeName, value: UIFont.systemFont(ofSize: 14), range: NSMakeRange(0, attributedString.length))
-            // set contentLabel
-            contentLabel.attributedText = attributedString
+            
+            if let urls = tweet.urls {
+                for item in urls {
+                    if let urlDictionary = item as? NSDictionary {
+                        let display_url = urlDictionary["display_url"] as! String
+                        let url = urlDictionary["url"] as! String
+                        
+                        let urlPattern = display_url
+                        let urlType = ActiveType.custom(pattern: urlPattern)
+                        contentLabel.enabledTypes.append(urlType)
+                        
+                        contentLabel.customColor[urlType] = UIhelper.UIColorOption.twitterBlue
+                        contentLabel.customSelectedColor[urlType] = UIhelper.UIColorOption.twitterGray
+                        
+                        contentLabel.handleCustomTap(for: urlType, handler: { (urlString) in
+                            print(url)
+                            UIApplication.shared.open(URL(string: url)!)
+                        })
+                        
+                        // find the range in contentString where contains url
+                        if let range = tmpContentString.range(of: url) {
+                            // replace url to displayed url
+                            tmpContentString = contentString.replacingCharacters(in: range, with: display_url)
+                            // reset attributedString with displayed url
+                            contentString = tmpContentString
+                            
+                        }
+                    }
+                }
+            }
+            contentLabel.text = contentString
         } else {
             contentLabel.text = ""
         }
@@ -378,19 +390,21 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
         
         let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { (action) in
             
-            var endpoint = TwitterClient.APIScheme.TweetStatusDestroyEndpoint
-            if let range = endpoint.range(of: ":id") {
-                endpoint = endpoint.replacingCharacters(in: range, with: "\(self.tweet.id!)")
-            }
-            
-            self.client.post(endpoint, parameters: nil, progress: nil, success: { (task, response) in
-                print("Delete tweet: Success")
+            UIhelper.alertMessageWithAction("Delete Tweet", userMessage: "Are you sure you want to delete this Tweet?", left: "Cancel", right: "Delete", leftAction: nil, rightAction: { (action) in
+                var endpoint = TwitterClient.APIScheme.TweetStatusDestroyEndpoint
+                if let range = endpoint.range(of: ":id") {
+                    endpoint = endpoint.replacingCharacters(in: range, with: "\(self.tweet.id!)")
+                }
                 
-                self.delegate?.removeCell(index: self.index)
-                
-            }, failure: { (task, error) in
-                print("\(error.localizedDescription)")
-            })
+                self.client.post(endpoint, parameters: nil, progress: nil, success: { (task, response) in
+                    print("Delete tweet: Success")
+                    
+                    self.delegate?.removeCell(index: self.index)
+                    
+                }, failure: { (task, error) in
+                    print("\(error.localizedDescription)")
+                })
+            }, sender: (UIApplication.shared.keyWindow?.rootViewController)!)
         }
         if tweet.user?.id == UserModel.currentUser?.id {
             alertController.addAction(deleteAction)

@@ -85,13 +85,13 @@ strip_invalid_archs() {
 
 if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework "$BUILT_PRODUCTS_DIR/AFNetworking/AFNetworking.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/ActiveLabel/ActiveLabel.framework"
   install_framework "$BUILT_PRODUCTS_DIR/BDBOAuth1Manager/BDBOAuth1Manager.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/CCHLinkTextView/CCHLinkTextView.framework"
   install_framework "$BUILT_PRODUCTS_DIR/ESPullToRefresh/ESPullToRefresh.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "$BUILT_PRODUCTS_DIR/AFNetworking/AFNetworking.framework"
+  install_framework "$BUILT_PRODUCTS_DIR/ActiveLabel/ActiveLabel.framework"
   install_framework "$BUILT_PRODUCTS_DIR/BDBOAuth1Manager/BDBOAuth1Manager.framework"
-  install_framework "$BUILT_PRODUCTS_DIR/CCHLinkTextView/CCHLinkTextView.framework"
   install_framework "$BUILT_PRODUCTS_DIR/ESPullToRefresh/ESPullToRefresh.framework"
 fi
