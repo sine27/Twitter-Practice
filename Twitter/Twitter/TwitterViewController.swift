@@ -9,15 +9,20 @@
 import UIKit
 import ESPullToRefresh
 
-class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPopoverPresentationControllerDelegate, SubviewViewControllerDelegate {
     
     @IBOutlet weak var twitterTableView: UITableView!
+    
+    var max_id = -1
+    
+    var since_id = -1
     
     var tweets: [TweetModel] = []
     
     var uiHelper = UIhelper()
     
-
+    var parameters: Any?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -44,12 +49,28 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         twitterTableView.estimatedRowHeight = 80
         
         twitterTableView.es_addPullToRefresh {
-            self.requestData()
+            if self.since_id == -1 {
+                self.parameters = ["count": 20]
+            } else {
+                self.parameters = ["since_id": self.since_id, "count": 5]
+            }
+            self.requestData(parameters: self.parameters, type: 0)
+        }
+        
+        twitterTableView.es_addInfiniteScrolling {
+            if self.max_id == -1 {
+                self.twitterTableView.es_noticeNoMoreData()
+            } else {
+                self.parameters = ["max_id": self.max_id, "count": 10]
+                self.requestData(parameters: self.parameters, type: 1)
+            }
         }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.0) {
             self.twitterTableView.es_startPullToRefresh()
         }
+        
+        // Timer.scheduledTimer(timeInterval: 60, target: self, selector: #selector(TwitterViewController.onTimer), userInfo: nil, repeats: true)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -60,29 +81,75 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
     
-    func requestData () {
+    func onTimer() {
+        // Add code to be run periodically
+        // requestData(parameters: parameters, type: 2)
+        if tweets.count != 0 {
+            let offset = self.twitterTableView.contentOffset
+            twitterTableView.reloadData()
+            twitterTableView.layoutIfNeeded()
+            twitterTableView.contentOffset = offset
+        }
+    }
+    
+    func requestData (parameters: Any?, type: Int) {
+        
         if let client = TwitterClient.sharedInstance {
-            client.fetchTimelineData(endpoint: TwitterClient.APIScheme.HomeTimelineEndpoint, parameters: nil) { (dictionary, error) in
-                if let error = error {
-                    print("FetchTimelineData: Error >>> \(error.localizedDescription)")
-                    self.uiHelper.stopActivityIndicator()
-                    self.twitterTableView.es_stopPullToRefresh()
+            client.get(TwitterClient.APIScheme.HomeTimelineEndpoint, parameters: parameters, progress: nil, success: { (task, response) in
+
+                let dictionary = response as! [NSDictionary]
+        
+                var tweetsTmp: [TweetModel] = []
+                for tweet in dictionary {
+                    tweetsTmp.append(TweetModel(dictionary: tweet))
                 }
-                else if let dictionary = dictionary {
+                
+                if type == 0 {
+                    self.tweets = tweetsTmp + self.tweets
                     
-                    for tweet in dictionary {
-                        self.tweets.append(TweetModel(dictionary: tweet))
-                    }
-                    
-                    self.uiHelper.stopActivityIndicator()
-                    UIView.animate(withDuration: 1.0, animations: {
-                        self.twitterTableView.alpha = 1
-                    })
+                    self.since_id = self.tweets[0].id!
+                    self.max_id = self.tweets[self.tweets.count - 1].id!
                     
                     self.twitterTableView.reloadData()
                     self.twitterTableView.es_stopPullToRefresh()
                 }
-            }
+                else if type == 1 {
+                    
+                    tweetsTmp.remove(at: 0)
+                    
+                    self.tweets += tweetsTmp
+                    
+                    self.max_id = self.tweets[self.tweets.count - 1].id!
+                    self.twitterTableView.reloadData()
+                    self.twitterTableView.es_stopLoadingMore()
+                }
+                else if type == 2 {
+                    self.tweets = tweetsTmp + self.tweets
+                    
+                    self.since_id = self.tweets[0].id!
+                    self.max_id = self.tweets[self.tweets.count - 1].id!
+                    
+                    let offset = self.twitterTableView.contentOffset
+                    self.twitterTableView.reloadData()
+                    self.twitterTableView.layoutIfNeeded()
+                    self.twitterTableView.contentOffset = offset
+                }
+                
+                self.uiHelper.stopActivityIndicator()
+                UIView.animate(withDuration: 1.0, animations: {
+                    self.twitterTableView.alpha = 1
+                })
+            }, failure: { (task, error) in
+                UIhelper.alertMessage("Request", userMessage: error.localizedDescription, action: nil, sender: self)
+                print("FetchTimelineData: Error >>> \(error.localizedDescription)")
+                self.uiHelper.stopActivityIndicator()
+                
+                if type == 0 {
+                    self.twitterTableView.es_stopPullToRefresh()
+                } else if type == 1 {
+                    self.twitterTableView.es_stopLoadingMore()
+                }
+            })
         }
     }
     
@@ -118,6 +185,10 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
             cell.tweet = tweet
         }
         
+        cell.index = indexPath
+        
+        cell.delegate = self
+        
         return cell
     }
     
@@ -148,6 +219,26 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
                 print(self.tweets[index.row])
             }
         }
-
+        // popover segue
+        if segue.identifier == "popoverSegue" {
+            let popoverViewController = segue.destination as! PostViewController
+            popoverViewController.delegate = self
+            popoverViewController.popoverPresentationController?.delegate = self
+        }
+    }
+    
+    func getNewTweet(data: TweetModel) {
+        // print(data.dictionary)
+        requestData(parameters: ["since_id": since_id], type: 2)
+    }
+    
+    func removeCell(index: IndexPath) {
+        print("herrrr")
+        tweets.remove(at: index.row)
+        twitterTableView.deleteRows(at: [index], with: .fade)
+    }
+    
+    func showAlter(alertController: UIAlertController) {
+        self.present(alertController, animated: true, completion: nil)
     }
 }

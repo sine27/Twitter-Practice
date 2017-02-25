@@ -8,6 +8,12 @@
 
 import UIKit
 
+protocol SubviewViewControllerDelegate {
+    func getNewTweet(data: TweetModel)
+    func removeCell(index: IndexPath)
+    func showAlter(alertController: UIAlertController)
+}
+
 extension Date {
 
     // Returns the amount of days from another date

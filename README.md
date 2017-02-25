@@ -5,6 +5,7 @@
 Time spent: 
 
 **15** howrs spent in version 1.1
+**10** howrs spent in version 1.2
 
 **15** hours spent in total
 
@@ -20,8 +21,8 @@ The following **required** functionality is completed:
 
 The following **optional** features are implemented:
 
-- [ ] User can load more tweets once they reach the bottom of the feed using infinite loading similar to the actual Twitter client.
-- [ ] User should be able to unretweet and unfavorite and should decrement the retweet and favorite count.
+- [x] User can load more tweets once they reach the bottom of the feed using infinite loading similar to the actual Twitter client.
+- [x] User should be able to unretweet and unfavorite and should decrement the retweet and favorite count.
 - [x] User can pull to refresh.
 
 The following **additional** features are implemented:
@@ -30,14 +31,19 @@ The following **additional** features are implemented:
 - [x] User can open url in text view
 - [x] User can view image in the content
 - [x] User can see the alert before logout
+- [x] User is able to tweet
+- [x] User is able to delete tweet status
+- [x] User is able to load newest data by pull to refresh
+- [x] Time intervals since created are refreshed every 60 seconds or when timeline request sent
+- [x] Show yellow button when retweet or favorite failed
 
 ## Video Walkthrough 
 
 Here's a walkthrough of implemented user stories:
 
-version 1.1 homeline view | 
+version 1.1 homeline view | version 1.2 button action & tweet
 :-------------------------:|:-------------------------:
-<img src='https://github.com/sine27/Twitter/blob/master/demo/version1_1.gif' width='270' alt='Video Walkthrough' /> | 
+<img src='https://github.com/sine27/Twitter/blob/master/demo/version1_1.gif' width='270' alt='Video Walkthrough' /> | <img src='https://github.com/sine27/Twitter/blob/master/demo/version1_2.gif' width='270' alt='Video Walkthrough' />
 
 ## Notes
 
@@ -45,7 +51,7 @@ Describe any challenges encountered while building the app.
 
 ## License
 
-    Copyright [yyyy] [name of copyright owner]
+    Copyright [2017] [Shayin Feng]
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

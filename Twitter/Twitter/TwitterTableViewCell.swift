@@ -56,7 +56,11 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     
     var tapGesture = UITapGestureRecognizer()
     
+    var delegate: SubviewViewControllerDelegate?
+    
     let client = TwitterClient.sharedInstance!
+    
+    var index: IndexPath!
     
     var tweet: TweetModel! {
         didSet {
@@ -75,6 +79,10 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
         contentLabel.delegate = self
         contentImage.layer.masksToBounds = true
         contentImage.layer.cornerRadius = 5
+        reTwitteButton.isEnabled = true
+        numRetwitteLabel.isEnabled = true
+        favoriteButton.isEnabled = true
+        numFavoriteLabel.isEnabled = true
         
         setupCell()
     }
@@ -100,7 +108,7 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
         userTweetForRetweet = nil
         
         contentImage.isHidden = true
-        stackToContentImage.constant = 5
+        stackToContentImage.constant = 0
         contentImageHeight.constant = 0
         
         retweetStack.isHidden = true
@@ -248,8 +256,8 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
         // pop up menu
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
-        reTwitteButton.isUserInteractionEnabled = false
-        numRetwitteLabel.isUserInteractionEnabled = false
+        reTwitteButton.isEnabled = false
+        numRetwitteLabel.isEnabled = false
         
         let tweetid = tweet.id!
         var title = "Retweet"
@@ -310,17 +318,17 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
         let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
         alertController.addAction(cancelAction)
         
-        UIApplication.shared.keyWindow?.rootViewController?.present(alertController, animated: true, completion: nil)
+        reTwitteButton.isEnabled = true
+        numRetwitteLabel.isEnabled = true
         
-        reTwitteButton.isUserInteractionEnabled = true
-        numRetwitteLabel.isUserInteractionEnabled = true
+        self.delegate?.showAlter(alertController: alertController)
     }
     
     @IBAction func favoritedTapped(_ sender: UIButton) {
         var endpoint : String?
         
-        favoriteButton.isUserInteractionEnabled = false
-        numFavoriteLabel.isUserInteractionEnabled = false
+        favoriteButton.isEnabled = false
+        numFavoriteLabel.isEnabled = false
         
         favoriteButton.setImage(#imageLiteral(resourceName: "favorited-icon-blue"), for: .normal)
         numFavoriteLabel.setButtonTitleColor(option: .blue)
@@ -357,12 +365,41 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
             self.numFavoriteLabel.setButtonTitleColor(option: .yellow)
         }
         
-        favoriteButton.isUserInteractionEnabled = true
-        numFavoriteLabel.isUserInteractionEnabled = true
+        favoriteButton.isEnabled = true
+        numFavoriteLabel.isEnabled = true
     }
 
     @IBAction func messageTapped(_ sender: UIButton) {
         
+    }
+    
+    @IBAction func menuButtonTapped(_ sender: UIButton) {
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { (action) in
+            
+            var endpoint = TwitterClient.APIScheme.TweetStatusDestroyEndpoint
+            if let range = endpoint.range(of: ":id") {
+                endpoint = endpoint.replacingCharacters(in: range, with: "\(self.tweet.id!)")
+            }
+            
+            self.client.post(endpoint, parameters: nil, progress: nil, success: { (task, response) in
+                print("Delete tweet: Success")
+                
+                self.delegate?.removeCell(index: self.index)
+                
+            }, failure: { (task, error) in
+                print("\(error.localizedDescription)")
+            })
+        }
+        if tweet.user?.id == UserModel.currentUser?.id {
+            alertController.addAction(deleteAction)
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        alertController.addAction(cancelAction)
+        
+        self.delegate?.showAlter(alertController: alertController)
     }
     
 }

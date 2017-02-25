@@ -19,10 +19,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         
+        // custom tab bar
+        let tabvc = storyboard.instantiateViewController(withIdentifier: "TabBarController") as! UITabBarController
+        tabvc.tabBar.barTintColor = UIColor.white
+        tabvc.tabBar.tintColor = UIhelper.UIColorOption.twitterBlue
+        UITabBarItem.appearance().titlePositionAdjustment = UIOffset(horizontal: 0, vertical: -2)
+        
         if UserModel.currentUser != nil {
             print("Has Current User")
-            let vc = storyboard.instantiateViewController(withIdentifier: "TabBarController")
-            self.window?.rootViewController = vc
+            self.window?.rootViewController = tabvc
         } else {
             print("No Current User")
         }

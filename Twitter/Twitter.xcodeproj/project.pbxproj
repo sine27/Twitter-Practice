@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		09BB39B54D1928426F31CF2D /* Pods_TwitterUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F00120A2A73FD1DC7CD5D637 /* Pods_TwitterUITests.framework */; };
+		255A8D581E610DC5007EC213 /* PostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 255A8D571E610DC5007EC213 /* PostViewController.swift */; };
 		25A604691E5E33FA009AF0DF /* TweetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25A604681E5E33FA009AF0DF /* TweetViewController.swift */; };
 		25DE11111E5BCAE50032FEE2 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25DE11101E5BCAE50032FEE2 /* AppDelegate.swift */; };
 		25DE11161E5BCAE50032FEE2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 25DE11141E5BCAE50032FEE2 /* Main.storyboard */; };
@@ -46,6 +47,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		255A8D571E610DC5007EC213 /* PostViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PostViewController.swift; sourceTree = "<group>"; };
 		25A604681E5E33FA009AF0DF /* TweetViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TweetViewController.swift; sourceTree = "<group>"; };
 		25DE110D1E5BCAE50032FEE2 /* Twitter.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Twitter.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		25DE11101E5BCAE50032FEE2 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -167,6 +169,7 @@
 				25DE11531E5C1AA40032FEE2 /* TwitterViewController.swift */,
 				25DE11551E5C247E0032FEE2 /* ProfileViewController.swift */,
 				25A604681E5E33FA009AF0DF /* TweetViewController.swift */,
+				255A8D571E610DC5007EC213 /* PostViewController.swift */,
 			);
 			name = "View Controller";
 			sourceTree = "<group>";
@@ -524,6 +527,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				255A8D581E610DC5007EC213 /* PostViewController.swift in Sources */,
 				25DE11541E5C1AA40032FEE2 /* TwitterViewController.swift in Sources */,
 				25DE11461E5BE8780032FEE2 /* TwitterClient.swift in Sources */,
 				25DE115D1E5D04D70032FEE2 /* OtherHelper.swift in Sources */,

@@ -67,6 +67,8 @@ class UIhelper: NSObject {
         static let red = UIColor(red: 0.88, green: 0.23, blue: 0.40, alpha: 1.0)
         static let blue = UIColor(red: 0.28, green: 0.56, blue: 0.76, alpha: 1.0)
         static let yellow = UIColor(red: 0.95, green: 0.84, blue: 0.0, alpha: 1.0)
+        static let twitterBlue = UIColor(red: 0.35, green: 0.69, blue: 0.95, alpha: 1.0)
+        static let twitterGray = UIColor(red: 0.38, green: 0.45, blue: 0.51, alpha: 1.0)
     }
     
     open func subviewSetup (sender : AnyObject) {
