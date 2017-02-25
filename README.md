@@ -41,9 +41,9 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-version 1.1 homeline view | version 1.2 button action & tweet
+version 1.2 button action & tweet |
 :-------------------------:|:-------------------------:
-<img src='https://github.com/sine27/Twitter/blob/master/demo/version1_1.gif' width='270' alt='Video Walkthrough' /> | <img src='https://github.com/sine27/Twitter/blob/master/demo/version1_2.gif' width='270' alt='Video Walkthrough' />
+<img src='https://github.com/sine27/Twitter/blob/master/demo/version1_2.gif' width='270' alt='Video Walkthrough' /> |
 
 ## Notes
 
