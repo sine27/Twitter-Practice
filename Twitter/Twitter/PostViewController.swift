@@ -77,6 +77,8 @@ class PostViewController: UIViewController, UITextViewDelegate {
                 print(progress)
             }, success: { (task, response) in
                 print("Tweet: Success")
+                let defaults = UserDefaults.standard
+                defaults.set(nil, forKey: "twitter_saved_draft")
                 self.tweet = TweetModel(dictionary: response as! NSDictionary)
                 self.presentingViewController!.dismiss(animated: true, completion: nil)
                 self.delegate?.getNewTweet(data: self.tweet!)
