@@ -23,12 +23,17 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     var parameters: Any?
     
+    var heightAtIndexPath = NSMutableDictionary()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
         twitterTableView.delegate = self
         twitterTableView.dataSource = self
+        
+        twitterTableView.layoutMargins = UIEdgeInsets.zero
+        twitterTableView.separatorInset = UIEdgeInsets.zero
         
         twitterTableView.alpha = 0
         self.uiHelper.stopActivityIndicator()
@@ -198,6 +203,19 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return tweets.count
     }
+    
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        if let height = heightAtIndexPath.object(forKey: indexPath) as? NSNumber {
+            return CGFloat(height.floatValue)
+        } else {
+            return UITableViewAutomaticDimension
+        }
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        let height = NSNumber(value: Float(cell.frame.size.height))
+        heightAtIndexPath.setObject(height, forKey: indexPath as NSCopying)
+    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -219,7 +237,7 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
             
             let indexPath = twitterTableView.indexPathForSelectedRow
             if let index = indexPath {
-                print(self.tweets[index.row].dictionary ?? "[]")
+                vc.tweet = self.tweets[index.row]
             }
         }
         // popover segue
@@ -227,6 +245,7 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
             let popoverViewController = segue.destination as! PostViewController
             popoverViewController.delegate = self
             popoverViewController.popoverPresentationController?.delegate = self
+            popoverViewController.endpoint = 0
         }
     }
     

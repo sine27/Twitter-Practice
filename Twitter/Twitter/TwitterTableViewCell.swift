@@ -76,13 +76,15 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
         // Initialization code
         userAvatar.layer.masksToBounds = true
         userAvatar.layer.cornerRadius = 5
-        userAvatar.image = UIImage(named: "noImage")
+        userAvatar.image = #imageLiteral(resourceName: "noImage")
         contentImage.layer.masksToBounds = true
         contentImage.layer.cornerRadius = 5
         reTwitteButton.isEnabled = true
         numRetwitteLabel.isEnabled = true
         favoriteButton.isEnabled = true
         numFavoriteLabel.isEnabled = true
+        
+        self.layoutIfNeeded()
 
         contentLabel.customize { contentLabel in
             
@@ -96,7 +98,6 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
                 print("Success. You just tapped the \(mention) mention")
             }
         }
-        
         setupCell()
     }
 
@@ -117,7 +118,6 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     }
     
     func setupCell () {
-
         userTweetForRetweet = nil
         
         contentImage.isHidden = true

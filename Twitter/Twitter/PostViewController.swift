@@ -30,34 +30,40 @@ class PostViewController: UIViewController, UITextViewDelegate {
     
     var tweet: TweetModel?
     
+    var endpoint = -1
+    
     @IBAction func crossButtonTapped(_ sender: UIBarButtonItem) {
         
         let defaults = UserDefaults.standard
         
         inputTextView.resignFirstResponder()
         
-        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { (action) in
-            defaults.set(nil, forKey: "twitter_saved_draft")
-            self.dismiss(animated: true, completion: nil)
-        }
-        alertController.addAction(deleteAction)
-        
-        // save to draft (user default)
-        let draftAction = UIAlertAction(title: "Save draft", style: .default) { (action) in
-            let data = self.inputTextView.text
+        if inputTextView.text != "" {
+            let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+            let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { (action) in
+                defaults.set(nil, forKey: "twitter_saved_draft")
+                self.dismiss(animated: true, completion: nil)
+            }
+            alertController.addAction(deleteAction)
             
-            defaults.set(data, forKey: "twitter_saved_draft")
+            // save to draft (user default)
+            let draftAction = UIAlertAction(title: "Save draft", style: .default) { (action) in
+                let data = self.inputTextView.text
+                
+                defaults.set(data, forKey: "twitter_saved_draft")
+                self.dismiss(animated: true, completion: nil)
+            }
+            alertController.addAction(draftAction)
+            
+            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (action) in
+                self.inputTextView.becomeFirstResponder()
+            }
+            alertController.addAction(cancelAction)
+            
+            self.present(alertController, animated: true, completion: nil)
+        } else {
             self.dismiss(animated: true, completion: nil)
         }
-        alertController.addAction(draftAction)
-        
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel) { (action) in
-            self.inputTextView.becomeFirstResponder()
-        }
-        alertController.addAction(cancelAction)
-        
-        self.present(alertController, animated: true, completion: nil)
     }
     
     @IBAction func tweetButtonTapped(_ sender: Any) {
@@ -92,8 +98,6 @@ class PostViewController: UIViewController, UITextViewDelegate {
         tweetButton.layer.masksToBounds = true
         tweetButton.layer.cornerRadius = 7
         tweetButton.isEnabled = false
-        
-        navigationBar.layer.borderColor = UIColor.white.cgColor
 
         inputTextView.becomeFirstResponder()
         
@@ -111,6 +115,18 @@ class PostViewController: UIViewController, UITextViewDelegate {
         
         if let imageUrl = UserModel.currentUser?.profile_image_url_https {
             avatarImage.setImageWith((imageUrl), placeholderImage: #imageLiteral(resourceName: "noImage"))
+        }
+        
+        if endpoint == -1 {
+            tweetButton.isEnabled = false
+            buttonColorChange(hidden: true)
+            inputTextView.isEditable = false
+            placeholderLabel.text = "Unkown Sender..."
+        } else if endpoint == 1 {
+            tweetButton.isEnabled = false
+            buttonColorChange(hidden: true)
+            inputTextView.isEditable = false
+            placeholderLabel.text = "Reply Not Activated..."
         }
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: Notification.Name.UIKeyboardWillShow, object: nil)
@@ -160,15 +176,15 @@ class PostViewController: UIViewController, UITextViewDelegate {
     func buttonColorChange (hidden: Bool) {
         if hidden {
             tweetButton.isEnabled = false
-            tweetButton.setTitleColor(UIColor.gray, for: .normal)
+            tweetButton.setTitleColor(UIhelper.UIColorOption.gray, for: .normal)
             tweetButton.backgroundColor = UIColor.white
-            tweetButton.layer.borderWidth = 0.8
+            tweetButton.layer.borderWidth = 1
             tweetButton.layer.borderColor = UIhelper.UIColorOption.gray.cgColor
         } else {
             tweetButton.isEnabled = true
             tweetButton.setTitleColor(UIColor.white, for: .normal)
             tweetButton.backgroundColor = UIhelper.UIColorOption.twitterBlue
-            tweetButton.layer.borderWidth = 0.8
+            tweetButton.layer.borderWidth = 1
             tweetButton.layer.borderColor = UIhelper.UIColorOption.twitterBlue.cgColor
         }
     }

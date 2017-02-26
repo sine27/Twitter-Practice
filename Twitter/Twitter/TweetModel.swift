@@ -91,7 +91,11 @@ class TweetModel: NSObject {
             self.isUserFavorited = false
         }
         
-        if let entities = dictionary["entities"] as? NSDictionary {
+        if var entities = dictionary["entities"] as? NSDictionary {
+            
+            if let extended_entities = dictionary["extended_entities"] as? NSDictionary {
+                entities = extended_entities
+            }
             
             if let hashtags = entities["hashtags"] as? NSArray {
                 self.hashtags = hashtags

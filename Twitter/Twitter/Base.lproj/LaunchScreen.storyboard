@@ -25,13 +25,13 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="TwitterLogo" translatesAutoresizingMaskIntoConstraints="NO" id="LWT-Z6-W4V">
-                                <rect key="frame" x="93.5" y="128.5" width="187.5" height="187.5"/>
+                                <rect key="frame" x="94" y="129" width="187" height="187"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="LWT-Z6-W4V" secondAttribute="height" multiplier="1:1" id="Wuv-g6-RNn"/>
                                 </constraints>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="  Copyright (c) 2017 Sine Feng. All rights reserved." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="12" translatesAutoresizingMaskIntoConstraints="NO" id="yf2-r5-RC1">
-                                <rect key="frame" x="16" y="629" width="343.5" height="18"/>
+                                <rect key="frame" x="16" y="629" width="343" height="18"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
@@ -53,7 +53,6 @@
                             <constraint firstAttribute="leadingMargin" secondItem="yf2-r5-RC1" secondAttribute="leading" id="buf-yU-4lv"/>
                             <constraint firstItem="JX8-47-OsX" firstAttribute="top" secondItem="LWT-Z6-W4V" secondAttribute="bottom" id="dOx-4H-77i"/>
                             <constraint firstItem="LWT-Z6-W4V" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="g3A-al-eMK"/>
-                            <constraint firstItem="yf2-r5-RC1" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="lGu-c2-Iqs"/>
                             <constraint firstItem="xb3-aO-Qok" firstAttribute="top" secondItem="yf2-r5-RC1" secondAttribute="bottom" constant="20" id="xdE-Y8-vPt"/>
                         </constraints>
                     </view>
