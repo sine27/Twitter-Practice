@@ -22,6 +22,11 @@ class ProfileViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        self.tabBarController?.tabBar.barTintColor = UIColor.white
+        self.tabBarController?.tabBar.tintColor = UIhelper.UIColorOption.twitterBlue
+        UITabBarItem.appearance().titlePositionAdjustment = UIOffset(horizontal: 0, vertical: -2)
+    }
 
     /*
     // MARK: - Navigation

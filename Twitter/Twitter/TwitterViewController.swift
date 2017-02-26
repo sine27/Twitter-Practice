@@ -79,6 +79,9 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         if selectedIndexPath != nil {
             twitterTableView.deselectRow(at: selectedIndexPath!, animated: false)
         }
+        self.tabBarController?.tabBar.barTintColor = UIColor.white
+        self.tabBarController?.tabBar.tintColor = UIhelper.UIColorOption.twitterBlue
+        UITabBarItem.appearance().titlePositionAdjustment = UIOffset(horizontal: 0, vertical: -2)
     }
     
     func onTimer() {

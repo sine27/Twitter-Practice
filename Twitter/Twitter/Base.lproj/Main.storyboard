@@ -208,9 +208,9 @@
                         <outlet property="avatarImage" destination="hH7-K0-Zin" id="ctb-fw-GMX"/>
                         <outlet property="buttomHeight" destination="64K-fV-us5" id="phG-hl-CQi"/>
                         <outlet property="inputTextView" destination="i6c-y6-ktf" id="TKF-78-Drs"/>
-                        <outlet property="myTabBar" destination="VOo-gg-BhM" id="btd-nv-ZeJ"/>
                         <outlet property="navigationBar" destination="cuW-17-Ge8" id="DJp-zw-6Qn"/>
                         <outlet property="placeholderLabel" destination="eye-6d-A9n" id="aBe-JD-CLC"/>
+                        <outlet property="toolbar" destination="VOo-gg-BhM" id="vlf-uk-d4c"/>
                         <outlet property="tweetButton" destination="8Wz-uu-Xdj" id="yfH-Bs-As9"/>
                         <outlet property="wordCountLabel" destination="xpm-Fr-0fI" id="snY-wO-ScX"/>
                     </connections>
@@ -239,7 +239,7 @@
                                         <rect key="frame" x="0.0" y="28" width="320" height="128"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="CGF-mw-5UJ" id="dxI-CE-4PH">
-                                            <rect key="frame" x="0.0" y="0.0" width="320" height="127"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="320" height="127.5"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="noImage" translatesAutoresizingMaskIntoConstraints="NO" id="jpW-DP-YHQ">

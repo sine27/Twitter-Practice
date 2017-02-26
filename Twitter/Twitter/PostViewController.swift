@@ -14,7 +14,7 @@ class PostViewController: UIViewController, UITextViewDelegate {
     
     @IBOutlet weak var inputTextView: UITextView!
     
-    @IBOutlet weak var myTabBar: UIToolbar!
+    @IBOutlet weak var toolbar: UIToolbar!
     
     @IBOutlet weak var tweetButton: UIButton!
     
@@ -81,8 +81,8 @@ class PostViewController: UIViewController, UITextViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        myTabBar.layer.borderWidth = 0.2
-        myTabBar.layer.borderColor = UIhelper.UIColorOption.gray.cgColor
+        toolbar.layer.borderWidth = 0.2
+        toolbar.layer.borderColor = UIhelper.UIColorOption.gray.cgColor
         
         avatarImage.layer.masksToBounds = true
         avatarImage.layer.cornerRadius = 5
@@ -123,17 +123,18 @@ class PostViewController: UIViewController, UITextViewDelegate {
     }
     
     func keyboardWillShow(notification: Notification) {
-        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
             UIView.animate(withDuration: 0.6, animations: {
+                self.view.layoutIfNeeded()
                 self.buttomHeight.constant = keyboardSize.height
             })
         }
     }
     
     func keyboardWillHide(notification: Notification) {
-        if let keyboardSize = (notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+        if ((notification.userInfo?[UIKeyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue) != nil {
             UIView.animate(withDuration: 0.6, animations: {
-                self.buttomHeight.constant -= keyboardSize.height
+                self.buttomHeight.constant = 0
             })
         }
     }
