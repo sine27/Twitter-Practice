@@ -4,9 +4,9 @@
 
 Time spent: 
 
-**15** howrs spent in version 1.1
-**10** howrs spent in version 1.2
-**12** hours spent in version 1.3
+- **15** howrs spent in version 1.1
+- **10** howrs spent in version 1.2
+- **12** hours spent in version 1.3
 
 **37** hours spent in total
 
