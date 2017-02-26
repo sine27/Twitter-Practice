@@ -14,6 +14,10 @@ protocol SubviewViewControllerDelegate {
     func showAlter(alertController: UIAlertController)
 }
 
+protocol PreviewViewDelegate {
+    func getPopoverImage(imageView: UIImageView)
+}
+
 extension Date {
 
     // Returns the amount of days from another date

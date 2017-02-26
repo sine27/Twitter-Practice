@@ -42,6 +42,7 @@ class PostViewController: UIViewController, UITextViewDelegate {
             let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
             let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { (action) in
                 defaults.set(nil, forKey: "twitter_saved_draft")
+                self.endpoint = -1
                 self.dismiss(animated: true, completion: nil)
             }
             alertController.addAction(deleteAction)
@@ -51,6 +52,7 @@ class PostViewController: UIViewController, UITextViewDelegate {
                 let data = self.inputTextView.text
                 
                 defaults.set(data, forKey: "twitter_saved_draft")
+                self.endpoint = -1
                 self.dismiss(animated: true, completion: nil)
             }
             alertController.addAction(draftAction)
@@ -62,6 +64,7 @@ class PostViewController: UIViewController, UITextViewDelegate {
             
             self.present(alertController, animated: true, completion: nil)
         } else {
+            endpoint = -1
             self.dismiss(animated: true, completion: nil)
         }
     }

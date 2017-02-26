@@ -8,18 +8,29 @@
 
 import UIKit
 
-class PreviewViewController: UIViewController {
+class PreviewViewController: UIViewController, UIScrollViewDelegate {
 
     @IBOutlet weak var imageView: UIImageView!
     
     @IBOutlet weak var imgScrollView: UIScrollView!
     
+    var image = UIImage()
+    
+    var delegate: PreviewViewDelegate?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        imageView.image = image
+        
+        imgScrollView.delegate = self
 
         // Do any additional setup after loading the view.
-        self.imgScrollView.minimumZoomScale = 1.0
-        self.imgScrollView.maximumZoomScale = 6.0
+        
+        imgScrollView.minimumZoomScale = 1.0
+        imgScrollView.maximumZoomScale = 3.0
+        
+        self.automaticallyAdjustsScrollViewInsets = false
+        imgScrollView.isUserInteractionEnabled = true
     }
 
     override func didReceiveMemoryWarning() {
@@ -31,4 +42,7 @@ class PreviewViewController: UIViewController {
         dismiss(animated: true, completion: nil)
     }
 
+    func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        return imageView
+    }
 }

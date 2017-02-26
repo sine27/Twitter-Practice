@@ -6,8 +6,9 @@ Time spent:
 
 **15** howrs spent in version 1.1
 **10** howrs spent in version 1.2
+**12** hours spent in version 1.3
 
-**15** hours spent in total
+**37** hours spent in total
 
 ## User Stories
 
@@ -28,6 +29,7 @@ The following **optional** features are implemented:
 The following **additional** features are implemented:
 
 - [x] User can logout
+- [x] Login notification animation and error message
 - [x] User can open url in text view
 - [x] User can view image in the content
 - [x] User can see the alert before logout
@@ -36,14 +38,19 @@ The following **additional** features are implemented:
 - [x] User is able to load newest data by pull to refresh
 - [x] Time intervals since created are refreshed every 60 seconds or when timeline request sent
 - [x] Show yellow button when retweet or favorite failed
+- [x] User can view the detail of a tweet
+- [x] Images in Tweet are displayed in stack format
+- [x] User can open the image through both table and detail view
+- [x] User can zoom image
+- [x] User can save draft message in user defaults 
 
 ## Video Walkthrough 
 
 Here's a walkthrough of implemented user stories:
 
-version 1.2 button action & tweet |
+version 1.3 detail view & animation & dynamic stack image tweet | version 1.2 button action & tweet |
 :-------------------------:|:-------------------------:
-<img src='https://github.com/sine27/Twitter/blob/master/demo/version1_2.gif' width='270' alt='Video Walkthrough' /> |
+ <img src='https://github.com/sine27/Twitter/blob/master/demo/version1_3.gif' width='270' alt='Video Walkthrough' />| <img src='https://github.com/sine27/Twitter/blob/master/demo/version1_2.gif' width='270' alt='Video Walkthrough' /> |
 
 ## Notes
 

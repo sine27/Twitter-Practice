@@ -9,7 +9,7 @@
 import UIKit
 import ESPullToRefresh
 
-class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPopoverPresentationControllerDelegate, SubviewViewControllerDelegate {
+class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPopoverPresentationControllerDelegate, SubviewViewControllerDelegate, PreviewViewDelegate {
     
     @IBOutlet weak var twitterTableView: UITableView!
     
@@ -25,15 +25,14 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     var heightAtIndexPath = NSMutableDictionary()
     
+    var popImage = UIImage()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
         twitterTableView.delegate = self
         twitterTableView.dataSource = self
-        
-        twitterTableView.layoutMargins = UIEdgeInsets.zero
-        twitterTableView.separatorInset = UIEdgeInsets.zero
         
         twitterTableView.alpha = 0
         self.uiHelper.stopActivityIndicator()
@@ -87,6 +86,8 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         self.tabBarController?.tabBar.barTintColor = UIColor.white
         self.tabBarController?.tabBar.tintColor = UIhelper.UIColorOption.twitterBlue
         UITabBarItem.appearance().titlePositionAdjustment = UIOffset(horizontal: 0, vertical: -2)
+        
+        self.navigationController!.navigationBar.topItem?.title = ""
     }
     
     func onTimer() {
@@ -149,7 +150,7 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
                 })
             }, failure: { (task, error) in
                 UIhelper.alertMessage("Request", userMessage: error.localizedDescription, action: nil, sender: self)
-                print("FetchTimelineData: Error >>> \(error.localizedDescription)")
+                // print("FetchTimelineData: Error >>> \(error.localizedDescription)")
                 self.uiHelper.stopActivityIndicator()
                 
                 if type == 0 {
@@ -196,6 +197,8 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         cell.index = indexPath
         
         cell.delegate = self
+        
+        cell.popDelegate = self
         
         return cell
     }
@@ -247,6 +250,13 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
             popoverViewController.popoverPresentationController?.delegate = self
             popoverViewController.endpoint = 0
         }
+        // popover segue
+        if segue.identifier == "showImage" {
+            let popoverViewController = segue.destination as! PreviewViewController
+            popoverViewController.delegate = self
+            popoverViewController.popoverPresentationController?.delegate = self
+            popoverViewController.image = popImage
+        }
     }
     
     func getNewTweet(data: TweetModel) {
@@ -255,12 +265,16 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func removeCell(index: IndexPath) {
-        print("herrrr")
         tweets.remove(at: index.row)
         twitterTableView.deleteRows(at: [index], with: .fade)
     }
     
     func showAlter(alertController: UIAlertController) {
         self.present(alertController, animated: true, completion: nil)
+    }
+    
+    func getPopoverImage(imageView: UIImageView) {
+        popImage = imageView.image!
+        performSegue(withIdentifier: "showImage", sender: self)
     }
 }

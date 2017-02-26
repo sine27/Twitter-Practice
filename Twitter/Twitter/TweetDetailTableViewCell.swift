@@ -24,9 +24,18 @@ class TweetDetailTableViewCell: UITableViewCell {
     //@IBOutlet weak var contentImage: UIImageView!
     @IBOutlet weak var contentImage: UIStackView!
     
+    @IBOutlet weak var contentStack0: UIStackView!
+    
+    @IBOutlet weak var contentStack1: UIStackView!
+    
     @IBOutlet weak var contentImageHeight: NSLayoutConstraint!
     
     @IBOutlet weak var timeLabelToImage: NSLayoutConstraint!
+    
+    @IBOutlet weak var stack1width: NSLayoutConstraint!
+    
+    var tapGesture = UITapGestureRecognizer()
+    var delegate: PreviewViewDelegate?
     
     var tweet: TweetModel! {
         didSet {
@@ -41,8 +50,21 @@ class TweetDetailTableViewCell: UITableViewCell {
         avatarImage.layer.cornerRadius = 5
         avatarImage.image = #imageLiteral(resourceName: "noImage")
         contentImage.layer.masksToBounds = true
-        contentImage.layer.cornerRadius = 5
+        contentImage.layer.cornerRadius = 20
         timeLabelToImage.constant = 3
+        
+        contentStack0.translatesAutoresizingMaskIntoConstraints = false
+        contentStack0.alignment = UIStackViewAlignment.center
+        contentStack0.spacing   = 5
+        contentStack0.clipsToBounds = true
+        contentStack1.translatesAutoresizingMaskIntoConstraints = false
+        contentStack1.alignment = UIStackViewAlignment.center
+        contentStack1.spacing   = 5
+        contentStack1.clipsToBounds = true
+        contentImage.translatesAutoresizingMaskIntoConstraints = false
+        contentImage.alignment = UIStackViewAlignment.center
+        contentImage.spacing   = 5
+        contentImage.clipsToBounds = true
         
         self.layoutIfNeeded()
         
@@ -94,13 +116,13 @@ class TweetDetailTableViewCell: UITableViewCell {
             var tmpContentString = contentString
             
             if let media = tweet.media {
-                
-                var stackHeight: CGFloat = 0
-                
+
                 contentImage.isHidden = false
                 contentImage.alpha = 1.0
                 timeLabelToImage.constant = 15
                 let stackWidth = contentImage.frame.width
+                
+                var photoCount = 0
                 
                 for mediaDictionary in media as! [NSDictionary] {
                     let media_url = mediaDictionary["media_url_https"] as! String
@@ -108,22 +130,16 @@ class TweetDetailTableViewCell: UITableViewCell {
                     // find the range in contentString where contains url
                     let type = mediaDictionary["type"] as! String
                     if type == "photo" {
+                        
+                        contentImageHeight.constant = contentImage.frame.width * 0.6
+                        
                         if let range = tmpContentString.range(of: display_url) {
                             tmpContentString = contentString.replacingCharacters(in: range, with: "")
                             // reset attributedString with displayed url
                             contentString = tmpContentString
                         }
-                        
-                        // calculate image width
-                        let sizeDic = mediaDictionary["sizes"] as! NSDictionary
-                        let largeSizeDic = sizeDic["large"] as! NSDictionary
-                        let height = largeSizeDic["h"] as! CGFloat
-                        let width = largeSizeDic["w"] as! CGFloat
-                        let ratio = height / width
-                        
+
                         let imageView = UIImageView()
-                        imageView.heightAnchor.constraint(equalToConstant: stackWidth * ratio).isActive = true
-                        imageView.widthAnchor.constraint(equalToConstant: stackWidth).isActive = true
                         
                         let imageRequest = URLRequest(url: URL(string: media_url)!)
                         imageView.setImageWith(imageRequest, placeholderImage: #imageLiteral(resourceName: "loadingImage"), success: { (request, response, image) in
@@ -131,15 +147,41 @@ class TweetDetailTableViewCell: UITableViewCell {
                                 imageView.image = image
                             })
                         })
-                        stackHeight += stackWidth * ratio
-                        print("\(stackWidth * ratio)     \(stackHeight)")
-                        contentImage.addArrangedSubview(imageView)
+                        
+                        imageView.contentMode = .scaleAspectFill
+                        imageView.clipsToBounds = true
+                        imageView.layer.masksToBounds = true
+                        imageView.layer.cornerRadius = 5
+                        
+                        imageView.isUserInteractionEnabled = true
+                        tapGesture = UITapGestureRecognizer(target: self, action: #selector(popOverImage(sender:)))
+                        imageView.addGestureRecognizer(tapGesture)
+                        
+                        switch photoCount {
+                        case 0:
+                            let sh = imageView.heightAnchor.constraint(equalToConstant: contentImageHeight.constant)
+                            let sw = imageView.widthAnchor.constraint(equalToConstant: stackWidth)
+                            sh.isActive = true
+                            sh.priority = 500
+                            sw.isActive = true
+                            sw.priority = 500
+                            contentStack0.addArrangedSubview(imageView)
+                        case 1:
+                            contentImage.distribution = .fillEqually
+                            contentStack1.addArrangedSubview(imageView)
+                        case 2:
+                            contentStack1.distribution = .fillEqually
+                            contentStack1.addArrangedSubview(imageView)
+                        case 3:
+                            contentStack0.distribution = .fillEqually
+                            contentStack0.addArrangedSubview(imageView)
+                        default:
+                            contentImageHeight.constant = 0
+                        }
+                        
+                        photoCount += 1
                     }
                 }
-                contentImage.translatesAutoresizingMaskIntoConstraints = false;
-                contentImage.alignment = UIStackViewAlignment.center
-                contentImage.spacing   = 10.0
-                contentImageHeight.constant = stackHeight
             }
             
             if let urls = tweet.urls {
@@ -176,6 +218,11 @@ class TweetDetailTableViewCell: UITableViewCell {
             contentLabel.text = ""
         }
         
+    }
+    
+    func popOverImage (sender: UITapGestureRecognizer) {
+        print("Tapped")
+        self.delegate?.getPopoverImage(imageView: sender.view as! UIImageView)
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {

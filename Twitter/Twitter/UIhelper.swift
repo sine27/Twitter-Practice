@@ -61,6 +61,8 @@ class UIhelper: NSObject {
     
     let footerLabel = UILabel(frame: CGRect(x: 0, y: 0, width: 250, height: 50))
     
+    var footerImage = UIImageView(frame: CGRect(x: 0, y: 0, width: 30, height: 30))
+    
     struct UIColorOption {
         static let gray = UIColor(red: 0.69, green: 0.73, blue: 0.75, alpha: 1.0)
         static let green = UIColor(red: 0.11, green: 0.75, blue: 0.50, alpha: 1.0)
@@ -167,6 +169,19 @@ class UIhelper: NSObject {
             self.footerLabel.alpha = 0
         })
         footerLabel.removeFromSuperview()
+    }
+    
+    open func showTwitterFooter (sender : AnyObject, positionX: CGFloat, positionY : CGFloat) {
+        
+        footerImage = UIImageView(frame: CGRect(x: positionX, y: positionY, width: 50, height: 50))
+        
+        footerImage.image = #imageLiteral(resourceName: "twitter")
+        
+        sender.view.addSubview(footerImage)
+    }
+    
+    open func removeTwitterFooter () {
+        footerImage.removeFromSuperview()
     }
     
     class func alertMessage(_ userTitle: String, userMessage: String, action: ((UIAlertAction) -> Void)?, sender: AnyObject)

@@ -16,8 +16,8 @@ class TweetCountTableViewCell: UITableViewCell {
     
     var tweet: TweetModel! {
         didSet {
-            numRetweetLabel.text = "\(tweet.retweetCount!)"
-            numFavoriteLabel.text = "\(tweet.favoriteCount!)"
+            numRetweetLabel.text = tweet.retweetCount!.displayCountWithFormat()
+            numFavoriteLabel.text = tweet.favoriteCount!.displayCountWithFormat()
         }
     }
 

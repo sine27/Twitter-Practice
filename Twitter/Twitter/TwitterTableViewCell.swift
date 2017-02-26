@@ -39,9 +39,11 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     
     @IBOutlet weak var messageButton: UIButton!
     
-    //@IBOutlet weak var contentToTop: NSLayoutConstraint!
+    @IBOutlet weak var contentImage: UIStackView!
     
-    @IBOutlet weak var contentImage: UIImageView!
+    @IBOutlet weak var contentStack0: UIStackView!
+    
+    @IBOutlet weak var contentStack1: UIStackView!
     
     @IBOutlet weak var contentImageHeight: NSLayoutConstraint!
     
@@ -55,9 +57,15 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     
     @IBOutlet weak var avatarToRetweeted: NSLayoutConstraint!
     
+    @IBOutlet weak var stack1width: NSLayoutConstraint!
+    
+    @IBOutlet weak var stack0width: NSLayoutConstraint!
+    
     var tapGesture = UITapGestureRecognizer()
     
     var delegate: SubviewViewControllerDelegate?
+    
+    var popDelegate: PreviewViewDelegate?
     
     let client = TwitterClient.sharedInstance!
     
@@ -83,6 +91,19 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
         numRetwitteLabel.isEnabled = true
         favoriteButton.isEnabled = true
         numFavoriteLabel.isEnabled = true
+        
+        contentStack0.translatesAutoresizingMaskIntoConstraints = false
+        contentStack0.alignment = UIStackViewAlignment.center
+        contentStack0.spacing   = 5
+        contentStack0.clipsToBounds = true
+        contentStack1.translatesAutoresizingMaskIntoConstraints = false
+        contentStack1.alignment = UIStackViewAlignment.center
+        contentStack1.spacing   = 5
+        contentStack1.clipsToBounds = true
+        contentImage.translatesAutoresizingMaskIntoConstraints = false
+        contentImage.alignment = UIStackViewAlignment.center
+        contentImage.spacing   = 5
+        contentImage.clipsToBounds = true
         
         self.layoutIfNeeded()
 
@@ -121,12 +142,24 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
         userTweetForRetweet = nil
         
         contentImage.isHidden = true
-        stackToContentImage.constant = 0
+        stackToContentImage.constant = 3
         contentImageHeight.constant = 0
         
         retweetStack.isHidden = true
         retweetLabelHeight.constant = 0
         avatarToRetweeted.constant = 5
+        
+        for view in contentStack0.subviews {
+            view.removeFromSuperview()
+        }
+        for view in contentStack1.subviews {
+            view.removeFromSuperview()
+        }
+        
+        contentImage.distribution = .fill
+        contentStack0.distribution = .fill
+        contentStack1.distribution = .fill
+        stack1width.constant = 0
     }
     
     private func updateUIWithTweetDetails () {
@@ -179,28 +212,71 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
             var tmpContentString = contentString
             
             if let media = tweet.media {
-                if let mediaDictionary = media[0] as? NSDictionary {
+                
+                contentImage.isHidden = false
+                contentImage.alpha = 1.0
+                stackToContentImage.constant = 8
+                
+                let stackWidth = contentImage.frame.width
+                
+                var photoCount = 0
+                
+                for mediaDictionary in media as! [NSDictionary] {
                     let media_url = mediaDictionary["media_url_https"] as! String
                     let display_url = mediaDictionary["url"] as! String
                     // find the range in contentString where contains url
                     let type = mediaDictionary["type"] as! String
                     if type == "photo" {
+                        
+                        contentImageHeight.constant = contentImage.frame.width * 0.6
+                        
                         if let range = tmpContentString.range(of: display_url) {
                             tmpContentString = contentString.replacingCharacters(in: range, with: "")
                             // reset attributedString with displayed url
                             contentString = tmpContentString
                         }
-                        contentImage.isHidden = false
-                        contentImage.alpha = 1.0
-                        stackToContentImage.constant = 10
-                        contentImageHeight.constant = contentImage.frame.width * 0.56
+                        
+                        let imageView = UIImageView()
                         
                         let imageRequest = URLRequest(url: URL(string: media_url)!)
-                        contentImage.setImageWith(imageRequest, placeholderImage: #imageLiteral(resourceName: "loadingImage"), success: { (request, response, image) in
+                        imageView.setImageWith(imageRequest, placeholderImage: #imageLiteral(resourceName: "loadingImage"), success: { (request, response, image) in
                             UIView.animate(withDuration: 1.0, delay: 0.0, options: UIViewAnimationOptions.curveEaseIn, animations: {
-                                self.contentImage.image = image
+                                imageView.image = image
                             })
                         })
+                        
+                        imageView.contentMode = .scaleAspectFill
+                        imageView.clipsToBounds = true
+                        imageView.layer.masksToBounds = true
+                        imageView.layer.cornerRadius = 5
+                        
+                        imageView.isUserInteractionEnabled = true
+                        tapGesture = UITapGestureRecognizer(target: self, action: #selector(popOverImage(sender:)))
+                        imageView.addGestureRecognizer(tapGesture)
+                        
+                        switch photoCount {
+                        case 0:
+                            let sh = imageView.heightAnchor.constraint(equalToConstant: contentImageHeight.constant)
+                            let sw = imageView.widthAnchor.constraint(equalToConstant: stackWidth)
+                            sh.isActive = true
+                            sh.priority = 500
+                            sw.isActive = true
+                            sw.priority = 500
+                            contentStack0.addArrangedSubview(imageView)
+                        case 1:
+                            contentImage.distribution = .fillEqually
+                            contentStack1.addArrangedSubview(imageView)
+                        case 2:
+                            contentStack1.distribution = .fillEqually
+                            contentStack1.addArrangedSubview(imageView)
+                        case 3:
+                            contentStack0.distribution = .fillEqually
+                            contentStack0.addArrangedSubview(imageView)
+                        default:
+                            contentImageHeight.constant = 0
+                        }
+                        
+                        photoCount += 1
                     }
                 }
             }
@@ -256,6 +332,11 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
                            interaction: UITextItemInteraction) -> Bool {
         print("I am here")
         return true
+    }
+    
+    func popOverImage (sender: UITapGestureRecognizer) {
+        print("Tapped")
+        self.popDelegate?.getPopoverImage(imageView: sender.view as! UIImageView)
     }
 
     @IBAction func replyTapped(_ sender: UIButton) {
