@@ -53,6 +53,14 @@ extension UIView {
     }
 }
 
+extension UIView {
+    func roundCorners(corners:UIRectCorner, radius: CGFloat) {
+        let path = UIBezierPath(roundedRect: self.bounds, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
+        let mask = CAShapeLayer()
+        mask.path = path.cgPath
+        self.layer.mask = mask
+    }
+}
 class UIhelper: NSObject {
     
     var spinner = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.white)
@@ -200,5 +208,39 @@ class UIhelper: NSObject {
         
         myAlert.addAction(UIAlertAction(title: right, style: .destructive, handler: rightAction))
         sender.present(myAlert, animated: true, completion: nil)
+    }
+    
+    class func cornerOfStackImage (sender: AnyObject, photoCount: Int, contentStack0: UIStackView, contentStack1: UIStackView, frameHeight: CGFloat) {
+        sender.layoutIfNeeded()
+        switch photoCount {
+        case 1:
+            contentStack0.subviews[0].heightAnchor.constraint(equalToConstant: frameHeight).isActive = true
+            contentStack0.subviews[0].roundCorners(corners: .allCorners, radius: 5)
+            
+        case 2:
+            contentStack0.subviews[0].heightAnchor.constraint(equalToConstant: frameHeight).isActive = true
+            contentStack1.subviews[0].heightAnchor.constraint(equalToConstant: frameHeight).isActive = true
+            contentStack0.subviews[0].roundCorners(corners: [.topLeft, .bottomLeft], radius: 5)
+            contentStack1.subviews[0].roundCorners(corners: [.topRight, .bottomRight], radius: 5)
+            
+        case 3:
+            contentStack0.subviews[0].heightAnchor.constraint(equalToConstant: frameHeight).isActive = true
+            contentStack1.subviews[0].heightAnchor.constraint(equalToConstant: frameHeight / 2).isActive = true
+            contentStack1.subviews[1].heightAnchor.constraint(equalToConstant: frameHeight / 2).isActive = true
+            contentStack0.subviews[0].roundCorners(corners: [.topLeft, .bottomLeft], radius: 5)
+            contentStack1.subviews[0].roundCorners(corners: .topRight, radius: 5)
+            contentStack1.subviews[1].roundCorners(corners: .bottomRight, radius: 5)
+            
+        case 4:
+            contentStack0.subviews[0].heightAnchor.constraint(equalToConstant: frameHeight / 2).isActive = true
+            contentStack0.subviews[1].heightAnchor.constraint(equalToConstant: frameHeight / 2).isActive = true
+            contentStack1.subviews[0].heightAnchor.constraint(equalToConstant: frameHeight / 2).isActive = true
+            contentStack1.subviews[1].heightAnchor.constraint(equalToConstant: frameHeight / 2).isActive = true
+            contentStack0.subviews[0].roundCorners(corners: .topLeft, radius: 5)
+            contentStack1.subviews[0].roundCorners(corners: .topRight, radius: 5)
+            contentStack1.subviews[1].roundCorners(corners: .bottomRight, radius: 5)
+            contentStack0.subviews[1].roundCorners(corners: .bottomLeft, radius: 5)
+            
+        default: () }
     }
 }
