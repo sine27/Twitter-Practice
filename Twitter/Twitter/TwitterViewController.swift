@@ -8,6 +8,8 @@
 
 import UIKit
 import ESPullToRefresh
+import AVKit
+import AVFoundation
 
 class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPopoverPresentationControllerDelegate, SubviewViewControllerDelegate, PreviewViewDelegate {
     

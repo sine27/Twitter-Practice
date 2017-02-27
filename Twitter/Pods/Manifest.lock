@@ -18,19 +18,22 @@ PODS:
   - BDBOAuth1Manager (2.0.0):
     - AFNetworking/NSURLSession (~> 3.0.0)
   - ESPullToRefresh (2.6)
+  - SwiftGifOrigin (1.6.1)
 
 DEPENDENCIES:
   - ActiveLabel
   - AFNetworking
   - BDBOAuth1Manager
   - ESPullToRefresh
+  - SwiftGifOrigin
 
 SPEC CHECKSUMS:
   ActiveLabel: 68625f22775f51c31bb691ca8de20f1e5a3bc825
   AFNetworking: 932ff751f9d6fb1dad0b3af58b7e3ffba0a4e7fd
   BDBOAuth1Manager: 92d17d06f8a648602962304cd2f35ae7394fa001
   ESPullToRefresh: 85f4990acf87f78c6a1466bbbee7a75d7de24db9
+  SwiftGifOrigin: d6679d3ebe9df2e049a84bc52582635107b581f6
 
-PODFILE CHECKSUM: 58d17a43e1dba6bdd2898c9a19fc5b2789c951e9
+PODFILE CHECKSUM: cab99bda966f5b94f57f81562c54bac026100c0d
 
 COCOAPODS: 1.1.1

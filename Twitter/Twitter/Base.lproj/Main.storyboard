@@ -256,7 +256,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7uJ-ff-QEn">
-                                                    <rect key="frame" x="112" y="11.5" width="31" height="14.5"/>
+                                                    <rect key="frame" x="112" y="11" width="31" height="15"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" relation="lessThanOrEqual" priority="250" constant="150" id="dCC-7g-mbq"/>
                                                     </constraints>
@@ -265,7 +265,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="・" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jb9-26-zCH">
-                                                    <rect key="frame" x="143" y="11.5" width="13" height="14.5"/>
+                                                    <rect key="frame" x="143" y="11" width="13" height="15"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="12.5" id="0tG-ne-ASW"/>
                                                     </constraints>
@@ -274,7 +274,7 @@
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="752" verticalCompressionResistancePriority="752" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NRV-uu-Ej3">
-                                                    <rect key="frame" x="156" y="11.5" width="31" height="14.5"/>
+                                                    <rect key="frame" x="156" y="11" width="31" height="15"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" relation="greaterThanOrEqual" priority="750" constant="20" id="xJO-EG-zdf"/>
                                                     </constraints>
@@ -373,7 +373,7 @@
                                                             </connections>
                                                         </button>
                                                         <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="d2E-9N-4g4">
-                                                            <rect key="frame" x="27" y="0.0" width="38.5" height="27"/>
+                                                            <rect key="frame" x="27" y="0.0" width="39" height="27"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="11"/>
                                                             <inset key="contentEdgeInsets" minX="-1" minY="0.0" maxX="0.0" maxY="-1"/>
                                                             <state key="normal">
@@ -384,7 +384,7 @@
                                                             </connections>
                                                         </button>
                                                         <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Trr-7f-NIl">
-                                                            <rect key="frame" x="65.5" y="0.0" width="27" height="27"/>
+                                                            <rect key="frame" x="66" y="0.0" width="27" height="27"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="width" secondItem="Trr-7f-NIl" secondAttribute="height" multiplier="1:1" id="Ojz-3a-eqq"/>
                                                             </constraints>
@@ -394,7 +394,7 @@
                                                             </connections>
                                                         </button>
                                                         <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="evy-qH-dEn">
-                                                            <rect key="frame" x="92.5" y="0.0" width="39" height="27"/>
+                                                            <rect key="frame" x="93" y="0.0" width="39" height="27"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="11"/>
                                                             <inset key="contentEdgeInsets" minX="-1" minY="0.0" maxX="0.0" maxY="-1"/>
                                                             <state key="normal">
@@ -405,7 +405,7 @@
                                                             </connections>
                                                         </button>
                                                         <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Da1-SL-lwb">
-                                                            <rect key="frame" x="131.5" y="0.0" width="27" height="27"/>
+                                                            <rect key="frame" x="132" y="0.0" width="27" height="27"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="width" secondItem="Da1-SL-lwb" secondAttribute="height" multiplier="1:1" id="X9x-Ot-VDy"/>
                                                             </constraints>
@@ -415,7 +415,7 @@
                                                             </connections>
                                                         </button>
                                                         <button opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="left" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dGO-n9-Y4c">
-                                                            <rect key="frame" x="158.5" y="0.0" width="38.5" height="27"/>
+                                                            <rect key="frame" x="159" y="0.0" width="38" height="27"/>
                                                             <fontDescription key="fontDescription" type="system" pointSize="11"/>
                                                             <inset key="contentEdgeInsets" minX="-2" minY="0.0" maxX="0.0" maxY="-1"/>
                                                             <state key="normal">
@@ -610,13 +610,13 @@
                                                     </userDefinedRuntimeAttributes>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="752" verticalCompressionResistancePriority="752" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cdc-5r-Yj7">
-                                                    <rect key="frame" x="71" y="39.5" width="35.5" height="17"/>
+                                                    <rect key="frame" x="71" y="40" width="36" height="17"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                     <color key="textColor" red="0.40000000600000002" green="0.40000000600000002" blue="0.40000000600000002" alpha="1" colorSpace="calibratedRGB"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="753" verticalCompressionResistancePriority="753" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0ul-X7-dpg">
-                                                    <rect key="frame" x="71" y="18" width="41.5" height="19.5"/>
+                                                    <rect key="frame" x="71" y="18" width="42" height="20"/>
                                                     <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="16"/>
                                                     <nil key="textColor"/>
                                                     <nil key="highlightedColor"/>

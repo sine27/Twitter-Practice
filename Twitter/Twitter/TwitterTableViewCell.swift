@@ -9,6 +9,9 @@
 import UIKit
 import AFNetworking
 import ActiveLabel
+import SwiftGifOrigin
+import AVKit
+import AVFoundation
 
 class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     
@@ -71,6 +74,8 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     
     var index: IndexPath!
     
+    var videoUrl: String?
+    
     var tweet: TweetModel! {
         didSet {
             updateUIWithTweetDetails()
@@ -85,8 +90,6 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
         userAvatar.layer.masksToBounds = true
         userAvatar.layer.cornerRadius = 5
         userAvatar.image = #imageLiteral(resourceName: "noImage")
-        contentImage.layer.masksToBounds = true
-        contentImage.layer.cornerRadius = 5
         reTwitteButton.isEnabled = true
         numRetwitteLabel.isEnabled = true
         favoriteButton.isEnabled = true
@@ -222,20 +225,78 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
                 var photoCount = 0
                 
                 for mediaDictionary in media as! [NSDictionary] {
-                    let media_url = mediaDictionary["media_url_https"] as! String
+                    let media_url = mediaDictionary["media_url"] as! String
                     let display_url = mediaDictionary["url"] as! String
                     // find the range in contentString where contains url
                     let type = mediaDictionary["type"] as! String
-                    if type == "photo" {
+                    
+                    if let range = tmpContentString.range(of: display_url) {
+                        tmpContentString = contentString.replacingCharacters(in: range, with: "")
+                        // reset attributedString with displayed url
+                        contentString = tmpContentString
+                    }
+                    
+                    if type == "animated_gif" {
+
+                        let size = mediaDictionary["sizes"] as! NSDictionary
+                        let large = size["large"] as! NSDictionary
+                        let h = large["h"] as! CGFloat
+                        let w = large["w"] as! CGFloat
+                        let ratio = h / w
+                        contentImageHeight.constant = stackWidth * ratio
                         
+                        let imageView = UIImageView()
+                        
+                        let imageRequest = URLRequest(url: URL(string: media_url)!)
+                        imageView.setImageWith(imageRequest, placeholderImage: #imageLiteral(resourceName: "loadingImage"), success: { (request, response, image) in
+                            UIView.animate(withDuration: 1.0, delay: 0.0, options: UIViewAnimationOptions.curveEaseIn, animations: {
+                                imageView.image = image
+                            })
+                        })
+                        imageView.heightAnchor.constraint(equalToConstant: stackWidth * ratio).isActive = true
+                        imageView.widthAnchor.constraint(equalToConstant: stackWidth).isActive = true
+                        
+                        imageView.contentMode = .scaleAspectFill
+                        imageView.clipsToBounds = true
+                        imageView.layer.masksToBounds = true
+                        imageView.layer.cornerRadius = 5
+                        
+                        imageView.isUserInteractionEnabled = true
+                        tapGesture = UITapGestureRecognizer(target: self, action: #selector(openVideo(sender:)))
+                        imageView.addGestureRecognizer(tapGesture)
+
+                        
+                        
+                        let video_info = mediaDictionary["video_info"] as! NSDictionary
+                        let variants = video_info["variants"] as! [NSDictionary]
+                        let variant = variants[0]
+                        let urlString = variant["url"] as! String
+                        
+                        videoUrl = urlString
+//
+//                        let playerView = UIView()
+//                        
+//                        self.layoutIfNeeded()
+//                        
+//                        playerView.frame = contentStack0.bounds
+//                        
+//                        let videoURL = URL(string: urlString)
+//
+//                        let player = AVPlayer(url: videoURL!)
+//                        
+//                        let playerLayer = AVPlayerLayer(player: player)
+//                    
+//                        playerLayer.frame = playerView.bounds
+//                        
+//                        playerView.layer.addSublayer(playerLayer)
+//
+//                        player.play()
+//                        
+                        contentStack0.addArrangedSubview(imageView)
+                    }
+                    
+                    else if type == "photo" {
                         contentImageHeight.constant = contentImage.frame.width * 0.56
-                        
-                        if let range = tmpContentString.range(of: display_url) {
-                            tmpContentString = contentString.replacingCharacters(in: range, with: "")
-                            // reset attributedString with displayed url
-                            contentString = tmpContentString
-                        }
-                        
                         let imageView = UIImageView()
                         
                         let imageRequest = URLRequest(url: URL(string: media_url)!)
@@ -305,7 +366,6 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
                             tmpContentString = contentString.replacingCharacters(in: range, with: display_url)
                             // reset attributedString with displayed url
                             contentString = tmpContentString
-                            
                         }
                     }
                 }
@@ -337,6 +397,10 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     func popOverImage (sender: UITapGestureRecognizer) {
         print("Tapped")
         self.popDelegate?.getPopoverImage(imageView: sender.view as! UIImageView)
+    }
+    
+    func openVideo (sender: UITapGestureRecognizer) {
+        UIApplication.shared.open(URL(string: videoUrl!)!)
     }
 
     @IBAction func replyTapped(_ sender: UIButton) {

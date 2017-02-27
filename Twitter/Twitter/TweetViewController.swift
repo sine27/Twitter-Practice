@@ -22,7 +22,7 @@ class TweetViewController: UIViewController, UITableViewDelegate, UITableViewDat
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // print(tweet?.dictionary ?? "{}")
+         print(tweet?.dictionary ?? "{}")
         // Do any additional setup after loading the view.
         tweetTableView.delegate = self
         tweetTableView.dataSource = self
