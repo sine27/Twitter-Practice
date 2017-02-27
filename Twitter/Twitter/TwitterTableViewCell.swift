@@ -94,15 +94,15 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
         
         contentStack0.translatesAutoresizingMaskIntoConstraints = false
         contentStack0.alignment = UIStackViewAlignment.center
-        contentStack0.spacing   = 5
+        contentStack0.spacing   = 4
         contentStack0.clipsToBounds = true
         contentStack1.translatesAutoresizingMaskIntoConstraints = false
         contentStack1.alignment = UIStackViewAlignment.center
-        contentStack1.spacing   = 5
+        contentStack1.spacing   = 4
         contentStack1.clipsToBounds = true
         contentImage.translatesAutoresizingMaskIntoConstraints = false
         contentImage.alignment = UIStackViewAlignment.center
-        contentImage.spacing   = 5
+        contentImage.spacing   = 4
         contentImage.clipsToBounds = true
         
         self.layoutIfNeeded()
@@ -228,7 +228,7 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
                     let type = mediaDictionary["type"] as! String
                     if type == "photo" {
                         
-                        contentImageHeight.constant = contentImage.frame.width * 0.6
+                        contentImageHeight.constant = contentImage.frame.width * 0.56
                         
                         if let range = tmpContentString.range(of: display_url) {
                             tmpContentString = contentString.replacingCharacters(in: range, with: "")
