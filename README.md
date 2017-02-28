@@ -7,8 +7,9 @@ Time spent:
 - **15** howrs spent in version 1.1
 - **10** howrs spent in version 1.2
 - **12** hours spent in version 1.3
+- **8** hours spent in version 1.4
 
-**37** hours spent in total
+**45** hours spent in total
 
 ## User Stories
 
@@ -43,14 +44,16 @@ The following **additional** features are implemented:
 - [x] User can open the image through both table and detail view
 - [x] User can zoom image
 - [x] User can save draft message in user defaults 
+- [x] User can tapto view a video
+- [x] User can tap button in detail view to like, retweet, delete a tweet
 
 ## Video Walkthrough 
 
 Here's a walkthrough of implemented user stories:
 
-version 1.3 detail view & animation & dynamic stack image tweet | version 1.2 button action & tweet |
+ version 1.4 video and detail view | version 1.3 detail view & animation & dynamic stack image tweet | version 1.2 button action & tweet |
 :-------------------------:|:-------------------------:
- <img src='https://github.com/sine27/Twitter/blob/master/demo/version1_3.gif' width='270' alt='Video Walkthrough' />| <img src='https://github.com/sine27/Twitter/blob/master/demo/version1_2.gif' width='270' alt='Video Walkthrough' /> |
+ <img src='https://github.com/sine27/Twitter/blob/master/demo/version1_4.gif' width='270' alt='Video Walkthrough' /> | <img src='https://github.com/sine27/Twitter/blob/master/demo/version1_3.gif' width='220' alt='Video Walkthrough' /> | <img src='https://github.com/sine27/Twitter/blob/master/demo/version1_2.gif' width='220' alt='Video Walkthrough' /> |
 
 ## Notes
 
