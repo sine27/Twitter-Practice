@@ -51,7 +51,7 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
- version 1.4 video and detail view | version 1.3 detail view & animation & dynamic stack image tweet | version 1.2 button action & tweet |
+ version 1.4 video and buttons in detail view activated | version 1.3 detail & animation & image stack | version 1.2 button action & tweet |
 :-------------------------:|:-------------------------:|:-------------------------:
  <img src='https://github.com/sine27/Twitter/blob/master/demo/version1_4.gif' width='320' alt='Video Walkthrough' /> | <img src='https://github.com/sine27/Twitter/blob/master/demo/version1_3.gif' width='220' alt='Video Walkthrough' /> | <img src='https://github.com/sine27/Twitter/blob/master/demo/version1_2.gif' width='220' alt='Video Walkthrough' /> |
 
