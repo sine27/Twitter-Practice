@@ -36,22 +36,13 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Twitter" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="28" translatesAutoresizingMaskIntoConstraints="NO" id="JX8-47-OsX">
-                                <rect key="frame" x="62" y="316" width="250" height="43"/>
-                                <fontDescription key="fontDescription" type="boldSystem" pointSize="36"/>
-                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                         </subviews>
                         <color key="backgroundColor" red="0.11547166854143143" green="0.62894904613494873" blue="0.94885319471359253" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="JX8-47-OsX" firstAttribute="width" secondItem="Ze5-6b-2t3" secondAttribute="width" multiplier="0.667" id="Arf-T3-qKk"/>
-                            <constraint firstItem="JX8-47-OsX" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="B8t-tq-Nzg"/>
                             <constraint firstAttribute="trailingMargin" secondItem="yf2-r5-RC1" secondAttribute="trailing" id="BaR-ju-Mgs"/>
                             <constraint firstItem="LWT-Z6-W4V" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" multiplier="0.667" id="WZD-98-yR7"/>
                             <constraint firstItem="LWT-Z6-W4V" firstAttribute="width" secondItem="Ze5-6b-2t3" secondAttribute="width" multiplier="0.5" id="aT6-Fx-qmd"/>
                             <constraint firstAttribute="leadingMargin" secondItem="yf2-r5-RC1" secondAttribute="leading" id="buf-yU-4lv"/>
-                            <constraint firstItem="JX8-47-OsX" firstAttribute="top" secondItem="LWT-Z6-W4V" secondAttribute="bottom" id="dOx-4H-77i"/>
                             <constraint firstItem="LWT-Z6-W4V" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="g3A-al-eMK"/>
                             <constraint firstItem="xb3-aO-Qok" firstAttribute="top" secondItem="yf2-r5-RC1" secondAttribute="bottom" constant="20" id="xdE-Y8-vPt"/>
                         </constraints>

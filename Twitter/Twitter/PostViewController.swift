@@ -26,7 +26,7 @@ class PostViewController: UIViewController, UITextViewDelegate {
     
     @IBOutlet weak var navigationBar: UINavigationBar!
     
-    var delegate: SubviewViewControllerDelegate?
+    var delegate: TweetTableViewDelegate?
     
     var tweet: TweetModel?
     

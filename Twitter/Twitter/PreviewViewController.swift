@@ -16,7 +16,7 @@ class PreviewViewController: UIViewController, UIScrollViewDelegate {
     
     var image = UIImage()
     
-    var delegate: PreviewViewDelegate?
+    var delegate: TweetTableViewDelegate?
     
     override func viewDidLoad() {
         super.viewDidLoad()

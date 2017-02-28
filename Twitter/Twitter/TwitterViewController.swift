@@ -11,7 +11,7 @@ import ESPullToRefresh
 import AVKit
 import AVFoundation
 
-class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPopoverPresentationControllerDelegate, SubviewViewControllerDelegate, PreviewViewDelegate {
+class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPopoverPresentationControllerDelegate, TweetsTableViewCellDelegate, TweetTableViewDelegate, UpdateCellFromTableDelegate {
     
     @IBOutlet weak var twitterTableView: UITableView!
     
@@ -90,6 +90,7 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         UITabBarItem.appearance().titlePositionAdjustment = UIOffset(horizontal: 0, vertical: -2)
         
         self.navigationController!.navigationBar.topItem?.title = ""
+        self.navigationController!.title = "Tweet"
     }
     
     func onTimer() {
@@ -243,6 +244,8 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
             let indexPath = twitterTableView.indexPathForSelectedRow
             if let index = indexPath {
                 vc.tweet = self.tweets[index.row]
+                vc.indexPath = index
+                vc.delegate = self
             }
         }
         // popover segue
@@ -260,23 +263,175 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
             popoverViewController.image = popImage
         }
     }
+
+    func tweetCellRetweetTapped(cell: TwitterTableViewCell, isRetweeted: Bool) {
+        var endpoint : String?
+        
+        // pop up menu
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        cell.reTwitteButton.isEnabled = false
+        cell.numRetwitteLabel.isEnabled = false
+        
+        let tweetid = cell.tweet.id!
+        var title = "Retweet"
+        var style = UIAlertActionStyle.default
+        
+        if cell.tweet.isUserRetweeted! {
+            title = "Unretweet"
+            style = UIAlertActionStyle.destructive
+            endpoint = TwitterClient.APIScheme.UnretweetStatusEndpoint
+        } else {
+            endpoint = TwitterClient.APIScheme.RetweetStatusEndpoint
+        }
+        
+        if let range = endpoint?.range(of: ":id") {
+            endpoint = endpoint?.replacingCharacters(in: range, with: "\(tweetid)")
+        }
+        
+        let retweetAction = UIAlertAction(title: title, style: style) { (action) in
+            
+            cell.reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon-blue"), for: .normal)
+            cell.numRetwitteLabel.setButtonTitleColor(option: .blue)
+            
+            cell.client.post(endpoint!, parameters: nil, progress: nil, success: { (task, response) in
+                print("retweet: success")
+                
+                var count = cell.tweet.retweetCount!
+                
+                if cell.tweet.isUserRetweeted! {
+                    cell.reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon"), for: .normal)
+                    cell.numRetwitteLabel.setButtonTitleColor(option: .gray)
+                    count -= 1
+                    cell.tweet.isUserRetweeted = false
+                } else {
+                    cell.reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon-green"), for: .normal)
+                    cell.numRetwitteLabel.setButtonTitleColor(option: .green)
+                    cell.tweet.isUserRetweeted = true
+                    count += 1
+                }
+                cell.tweet.retweetCount = count
+                
+                cell.numRetwitteLabel.setTitle((count as Int).displayCountWithFormat(), for: .normal)
+            }) { (task, error) in
+                print(error)
+                print("retweet: Error >>> \(error.localizedDescription)")
+                cell.reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon-yellow"), for: .normal)
+                cell.numRetwitteLabel.setButtonTitleColor(option: .yellow)
+            }
+        }
+        alertController.addAction(retweetAction)
+        
+        if !isRetweeted {
+            let quoteTweetAction = UIAlertAction(title: "Quote Tweet(Unavailable)", style: .default) { (action) in
+                /// handle case of quote tweet
+            }
+            alertController.addAction(quoteTweetAction)
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        alertController.addAction(cancelAction)
+        
+        cell.reTwitteButton.isEnabled = true
+        cell.numRetwitteLabel.isEnabled = true
+        
+        self.present(alertController, animated: true, completion: nil)
+    }
     
-    func getNewTweet(data: TweetModel) {
+    func tweetCellFavoritedTapped(cell: TwitterTableViewCell, isFavorited: Bool) {
+        var endpoint : String?
+        
+        cell.favoriteButton.isEnabled = false
+        cell.numFavoriteLabel.isEnabled = false
+        
+        cell.favoriteButton.setImage(#imageLiteral(resourceName: "favorited-icon-blue"), for: .normal)
+        cell.numFavoriteLabel.setButtonTitleColor(option: .blue)
+        
+        if cell.tweet.isUserFavorited! {
+            endpoint = TwitterClient.APIScheme.FavoriteDestroyEndpoint
+        } else {
+            endpoint = TwitterClient.APIScheme.FavoriteCreateEndpoint
+        }
+        
+        cell.client.post(endpoint!, parameters: ["id" : cell.tweet.id!], progress: nil, success: { (task, response) in
+            print("retweet: success")
+            
+            var count = cell.tweet.favoriteCount!
+            
+            if cell.tweet.isUserFavorited! {
+                cell.favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)
+                cell.numFavoriteLabel.setButtonTitleColor(option: .gray)
+                cell.tweet.isUserFavorited = false
+                count -= 1
+            } else {
+                cell.favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon-red"), for: .normal)
+                cell.numFavoriteLabel.setButtonTitleColor(option: .red)
+                cell.tweet.isUserFavorited = true
+                count += 1
+            }
+            
+            cell.tweet.favoriteCount = count
+            
+            cell.numFavoriteLabel.setTitle((count as Int).displayCountWithFormat(), for: .normal)
+        }) { (task, error) in
+            print("retweet: Error >>> \(error.localizedDescription)")
+            cell.favoriteButton.setImage(#imageLiteral(resourceName: "favorited-icon-yellow"), for: .normal)
+            cell.numFavoriteLabel.setButtonTitleColor(option: .yellow)
+        }
+        
+        cell.favoriteButton.isEnabled = true
+        cell.numFavoriteLabel.isEnabled = true
+    }
+    
+    func tweetCellMenuTapped(cell: TwitterTableViewCell, withId id: Int) {
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        let deleteAction = UIAlertAction(title: "Delete Tweet", style: .destructive) { (action) in
+            
+            UIhelper.alertMessageWithAction("Delete Tweet", userMessage: "Are you sure you want to delete this Tweet?", left: "Cancel", right: "Delete", leftAction: nil, rightAction: { (action) in
+                var endpoint = TwitterClient.APIScheme.TweetStatusDestroyEndpoint
+                if let range = endpoint.range(of: ":id") {
+                    endpoint = endpoint.replacingCharacters(in: range, with: "\(cell.tweet.id!)")
+                }
+                
+                cell.client.post(endpoint, parameters: nil, progress: nil, success: { (task, response) in
+                    print("Delete tweet: Success")
+                    
+                    self.tweets.remove(at: cell.index.row)
+                    self.twitterTableView.deleteRows(at: [cell.index], with: .fade)
+                    
+                }, failure: { (task, error) in
+                    print("\(error.localizedDescription)")
+                })
+            }, sender: (UIApplication.shared.keyWindow?.rootViewController)!)
+        }
+        if cell.tweet.user?.id == UserModel.currentUser?.id {
+            alertController.addAction(deleteAction)
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        alertController.addAction(cancelAction)
+        
+        self.present(alertController, animated: true, completion: nil)
+    }
+    
+    internal func getNewTweet(data: TweetModel) {
         // print(data.dictionary)
         requestData(parameters: ["since_id": since_id], type: 2)
     }
     
-    func removeCell(index: IndexPath) {
-        tweets.remove(at: index.row)
-        twitterTableView.deleteRows(at: [index], with: .fade)
-    }
-    
-    func showAlter(alertController: UIAlertController) {
-        self.present(alertController, animated: true, completion: nil)
-    }
-    
-    func getPopoverImage(imageView: UIImageView) {
+    internal func getPopoverImage(imageView: UIImageView) {
         popImage = imageView.image!
         performSegue(withIdentifier: "showImage", sender: self)
+    }
+    
+    internal func removeCell(indexPath: IndexPath) {
+        self.tweets.remove(at: indexPath.row)
+        self.twitterTableView.deleteRows(at: [indexPath], with: .fade)
+    }
+    
+    internal func updateNumber(tweet: TweetModel, indexPath: IndexPath) {
+        self.tweets[indexPath.row] = tweet
+        twitterTableView.reloadRows(at: [indexPath], with: .fade)
     }
 }

@@ -93,20 +93,10 @@ class TweetModel: NSObject {
         
         if var entities = dictionary["entities"] as? NSDictionary {
             
-            if let extended_entities = dictionary["extended_entities"] as? NSDictionary {
-                entities = extended_entities
-            }
-            
             if let hashtags = entities["hashtags"] as? NSArray {
                 self.hashtags = hashtags
             } else {
                 self.hashtags = nil
-            }
-            
-            if let media = entities["media"] as? NSArray {
-                self.media = media
-            } else {
-                self.media = nil
             }
             
             if let symbols = entities["symbols"] as? NSArray {
@@ -125,6 +115,16 @@ class TweetModel: NSObject {
                 self.user_mentions = user_mentions
             } else {
                 self.user_mentions = nil
+            }
+            
+            if let extended_entities = dictionary["extended_entities"] as? NSDictionary {
+                entities = extended_entities
+            }
+            
+            if let media = entities["media"] as? NSArray {
+                self.media = media
+            } else {
+                self.media = nil
             }
         }
     }

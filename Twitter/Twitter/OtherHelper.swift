@@ -8,14 +8,14 @@
 
 import UIKit
 
-protocol SubviewViewControllerDelegate {
+protocol TweetTableViewDelegate {
     func getNewTweet(data: TweetModel)
-    func removeCell(index: IndexPath)
-    func showAlter(alertController: UIAlertController)
+    func getPopoverImage(imageView: UIImageView)
 }
 
-protocol PreviewViewDelegate {
-    func getPopoverImage(imageView: UIImageView)
+protocol UpdateCellFromTableDelegate {
+    func removeCell (indexPath: IndexPath )
+    func updateNumber (tweet: TweetModel, indexPath: IndexPath)
 }
 
 extension Date {

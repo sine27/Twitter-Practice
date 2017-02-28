@@ -13,6 +13,13 @@ import SwiftGifOrigin
 import AVKit
 import AVFoundation
 
+@objc protocol TweetsTableViewCellDelegate: class {
+    @objc optional func tweetCellFavoritedTapped(cell: TwitterTableViewCell, isFavorited: Bool)
+    @objc optional func tweetCellRetweetTapped(cell: TwitterTableViewCell, isRetweeted: Bool)
+    @objc optional func tweetCellMenuTapped(cell: TwitterTableViewCell, withId id: Int)
+    @objc optional func tweetCellUserProfileImageTapped(cell: TwitterTableViewCell, forTwitterUser user: UserModel?)
+}
+
 class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     
     @IBOutlet weak var userAvatar: UIImageView!
@@ -66,9 +73,9 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     
     var tapGesture = UITapGestureRecognizer()
     
-    var delegate: SubviewViewControllerDelegate?
+    var delegate: TweetsTableViewCellDelegate?
     
-    var popDelegate: PreviewViewDelegate?
+    var popDelegate: TweetTableViewDelegate?
     
     let client = TwitterClient.sharedInstance!
     
@@ -76,9 +83,23 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     
     var videoUrl: String?
     
+    var player = AVPlayer()
+    
+    var playButton = UIButton()
+    
     var tweet: TweetModel! {
         didSet {
             updateUIWithTweetDetails()
+        }
+    }
+    
+    var cellIndex: Int? {
+        didSet {
+            reTwitteButton?.tag = cellIndex!
+            replyButton?.tag = cellIndex!
+            favoriteButton?.tag = cellIndex!
+            menuButton?.tag = cellIndex!
+            imageView?.tag = cellIndex!
         }
     }
     
@@ -115,12 +136,10 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
             contentLabel.handleHashtagTap { hashtag in
                 print("Success. You just tapped the \(hashtag) hashtag")
             }
-            contentLabel.handleURLTap { (url) in
-                print("Success. You just tapped the \(url) url")
-            }
             contentLabel.handleMentionTap { (mention) in
                 print("Success. You just tapped the \(mention) mention")
             }
+            contentLabel.removeHandle(for: ActiveType.url)
         }
         setupCell()
     }
@@ -163,6 +182,8 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
         contentStack0.distribution = .fill
         contentStack1.distribution = .fill
         stack1width.constant = 0
+        
+        playButton.removeFromSuperview()
     }
     
     private func updateUIWithTweetDetails () {
@@ -218,7 +239,7 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
                 
                 contentImage.isHidden = false
                 contentImage.alpha = 1.0
-                stackToContentImage.constant = 8
+                stackToContentImage.constant = 15
                 
                 let stackWidth = contentImage.frame.width
                 
@@ -264,8 +285,11 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
                         imageView.isUserInteractionEnabled = true
                         tapGesture = UITapGestureRecognizer(target: self, action: #selector(openVideo(sender:)))
                         imageView.addGestureRecognizer(tapGesture)
-
                         
+                        //playButton = UIButton(frame: CGRect(origin: imageView.center, size: CGSize(width: 50, height: 50)))
+                        playButton = UIButton(frame: CGRect(x: stackWidth / 2 - 25, y: contentImageHeight.constant / 2 - 25, width: 50, height: 50))
+                        playButton.setImage(#imageLiteral(resourceName: "video-icon"), for: .normal)
+                        playButton.addTarget(self, action: #selector(playTapped(sender:)), for: .touchUpInside)
                         
                         let video_info = mediaDictionary["video_info"] as! NSDictionary
                         let variants = video_info["variants"] as! [NSDictionary]
@@ -273,26 +297,9 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
                         let urlString = variant["url"] as! String
                         
                         videoUrl = urlString
-//
-//                        let playerView = UIView()
-//                        
-//                        self.layoutIfNeeded()
-//                        
-//                        playerView.frame = contentStack0.bounds
-//                        
-//                        let videoURL = URL(string: urlString)
-//
-//                        let player = AVPlayer(url: videoURL!)
-//                        
-//                        let playerLayer = AVPlayerLayer(player: player)
-//                    
-//                        playerLayer.frame = playerView.bounds
-//                        
-//                        playerView.layer.addSublayer(playerLayer)
-//
-//                        player.play()
-//                        
+                        
                         contentStack0.addArrangedSubview(imageView)
+                        contentImage.addSubview(playButton)
                     }
                     
                     else if type == "photo" {
@@ -370,6 +377,7 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
                     }
                 }
             }
+            
             contentLabel.text = contentString
         } else {
             contentLabel.text = ""
@@ -386,14 +394,6 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
         print("Tapped")
     }
     
-    func textView(_ textView: UITextView,
-                           shouldInteractWith URL: URL,
-                           in characterRange: NSRange,
-                           interaction: UITextItemInteraction) -> Bool {
-        print("I am here")
-        return true
-    }
-    
     func popOverImage (sender: UITapGestureRecognizer) {
         print("Tapped")
         self.popDelegate?.getPopoverImage(imageView: sender.view as! UIImageView)
@@ -402,128 +402,50 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     func openVideo (sender: UITapGestureRecognizer) {
         UIApplication.shared.open(URL(string: videoUrl!)!)
     }
+    
+    func playTapped (sender: UIButton!) {
+        
+        playButton.removeFromSuperview()
+        
+        let playerView = contentStack0.subviews[0]
+        
+        self.layoutIfNeeded()
+        
+        playerView.frame = contentImage.bounds
+        
+        player = AVPlayer(url: URL(string: videoUrl!)!)
+        
+        let playerLayer = AVPlayerLayer(player: player)
+        
+        playerLayer.frame = contentImage.bounds
+        
+        playerView.layer.addSublayer(playerLayer)
+        
+        player.play()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying),
+                                               name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
+    }
+    
+    func playerDidFinishPlaying(note: NSNotification) {
+        print("Play end")
+        contentImage.addSubview(playButton)
+    }
 
     @IBAction func replyTapped(_ sender: UIButton) {
         
     }
     
     @IBAction func retweetTapped(_ sender: UIButton) {
-        var endpoint : String?
-        
-        // pop up menu
-        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        
-        reTwitteButton.isEnabled = false
-        numRetwitteLabel.isEnabled = false
-        
-        let tweetid = tweet.id!
-        var title = "Retweet"
-        var style = UIAlertActionStyle.default
-        
-        if tweet.isUserRetweeted! {
-            title = "Unretweet"
-            style = UIAlertActionStyle.destructive
-            endpoint = TwitterClient.APIScheme.UnretweetStatusEndpoint
-        } else {
-            endpoint = TwitterClient.APIScheme.RetweetStatusEndpoint
+        if let isRetweeted = tweet.isUserRetweeted {
+            delegate?.tweetCellRetweetTapped?(cell: self, isRetweeted: isRetweeted)
         }
-
-        if let range = endpoint?.range(of: ":id") {
-            endpoint = endpoint?.replacingCharacters(in: range, with: "\(tweetid)")
-        }
-        
-        let retweetAction = UIAlertAction(title: title, style: style) { (action) in
-            
-            self.reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon-blue"), for: .normal)
-            self.numRetwitteLabel.setButtonTitleColor(option: .blue)
-            
-            self.client.post(endpoint!, parameters: nil, progress: nil, success: { (task, response) in
-                print("retweet: success")
-                
-                var count = self.tweet.retweetCount!
-                
-                if self.tweet.isUserRetweeted! {
-                    self.reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon"), for: .normal)
-                    self.numRetwitteLabel.setButtonTitleColor(option: .gray)
-                    count -= 1
-                    self.tweet.isUserRetweeted = false
-                } else {
-                    self.reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon-green"), for: .normal)
-                    self.numRetwitteLabel.setButtonTitleColor(option: .green)
-                    self.tweet.isUserRetweeted = true
-                    count += 1
-                }
-                self.tweet.retweetCount = count
-                
-                self.numRetwitteLabel.setTitle((count as Int).displayCountWithFormat(), for: .normal)
-            }) { (task, error) in
-                print(error)
-                print("retweet: Error >>> \(error.localizedDescription)")
-                self.reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon-yellow"), for: .normal)
-                self.numRetwitteLabel.setButtonTitleColor(option: .yellow)
-            }
-        }
-        alertController.addAction(retweetAction)
-        
-        if !tweet.isUserRetweeted! {
-            let quoteTweetAction = UIAlertAction(title: "Quote Tweet(Unavailable)", style: .default) { (action) in
-                /// handle case of quote tweet
-            }
-            alertController.addAction(quoteTweetAction)
-        }
-        
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        alertController.addAction(cancelAction)
-        
-        reTwitteButton.isEnabled = true
-        numRetwitteLabel.isEnabled = true
-        
-        self.delegate?.showAlter(alertController: alertController)
     }
     
     @IBAction func favoritedTapped(_ sender: UIButton) {
-        var endpoint : String?
-        
-        favoriteButton.isEnabled = false
-        numFavoriteLabel.isEnabled = false
-        
-        favoriteButton.setImage(#imageLiteral(resourceName: "favorited-icon-blue"), for: .normal)
-        numFavoriteLabel.setButtonTitleColor(option: .blue)
-        
-        if tweet.isUserFavorited! {
-            endpoint = TwitterClient.APIScheme.FavoriteDestroyEndpoint
-        } else {
-            endpoint = TwitterClient.APIScheme.FavoriteCreateEndpoint
+        if let isFavorited = tweet.isUserFavorited {
+            delegate?.tweetCellFavoritedTapped?(cell: self, isFavorited: isFavorited)
         }
-        
-        client.post(endpoint!, parameters: ["id" : tweet.id!], progress: nil, success: { (task, response) in
-            print("retweet: success")
-            
-            var count = self.tweet.favoriteCount!
-            
-            if self.tweet.isUserFavorited! {
-                self.favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)
-                self.numFavoriteLabel.setButtonTitleColor(option: .gray)
-                self.tweet.isUserFavorited = false
-                count -= 1
-            } else {
-                self.favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon-red"), for: .normal)
-                self.numFavoriteLabel.setButtonTitleColor(option: .red)
-                self.tweet.isUserFavorited = true
-                count += 1
-            }
-            
-            self.tweet.favoriteCount = count
-            
-            self.numFavoriteLabel.setTitle((count as Int).displayCountWithFormat(), for: .normal)
-        }) { (task, error) in
-            print("retweet: Error >>> \(error.localizedDescription)")
-            self.favoriteButton.setImage(#imageLiteral(resourceName: "favorited-icon-yellow"), for: .normal)
-            self.numFavoriteLabel.setButtonTitleColor(option: .yellow)
-        }
-        
-        favoriteButton.isEnabled = true
-        numFavoriteLabel.isEnabled = true
     }
 
     @IBAction func messageTapped(_ sender: UIButton) {
@@ -531,46 +453,8 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     }
     
     @IBAction func menuButtonTapped(_ sender: UIButton) {
-        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        
-        let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { (action) in
-            
-            UIhelper.alertMessageWithAction("Delete Tweet", userMessage: "Are you sure you want to delete this Tweet?", left: "Cancel", right: "Delete", leftAction: nil, rightAction: { (action) in
-                var endpoint = TwitterClient.APIScheme.TweetStatusDestroyEndpoint
-                if let range = endpoint.range(of: ":id") {
-                    endpoint = endpoint.replacingCharacters(in: range, with: "\(self.tweet.id!)")
-                }
-                
-                self.client.post(endpoint, parameters: nil, progress: nil, success: { (task, response) in
-                    print("Delete tweet: Success")
-                    
-                    self.delegate?.removeCell(index: self.index)
-                    
-                }, failure: { (task, error) in
-                    print("\(error.localizedDescription)")
-                })
-            }, sender: (UIApplication.shared.keyWindow?.rootViewController)!)
-        }
-        if tweet.user?.id == UserModel.currentUser?.id {
-            alertController.addAction(deleteAction)
-        }
-        
-        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        alertController.addAction(cancelAction)
-        
-        self.delegate?.showAlter(alertController: alertController)
+        delegate?.tweetCellMenuTapped?(cell: self, withId: tweet.id!)
     }
     
 }
 
-extension NSMutableAttributedString {
-    public func setLink(textToFind:String, linkURL:String) -> Bool {
-        
-        let range = self.mutableString.range(of: textToFind)
-        if range.location != NSNotFound {
-            self.addAttribute(NSLinkAttributeName, value: linkURL, range: range)
-            return true
-        }
-        return false
-    }
-}

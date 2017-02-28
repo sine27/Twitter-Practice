@@ -8,6 +8,14 @@
 
 import UIKit
 import ActiveLabel
+import AVKit
+import AVFoundation
+
+@objc protocol TweetDetailTableViewCellDelegate: class {
+    @objc optional func tweetCellMenuTapped(cell: TweetDetailTableViewCell, withId id: Int)
+    @objc optional func tweetCellUserProfileImageTapped(cell: TweetDetailTableViewCell, forTwitterUser user: UserModel?)
+    
+}
 
 class TweetDetailTableViewCell: UITableViewCell {
     
@@ -35,7 +43,18 @@ class TweetDetailTableViewCell: UITableViewCell {
     @IBOutlet weak var stack1width: NSLayoutConstraint!
     
     var tapGesture = UITapGestureRecognizer()
-    var delegate: PreviewViewDelegate?
+    
+    var delegate: TweetDetailTableViewCellDelegate?
+    
+    var popDelegate: TweetTableViewDelegate?
+    
+    let client = TwitterClient.sharedInstance!
+    
+    var videoUrl: String?
+    
+    var player = AVPlayer()
+    
+    var playButton = UIButton()
     
     var tweet: TweetModel! {
         didSet {
@@ -73,12 +92,10 @@ class TweetDetailTableViewCell: UITableViewCell {
             contentLabel.handleHashtagTap { hashtag in
                 print("Success. You just tapped the \(hashtag) hashtag")
             }
-            contentLabel.handleURLTap { (url) in
-                print("Success. You just tapped the \(url) url")
-            }
-            contentLabel.handleMentionTap { (mention) in
+            contentLabel.handleURLTap { (mention) in
                 print("Success. You just tapped the \(mention) mention")
             }
+            contentLabel.removeHandle(for: ActiveType.url)
         }
     }
     
@@ -107,7 +124,7 @@ class TweetDetailTableViewCell: UITableViewCell {
         
         if let timeCreated = tweet?.createdAt {
             let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "MM/dd/yyyy, HH:mm"
+            dateFormatter.dateFormat = "MM/dd/yy, HH:mm"
             timeLabel.text = dateFormatter.string(from: timeCreated)
         }
         
@@ -120,6 +137,7 @@ class TweetDetailTableViewCell: UITableViewCell {
                 contentImage.isHidden = false
                 contentImage.alpha = 1.0
                 timeLabelToImage.constant = 15
+                
                 let stackWidth = contentImage.frame.width
                 
                 var photoCount = 0
@@ -129,6 +147,58 @@ class TweetDetailTableViewCell: UITableViewCell {
                     let display_url = mediaDictionary["url"] as! String
                     // find the range in contentString where contains url
                     let type = mediaDictionary["type"] as! String
+                    
+                    if let range = tmpContentString.range(of: display_url) {
+                        tmpContentString = contentString.replacingCharacters(in: range, with: "")
+                        // reset attributedString with displayed url
+                        contentString = tmpContentString
+                    }
+                    
+                    if type == "animated_gif" {
+                        
+                        let size = mediaDictionary["sizes"] as! NSDictionary
+                        let large = size["large"] as! NSDictionary
+                        let h = large["h"] as! CGFloat
+                        let w = large["w"] as! CGFloat
+                        let ratio = h / w
+                        contentImageHeight.constant = stackWidth * ratio
+                        
+                        let imageView = UIImageView()
+                        
+                        let imageRequest = URLRequest(url: URL(string: media_url)!)
+                        imageView.setImageWith(imageRequest, placeholderImage: #imageLiteral(resourceName: "loadingImage"), success: { (request, response, image) in
+                            UIView.animate(withDuration: 1.0, delay: 0.0, options: UIViewAnimationOptions.curveEaseIn, animations: {
+                                imageView.image = image
+                            })
+                        })
+                        imageView.heightAnchor.constraint(equalToConstant: stackWidth * ratio).isActive = true
+                        imageView.widthAnchor.constraint(equalToConstant: stackWidth).isActive = true
+                        
+                        imageView.contentMode = .scaleAspectFill
+                        imageView.clipsToBounds = true
+                        imageView.layer.masksToBounds = true
+                        imageView.layer.cornerRadius = 5
+                        
+                        imageView.isUserInteractionEnabled = true
+                        tapGesture = UITapGestureRecognizer(target: self, action: #selector(openVideo(sender:)))
+                        imageView.addGestureRecognizer(tapGesture)
+                        
+                        //playButton = UIButton(frame: CGRect(origin: imageView.center, size: CGSize(width: 50, height: 50)))
+                        playButton = UIButton(frame: CGRect(x: stackWidth / 2 - 25, y: contentImageHeight.constant / 2 - 25, width: 50, height: 50))
+                        playButton.setImage(#imageLiteral(resourceName: "video-icon"), for: .normal)
+                        playButton.addTarget(self, action: #selector(playTapped(sender:)), for: .touchUpInside)
+                        
+                        let video_info = mediaDictionary["video_info"] as! NSDictionary
+                        let variants = video_info["variants"] as! [NSDictionary]
+                        let variant = variants[0]
+                        let urlString = variant["url"] as! String
+                        
+                        videoUrl = urlString
+                        
+                        contentStack0.addArrangedSubview(imageView)
+                        contentImage.addSubview(playButton)
+                    }
+                    
                     if type == "photo" {
                         
                         contentImageHeight.constant = contentImage.frame.width * 0.6
@@ -185,8 +255,11 @@ class TweetDetailTableViewCell: UITableViewCell {
             }
             
             if let urls = tweet.urls {
+                print("1")
                 for item in urls {
+                    print("2")
                     if let urlDictionary = item as? NSDictionary {
+                        print("3")
                         let display_url = urlDictionary["display_url"] as! String
                         let url = urlDictionary["url"] as! String
                         
@@ -201,6 +274,8 @@ class TweetDetailTableViewCell: UITableViewCell {
                             print(url)
                             UIApplication.shared.open(URL(string: url)!)
                         })
+                        
+                        print("\(tmpContentString)  \(url)")
                         
                         // find the range in contentString where contains url
                         if let range = tmpContentString.range(of: url) {
@@ -222,18 +297,50 @@ class TweetDetailTableViewCell: UITableViewCell {
     
     func popOverImage (sender: UITapGestureRecognizer) {
         print("Tapped")
-        self.delegate?.getPopoverImage(imageView: sender.view as! UIImageView)
+        self.popDelegate?.getPopoverImage(imageView: sender.view as! UIImageView)
+    }
+    
+    func openVideo (sender: UITapGestureRecognizer) {
+        UIApplication.shared.open(URL(string: videoUrl!)!)
+    }
+    
+    func playTapped (sender: UIButton!) {
+        
+        playButton.removeFromSuperview()
+        
+        let playerView = contentStack0.subviews[0]
+        
+        self.layoutIfNeeded()
+        
+        playerView.frame = contentImage.bounds
+        
+        player = AVPlayer(url: URL(string: videoUrl!)!)
+        
+        let playerLayer = AVPlayerLayer(player: player)
+        
+        playerLayer.frame = contentImage.bounds
+        
+        playerView.layer.addSublayer(playerLayer)
+        
+        player.play()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(playerDidFinishPlaying),
+                                               name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
+    }
+    
+    func playerDidFinishPlaying(note: NSNotification) {
+        print("Play end")
+        contentImage.addSubview(playButton)
     }
 
+    @IBAction func menuButtonTapped(_ sender: UIButton) {
+        self.delegate?.tweetCellMenuTapped!(cell: self, withId: tweet.id!)
+    }
+    
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
 
         // Configure the view for the selected state
     }
-    
-    @IBAction func menuButtonTapped(_ sender: UIButton) {
-        
-    }
-    
     
 }
