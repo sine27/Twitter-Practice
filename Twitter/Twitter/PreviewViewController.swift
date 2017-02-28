@@ -31,6 +31,7 @@ class PreviewViewController: UIViewController, UIScrollViewDelegate {
         
         self.automaticallyAdjustsScrollViewInsets = false
         imgScrollView.isUserInteractionEnabled = true
+
     }
 
     override func didReceiveMemoryWarning() {

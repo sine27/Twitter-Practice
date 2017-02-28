@@ -399,6 +399,7 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
                     
                     self.tweets.remove(at: cell.index.row)
                     self.twitterTableView.deleteRows(at: [cell.index], with: .fade)
+                    self.twitterTableView.reloadData()
                     
                 }, failure: { (task, error) in
                     print("\(error.localizedDescription)")
@@ -428,6 +429,7 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
     internal func removeCell(indexPath: IndexPath) {
         self.tweets.remove(at: indexPath.row)
         self.twitterTableView.deleteRows(at: [indexPath], with: .fade)
+        self.twitterTableView.reloadData()
     }
     
     internal func updateNumber(tweet: TweetModel, indexPath: IndexPath) {

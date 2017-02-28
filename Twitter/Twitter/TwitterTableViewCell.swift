@@ -172,9 +172,11 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
         avatarToRetweeted.constant = 5
         
         for view in contentStack0.subviews {
+            view.removeGestureRecognizer(tapGesture)
             view.removeFromSuperview()
         }
         for view in contentStack1.subviews {
+            view.removeGestureRecognizer(tapGesture)
             view.removeFromSuperview()
         }
         

@@ -50,7 +50,7 @@ extension Date {
         if minutes(from: date) <= 0, seconds(from: date) > 0 {
             return "\(seconds(from: date))s"
         }
-        return ""
+        return "0s"
     }
 }
 

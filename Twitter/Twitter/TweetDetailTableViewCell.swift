@@ -102,6 +102,22 @@ class TweetDetailTableViewCell: UITableViewCell {
     override func prepareForReuse() {
         contentImageHeight.constant = 0
         timeLabelToImage.constant = 3
+        for view in contentStack0.subviews {
+            view.removeGestureRecognizer(tapGesture)
+            view.removeFromSuperview()
+        }
+        for view in contentStack1.subviews {
+            view.removeGestureRecognizer(tapGesture)
+            view.removeFromSuperview()
+        }
+        
+        contentImage.distribution = .fill
+        contentStack0.distribution = .fill
+        contentStack1.distribution = .fill
+        stack1width.constant = 0
+        
+        playButton.removeFromSuperview()
+        
     }
     
     private func updateUIWithTweetDetails () {

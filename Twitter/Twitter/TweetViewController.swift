@@ -156,7 +156,7 @@ class TweetViewController: UIViewController, UITableViewDelegate, UITableViewDat
                 }
                 cell.tweet.retweetCount = count
                 self.delegate?.updateNumber(tweet: self.tweet, indexPath: self.indexPath)
-                self.tweetTableView.reloadData()
+                self.tweetTableView.reloadRows(at: [IndexPath(row: 1, section: 0)], with: .none)
                 
             }) { (task, error) in
                 print(error)
@@ -212,7 +212,7 @@ class TweetViewController: UIViewController, UITableViewDelegate, UITableViewDat
             cell.tweet.favoriteCount = count
             
             self.delegate?.updateNumber(tweet: self.tweet, indexPath: self.indexPath)
-            self.tweetTableView.reloadData()
+            self.tweetTableView.reloadRows(at: [IndexPath(row: 1, section: 0)], with: .none)
 
         }) { (task, error) in
             print("retweet: Error >>> \(error.localizedDescription)")

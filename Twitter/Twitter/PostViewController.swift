@@ -112,6 +112,9 @@ class PostViewController: UIViewController, UITextViewDelegate {
             inputTextView.text = data
             placeholderLabel.isHidden = true
             wordCountLabel.text = "\(140 - data.characters.count)"
+            if data.characters.count > 140 {
+                wordCountLabel.textColor = UIhelper.UIColorOption.red
+            }
             tweetButton.isEnabled = true
             buttonColorChange(hidden: false)
         }

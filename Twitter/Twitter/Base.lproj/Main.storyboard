@@ -236,7 +236,7 @@
                                         <rect key="frame" x="0.0" y="28" width="320" height="191"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="CGF-mw-5UJ" id="dxI-CE-4PH">
-                                            <rect key="frame" x="0.0" y="0.0" width="320" height="190.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="320" height="190"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="noImage" translatesAutoresizingMaskIntoConstraints="NO" id="jpW-DP-YHQ">
@@ -339,27 +339,27 @@
                                                     </userDefinedRuntimeAttributes>
                                                 </label>
                                                 <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" alignment="center" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="WSH-8Z-YRs">
-                                                    <rect key="frame" x="70" y="58" width="237" height="20"/>
+                                                    <rect key="frame" x="70" y="58" width="237" height="0.0"/>
                                                     <subviews>
                                                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="74J-KU-5xT">
-                                                            <rect key="frame" x="0.0" y="0.0" width="233" height="20"/>
+                                                            <rect key="frame" x="0.0" y="0.0" width="233" height="0.0"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="width" constant="233" id="kYd-5D-44z"/>
                                                             </constraints>
                                                         </stackView>
                                                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="jiI-OU-ZbO">
-                                                            <rect key="frame" x="237" y="0.0" width="0.0" height="20"/>
+                                                            <rect key="frame" x="237" y="0.0" width="0.0" height="0.0"/>
                                                             <constraints>
                                                                 <constraint firstAttribute="width" id="1E5-ay-rNV"/>
                                                             </constraints>
                                                         </stackView>
                                                     </subviews>
                                                     <constraints>
-                                                        <constraint firstAttribute="height" constant="20" id="dwn-0X-801"/>
+                                                        <constraint firstAttribute="height" id="dwn-0X-801"/>
                                                     </constraints>
                                                 </stackView>
                                                 <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jgR-XD-zIa">
-                                                    <rect key="frame" x="68" y="81" width="224" height="27"/>
+                                                    <rect key="frame" x="68" y="61" width="224" height="27"/>
                                                     <subviews>
                                                         <button opaque="NO" contentMode="scaleAspectFit" semanticContentAttribute="forceRightToLeft" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="crg-v8-IHi">
                                                             <rect key="frame" x="0.0" y="0.0" width="27" height="27"/>
@@ -529,20 +529,13 @@
                         <barButtonItem key="rightBarButtonItem" image="edit-icon" id="LPc-v2-clm">
                             <color key="tintColor" red="0.1148131862" green="0.63301128149999997" blue="0.94878464939999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <connections>
-                                <segue destination="hgZ-L8-orL" kind="popoverPresentation" identifier="popoverSegue" popoverAnchorBarButtonItem="LPc-v2-clm" id="HVh-Tx-mAK">
-                                    <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES" left="YES" right="YES"/>
-                                    <popoverPassthroughViews>
-                                        <view reference="4Gr-GI-i0l"/>
-                                    </popoverPassthroughViews>
-                                </segue>
+                                <segue destination="hgZ-L8-orL" kind="presentation" identifier="popoverSegue" modalTransitionStyle="coverVertical" id="HVh-Tx-mAK"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="twitterTableView" destination="agJ-GL-1Uh" id="ovB-Sg-GWA"/>
-                        <segue destination="QBZ-fj-SnJ" kind="popoverPresentation" identifier="showImage" popoverAnchorView="agJ-GL-1Uh" id="lm1-jx-xnp">
-                            <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES" left="YES" right="YES"/>
-                        </segue>
+                        <segue destination="QBZ-fj-SnJ" kind="presentation" identifier="showImage" modalTransitionStyle="coverVertical" id="lm1-jx-xnp"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="cJm-3M-OIj" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -566,11 +559,11 @@
                                 <color key="backgroundColor" red="0.62791481599999999" green="0.62791481599999999" blue="0.62791481599999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <color key="tintColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="cell0" rowHeight="163" id="5mh-Pb-NsF" customClass="TweetDetailTableViewCell" customModule="Twitter" customModuleProvider="target">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" shouldIndentWhileEditing="NO" reuseIdentifier="cell0" rowHeight="163" id="5mh-Pb-NsF" customClass="TweetDetailTableViewCell" customModule="Twitter" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="28" width="320" height="163"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="5mh-Pb-NsF" id="d8U-9B-JnO">
-                                            <rect key="frame" x="0.0" y="0.0" width="320" height="162.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="320" height="162"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="noImage" translatesAutoresizingMaskIntoConstraints="NO" id="P5u-DK-5pk">
@@ -691,16 +684,13 @@
                                             <outlet property="stack1width" destination="juS-8y-OoB" id="KnA-yE-6ep"/>
                                             <outlet property="timeLabel" destination="kc4-zt-g2e" id="UEo-2e-GlC"/>
                                             <outlet property="timeLabelToImage" destination="9ra-Vj-ha8" id="IpS-IL-q57"/>
-                                            <segue destination="QBZ-fj-SnJ" kind="popoverPresentation" identifier="detailShowImage" popoverAnchorView="ymS-Z2-FqQ" id="Yib-4U-VKm">
-                                                <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES" left="YES" right="YES"/>
-                                            </segue>
                                         </connections>
                                     </tableViewCell>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="cell1" id="7rl-OO-XpG" customClass="TweetCountTableViewCell" customModule="Twitter" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="191" width="320" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="7rl-OO-XpG" id="Cn3-QJ-Iw7">
-                                            <rect key="frame" x="0.0" y="0.0" width="320" height="43.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ADg-gU-my3">
@@ -752,7 +742,7 @@
                                         <rect key="frame" x="0.0" y="235" width="320" height="50"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="3sG-sk-TUr" id="XVf-nH-I8N">
-                                            <rect key="frame" x="0.0" y="0.0" width="320" height="49.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="320" height="49"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <stackView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="KiZ-wP-bTZ">
@@ -820,7 +810,7 @@
                                         <rect key="frame" x="0.0" y="285" width="320" height="44"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="wEB-XS-su3" id="pOa-vh-a3E">
-                                            <rect key="frame" x="0.0" y="0.0" width="320" height="43.5"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="320" height="43"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </tableViewCellContentView>
                                     </tableViewCell>
@@ -839,17 +829,13 @@
                         <barButtonItem key="rightBarButtonItem" image="edit-icon" id="kUZ-Ry-5MJ">
                             <color key="tintColor" red="0.1148131862" green="0.63301128149999997" blue="0.94878464939999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                             <connections>
-                                <segue destination="hgZ-L8-orL" kind="popoverPresentation" identifier="toReply" popoverAnchorBarButtonItem="kUZ-Ry-5MJ" id="Bw0-pT-xJh">
-                                    <popoverArrowDirection key="popoverArrowDirection" up="YES" down="YES" left="YES" right="YES"/>
-                                    <popoverPassthroughViews>
-                                        <view reference="ZTs-CF-jry"/>
-                                    </popoverPassthroughViews>
-                                </segue>
+                                <segue destination="hgZ-L8-orL" kind="presentation" identifier="toReply" modalTransitionStyle="coverVertical" id="Bw0-pT-xJh"/>
                             </connections>
                         </barButtonItem>
                     </navigationItem>
                     <connections>
                         <outlet property="tweetTableView" destination="ymS-Z2-FqQ" id="b6P-u1-G1f"/>
+                        <segue destination="QBZ-fj-SnJ" kind="presentation" identifier="detailShowImage" modalTransitionStyle="coverVertical" id="E6e-fy-gNH"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="2Hm-pJ-byu" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -1009,7 +995,7 @@
         <image name="retweet-icon-dark" width="30" height="30"/>
     </resources>
     <inferredMetricsTieBreakers>
-        <segue reference="Bw0-pT-xJh"/>
-        <segue reference="Yib-4U-VKm"/>
+        <segue reference="lm1-jx-xnp"/>
+        <segue reference="HVh-Tx-mAK"/>
     </inferredMetricsTieBreakers>
 </document>
