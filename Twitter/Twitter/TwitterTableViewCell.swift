@@ -431,6 +431,7 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     
     func playerDidFinishPlaying(note: NSNotification) {
         print("Play end")
+        playButton.setImage(#imageLiteral(resourceName: "video-icon"), for: .normal)
         contentImage.addSubview(playButton)
     }
 

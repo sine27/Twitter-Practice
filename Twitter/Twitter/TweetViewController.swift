@@ -15,6 +15,8 @@ class TweetViewController: UIViewController, UITableViewDelegate, UITableViewDat
     
     var tweet: TweetModel!
     
+    var retweet: TweetModel?
+    
     let uiHelper = UIhelper()
     
     var delegate: UpdateCellFromTableDelegate?
@@ -61,6 +63,10 @@ class TweetViewController: UIViewController, UITableViewDelegate, UITableViewDat
         if indexPath.row == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "cell0") as! TweetDetailTableViewCell
             cell.tweet = self.tweet
+            if self.retweet != nil {
+                print("retweet_status!")
+                cell.retweet = retweet
+            }
             
             /// in order to get image tapped gesture
             cell.popDelegate = self

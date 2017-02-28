@@ -42,6 +42,14 @@ class TweetDetailTableViewCell: UITableViewCell {
     
     @IBOutlet weak var stack1width: NSLayoutConstraint!
     
+    @IBOutlet weak var retweetStack: UIStackView!
+    
+    @IBOutlet weak var retweetStackHeight: NSLayoutConstraint!
+    
+    @IBOutlet weak var retweetStackLabel: UILabel!
+    
+    @IBOutlet weak var avatarToRetweetStack: NSLayoutConstraint!
+    
     var tapGesture = UITapGestureRecognizer()
     
     var delegate: TweetDetailTableViewCellDelegate?
@@ -59,6 +67,21 @@ class TweetDetailTableViewCell: UITableViewCell {
     var tweet: TweetModel! {
         didSet {
             updateUIWithTweetDetails()
+        }
+    }
+    
+    var retweet: TweetModel? {
+        didSet {
+            if let username = retweet?.user?.name {
+                if username == (UserModel.currentUser!.name) {
+                    retweetStackLabel.text = " You Retweeted"
+                } else {
+                    retweetStackLabel.text = " \(username) Retweeted"
+                }
+                avatarToRetweetStack.constant = 10
+                retweetStackHeight.constant = 20
+                retweetStack.isHidden = false
+            }
         }
     }
 
@@ -102,6 +125,11 @@ class TweetDetailTableViewCell: UITableViewCell {
     override func prepareForReuse() {
         contentImageHeight.constant = 0
         timeLabelToImage.constant = 3
+        
+        retweetStackHeight.constant = 0
+        avatarToRetweetStack.constant = 5
+        retweetStack.isHidden = true
+        
         for view in contentStack0.subviews {
             view.removeGestureRecognizer(tapGesture)
             view.removeFromSuperview()
@@ -271,11 +299,8 @@ class TweetDetailTableViewCell: UITableViewCell {
             }
             
             if let urls = tweet.urls {
-                print("1")
                 for item in urls {
-                    print("2")
                     if let urlDictionary = item as? NSDictionary {
-                        print("3")
                         let display_url = urlDictionary["display_url"] as! String
                         let url = urlDictionary["url"] as! String
                         

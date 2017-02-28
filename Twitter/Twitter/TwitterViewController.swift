@@ -243,7 +243,12 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
             
             let indexPath = twitterTableView.indexPathForSelectedRow
             if let index = indexPath {
-                vc.tweet = self.tweets[index.row]
+                if let retweeted_status = self.tweets[index.row].retweeted_status {
+                    vc.tweet = retweeted_status
+                    vc.retweet = self.tweets[index.row]
+                } else {
+                    vc.tweet = self.tweets[index.row]
+                }
                 vc.indexPath = index
                 vc.delegate = self
             }
