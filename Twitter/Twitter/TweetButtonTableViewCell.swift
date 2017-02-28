@@ -23,13 +23,31 @@ class TweetButtonTableViewCell: UITableViewCell {
     
     @IBOutlet weak var messageButton: UIButton!
     
-    var tweet: TweetModel!
+    var tweet: TweetModel! {
+        didSet {
+            updateUIWithTweetDetails()
+        }
+    }
+
 
     var delegate: TweetButtonTableViewCellDelegate?
     
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
+    }
+        
+    func updateUIWithTweetDetails () {
+        if tweet.isUserRetweeted! {
+            retweetButton.setImage(#imageLiteral(resourceName: "retweet-icon-green"), for: .normal)
+        } else {
+            retweetButton.setImage(#imageLiteral(resourceName: "retweet-icon-dark"), for: .normal)
+        }
+        if tweet.isUserFavorited! {
+            favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon-red"), for: .normal)
+        } else {
+            favoriteButton.setImage(#imageLiteral(resourceName: "favorited-icon-dark"), for: .normal)
+        }
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
