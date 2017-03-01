@@ -155,7 +155,20 @@ class TweetDetailTableViewCell: UITableViewCell {
         }
         
         if let nameString = tweet?.user?.name {
-            nameLabel.text = nameString
+            if let verified = tweet.user?.verified {
+                if verified == true {
+                    let attachment = NSTextAttachment()
+                    attachment.image = #imageLiteral(resourceName: "verified-account")
+                    // attachment.image = UIImage(cgImage: (attachment.image?.cgImage)!, scale: 6, orientation: .up)
+                    attachment.bounds = CGRect(x: 0, y: -4, width: 18, height: 18)
+                    let attachmentString = NSAttributedString(attachment: attachment)
+                    let myString = NSMutableAttributedString(string: "\(nameString) ")
+                    myString.append(attachmentString)
+                    nameLabel.attributedText = myString
+                } else {
+                    nameLabel.text = nameString
+                }
+            }
         } else {
             nameLabel.text = ""
         }

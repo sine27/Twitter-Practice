@@ -34,13 +34,13 @@ class TweetModel: NSObject {
     init(dictionary: NSDictionary) {
         
         self.dictionary = dictionary
-
+        
         if let retweeted_status = dictionary["retweeted_status"] as? NSDictionary {
             self.retweeted_status = TweetModel(dictionary: retweeted_status)
         } else {
             self.retweeted_status = nil
         }
-
+        
         if let id = dictionary["id"] as? Int {
             self.id = id
         } else {

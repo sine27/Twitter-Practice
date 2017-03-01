@@ -9,7 +9,7 @@
 import UIKit
 
 class UserModel: NSObject {
-
+    
     var create_at: Date?
     var use_description: String?
     var favourites_count: Int?
@@ -27,6 +27,7 @@ class UserModel: NSObject {
     var profile_image_url_https: URL?
     var screen_name: String?
     var dictionary: NSDictionary
+    var verified: Bool?
     
     // Add more variables
     
@@ -34,6 +35,12 @@ class UserModel: NSObject {
     init(dictionary: NSDictionary) {
         
         self.dictionary = dictionary
+        
+        if let verified = dictionary["verified"] as? Bool {
+            self.verified = verified
+        } else {
+            self.verified = false
+        }
         
         if let createAtString = dictionary["created_at"] as? String {
             let dateFormatter = DateFormatter()
