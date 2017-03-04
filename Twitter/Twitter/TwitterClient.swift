@@ -28,6 +28,7 @@ class TwitterClient: BDBOAuth1SessionManager {
         static let OAuthAccessTokenEndpoint = "oauth/access_token"
         static let UserCredentialEndpoint = "1.1/account/verify_credentials.json"
         static let UserShowEndpoint = "1.1/users/lookup.json"
+        static let UserBannerEndpoint = "1.1/users/profile_banner.json"
         
         static let HomeTimelineEndpoint = "1.1/statuses/home_timeline.json"
         static let UserTimelineEndpoint = "1.1/statuses/user_timeline.json"

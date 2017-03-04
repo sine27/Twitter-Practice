@@ -133,16 +133,11 @@ class UserModel: NSObject {
         if let profile_background_image_url_https = dictionary["profile_background_image_url_https"] as? String? {
             self.profile_background_image_url_https = URL(string: profile_background_image_url_https!)
         } else {
-            if let profile_banner_url = dictionary["profile_banner_url"] as? String? {
-                self.profile_background_image_url_https = URL(string: profile_banner_url!)
-            } else {
-                self.profile_background_image_url_https = nil
-            }
+            self.profile_background_image_url_https = nil
         }
         
         if let profile_image_url = dictionary["profile_image_url"] as? String? {
-            let new_profile_image_url = profile_image_url!.replacingOccurrences(of: "_normal", with: "")
-            self.profile_image_url = URL(string: new_profile_image_url)
+            self.profile_image_url = URL(string: profile_image_url!)
         } else {
             self.profile_image_url = nil
         }

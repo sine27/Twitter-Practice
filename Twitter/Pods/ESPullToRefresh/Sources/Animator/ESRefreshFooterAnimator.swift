@@ -108,7 +108,7 @@ open class ESRefreshFooterAnimator: UIView, ESRefreshProtocol, ESRefreshAnimator
         let h = s.height
         
         titleLabel.sizeToFit()
-        titleLabel.center = CGPoint.init(x: w / 2.0, y: h / 2.0 - 5.0)
+        titleLabel.center = CGPoint.init(x: w / 2.0, y: h / 2.0)
         indicatorView.center = CGPoint.init(x: titleLabel.frame.origin.x, y: titleLabel.center.y)
     }
 }

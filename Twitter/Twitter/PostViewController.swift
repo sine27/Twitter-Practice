@@ -135,6 +135,11 @@ class PostViewController: UIViewController, UITextViewDelegate {
             buttonColorChange(hidden: true)
             inputTextView.isEditable = false
             placeholderLabel.text = "Reply Not Activated..."
+        } else if endpoint == 2 {
+            tweetButton.isEnabled = false
+            buttonColorChange(hidden: true)
+            inputTextView.isEditable = false
+            placeholderLabel.text = "Message Not Activated..."
         }
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: Notification.Name.UIKeyboardWillShow, object: nil)

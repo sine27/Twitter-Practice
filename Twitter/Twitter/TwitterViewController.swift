@@ -117,6 +117,8 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
                     tweetsTmp.append(TweetModel(dictionary: tweet))
                 }
                 
+                //self.twitterTableView.contentSize.height = 3000
+                
                 if type == 0 {
                     self.tweets = tweetsTmp + self.tweets
                     
@@ -212,7 +214,15 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         return tweets.count
     }
     
-    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+//    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+//        if let height = heightAtIndexPath.object(forKey: indexPath) as? NSNumber {
+//            return CGFloat(height.floatValue)
+//        } else {
+//            return UITableViewAutomaticDimension
+//        }
+//    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if let height = heightAtIndexPath.object(forKey: indexPath) as? NSNumber {
             return CGFloat(height.floatValue)
         } else {
@@ -236,11 +246,7 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
 
     @IBAction func logoutTapped(_ sender: Any) {
         
-        UIhelper.alertMessageWithAction("Log Out", userMessage: "Are you sure to logout?", left: "Cancel", right: "Logout", leftAction: nil, rightAction: { (action) in
-            if let client = TwitterClient.sharedInstance {
-                client.logout()
-            }
-        }, sender: self)
+        UIhelper.alertMessage("Add Contacts", userMessage: "Unavailable", action: nil, sender: self)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -419,7 +425,7 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
                 }, failure: { (task, error) in
                     print("\(error.localizedDescription)")
                 })
-            }, sender: (UIApplication.shared.keyWindow?.rootViewController)!)
+            }, sender: self)
         }
         if cell.tweet.user?.id == UserModel.currentUser?.id {
             alertController.addAction(deleteAction)

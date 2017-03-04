@@ -56,7 +56,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     var headerImageHeightCopy: CGFloat?
     
-    let blurView = UIVisualEffectView(effect : UIBlurEffect(style: UIBlurEffectStyle.light))
+    var blurView = UIVisualEffectView(effect: UIBlurEffect(style: UIBlurEffectStyle.light))
     
     let screenHeight = UIScreen.main.bounds.height
     
@@ -110,7 +110,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         nameBarLabel.alpha = 0.0
         numStatusLabel.alpha = 0.0
         
-        userTweetsTableView.scrollIndicatorInsets = UIEdgeInsets(top: profileView.frame.height + 65, left: 0, bottom: 0, right: 0)
+        userTweetsTableView.scrollIndicatorInsets = UIEdgeInsets(top: profileView.frame.height + 55, left: 0, bottom: 0, right: 0)
         
         profileViewHeight = profileView.frame.height
         
@@ -118,7 +118,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
             userProfile = UserModel.currentUser
             parameters = nil
         } else {
-            parameters = ["user_id": userProfile!.id]
+            parameters = ["screen_name": userProfile!.screen_name]
         }
         
         setupProfile ()
@@ -129,26 +129,27 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
             if self.since_id == -1 {
 
             } else {
-                self.parameters = ["user_id": self.userProfile!.id, "since_id": self.since_id, "count": 5]
+                self.parameters = ["screen_name": self.userProfile!.screen_name ?? "", "since_id": self.since_id, "count": 5]
             }
-            self.requestData(parameters: self.parameters, type: 0)
+            self.requestData(endpoint: self.endpoint, parameters: self.parameters, type: 0)
             
             var param = self.parameters
             if param == nil {
-                param = ["user_id": self.userProfile!.id]
+                param = ["screen_name": self.userProfile!.screen_name ?? ""]
             }
+            self.requestData(endpoint: TwitterClient.APIScheme.UserShowEndpoint, parameters: self.parameters, type: 4)
         }
         
         userTweetsTableView.es_addInfiniteScrolling {
             if self.max_id == -1 {
                 self.userTweetsTableView.es_noticeNoMoreData()
             } else {
-                self.parameters = ["max_id": self.max_id, "count": 10]
-                self.requestData(parameters: self.parameters, type: 1)
+                self.parameters = ["screen_name": self.userProfile!.screen_name ?? "", "max_id": self.max_id, "count": 10]
+                self.requestData(endpoint: self.endpoint, parameters: self.parameters, type: 1)
             }
         }
         
-        requestData(parameters: parameters, type: 0)
+        requestData(endpoint: endpoint, parameters: parameters, type: 0)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -188,18 +189,21 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func setupProfile () {
-        
-        if let avatarURL = userProfile?.profile_image_url {
-            avatarImageView.setImageWith(avatarURL)
+
+        if let avatarURL = userProfile?.profile_image_url_https {
+            avatarImageView.setImageWith(URLRequest(url: avatarURL), placeholderImage: #imageLiteral(resourceName: "noImage"), success: { (request, response, image) in
+                self.avatarImageView.alpha = 0.0
+                self.avatarImageView.image = image
+                UIView.animate(withDuration: 0.8, animations: {
+                    self.avatarImageView.alpha = 1.0
+                })
+            }, failure: { (request, response, error) in
+                if self.userProfile?.profile_image_url != nil {
+                    self.avatarImageView.setImageWith((self.userProfile?.profile_image_url)!)
+                }
+            })
         }
-        
-        if let backgroundURL = userProfile?.profile_background_image_url_https {
-            backgroundImageView.setImageWith(backgroundURL)
-        } else {
-            backgroundImageView.image = nil
-            backgroundView.backgroundColor = UIhelper.UIColorOption.twitterBlue
-        }
-        
+
         if let nameString = userProfile?.name {
             nameBarLabel.text = userProfile!.name
             if let verified = userProfile?.verified {
@@ -261,6 +265,9 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
             numStatusLabel.text = "0 Tweets"
         }
         
+        parameters = ["screen_name": userProfile!.screen_name]
+        requestData(endpoint: TwitterClient.APIScheme.UserBannerEndpoint, parameters: parameters, type: 3)
+        
         if let followingCount = userProfile?.friend_count {
             
             let attributeNum = [ NSFontAttributeName: UIFont.systemFont(ofSize: 13, weight: UIFontWeightSemibold) ]
@@ -316,47 +323,73 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         // Dispose of any resources that can be recreated.
     }
     
-    func requestData (parameters: Any?, type: Int) {
+    func requestData (endpoint: String, parameters: Any?, type: Int) {
         
         if let client = TwitterClient.sharedInstance {
             client.get(endpoint, parameters: parameters, progress: nil, success: { (task, response) in
                 
-                let dictionary = response as! [NSDictionary]
-                
-                var tweetsTmp: [TweetModel] = []
-                for tweet in dictionary {
-                    tweetsTmp.append(TweetModel(dictionary: tweet))
+                if type != 3 {
+                    let dictionary = response as! [NSDictionary]
+                    var tweetsTmp: [TweetModel] = []
+                    for tweet in dictionary {
+                        tweetsTmp.append(TweetModel(dictionary: tweet))
+                    }
+                    // refresh
+                    if type == 0 {
+                        self.tweets = tweetsTmp + self.tweets
+                        
+                        self.since_id = self.tweets[0].id!
+                        self.max_id = self.tweets[self.tweets.count - 1].id!
+                        
+                        self.userTweetsTableView.reloadData()
+                        self.userTweetsTableView.es_stopPullToRefresh()
+                    }
+                    
+                    // load more
+                    else if type == 1 {
+                        
+                        tweetsTmp.remove(at: 0)
+                        
+                        self.tweets += tweetsTmp
+                        
+                        self.max_id = self.tweets[self.tweets.count - 1].id!
+                        self.userTweetsTableView.reloadData()
+                        self.userTweetsTableView.es_stopLoadingMore()
+                    }
+                        
+                    // load new
+                    else if type == 2 {
+                        self.tweets = tweetsTmp + self.tweets
+                        
+                        self.since_id = self.tweets[0].id!
+                        self.max_id = self.tweets[self.tweets.count - 1].id!
+                        
+                        let offset = self.userTweetsTableView.contentOffset
+                        self.userTweetsTableView.reloadData()
+                        self.userTweetsTableView.layoutIfNeeded()
+                        self.userTweetsTableView.contentOffset = offset
+                    }
                 }
-                
-                if type == 0 {
-                    self.tweets = tweetsTmp + self.tweets
-                    
-                    self.since_id = self.tweets[0].id!
-                    self.max_id = self.tweets[self.tweets.count - 1].id!
-                    
-                    self.userTweetsTableView.reloadData()
-                    self.userTweetsTableView.es_stopPullToRefresh()
-                }
-                else if type == 1 {
-                    
-                    tweetsTmp.remove(at: 0)
-                    
-                    self.tweets += tweetsTmp
-                    
-                    self.max_id = self.tweets[self.tweets.count - 1].id!
-                    self.userTweetsTableView.reloadData()
-                    self.userTweetsTableView.es_stopLoadingMore()
-                }
-                else if type == 2 {
-                    self.tweets = tweetsTmp + self.tweets
-                    
-                    self.since_id = self.tweets[0].id!
-                    self.max_id = self.tweets[self.tweets.count - 1].id!
-                    
-                    let offset = self.userTweetsTableView.contentOffset
-                    self.userTweetsTableView.reloadData()
-                    self.userTweetsTableView.layoutIfNeeded()
-                    self.userTweetsTableView.contentOffset = offset
+                else {
+                    let dictionary = response as! NSDictionary
+                    print(dictionary)
+                    // type 3
+                    if type == 3 {
+                        let sizes = dictionary["sizes"] as! NSDictionary
+                        let large = sizes["1500x500"] as! NSDictionary
+                        let urlString = large["url"] as! String
+                        
+                        self.backgroundImageView.setImageWith(URLRequest(url: URL(string: urlString)!), placeholderImage: #imageLiteral(resourceName: "loadingImage"), success: { (request, response, image) in
+                            self.backgroundImageView.alpha = 0.0
+                            self.backgroundImageView.image = image
+                            UIView.animate(withDuration: 0.8, animations: {
+                                self.backgroundImageView.alpha = 1.0
+                            })
+                        }, failure: { (request, response, error) in
+                            self.backgroundImageView.image = nil
+                            self.backgroundView.backgroundColor = UIhelper.UIColorOption.twitterBlue
+                        })
+                    }
                 }
                 
                 self.uiHelper.stopActivityIndicator()
@@ -364,19 +397,24 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
                     self.userTweetsTableView.alpha = 1
                 })
             }, failure: { (task, error) in
-                UIhelper.alertMessage("Request", userMessage: error.localizedDescription, action: nil, sender: self)
-                // print("FetchTimelineData: Error >>> \(error.localizedDescription)")
-                self.uiHelper.stopActivityIndicator()
-                
-                if type == 0 {
-                    self.userTweetsTableView.es_stopPullToRefresh()
-                } else if type == 1 {
-                    self.userTweetsTableView.es_stopLoadingMore()
+                if type == 3 {
+                    self.backgroundImageView.image = nil
+                    self.backgroundView.backgroundColor = UIhelper.UIColorOption.twitterBlue
+                } else {
+                    UIhelper.alertMessage("Request type\(type)", userMessage: error.localizedDescription, action: nil, sender: self)
+                    // print("FetchTimelineData: Error >>> \(error.localizedDescription)")
+                    self.uiHelper.stopActivityIndicator()
+                    
+                    if type == 0 {
+                        self.userTweetsTableView.es_stopPullToRefresh()
+                    } else if type == 1 {
+                        self.userTweetsTableView.es_stopLoadingMore()
+                    }
                 }
             })
         }
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
         let cell = Bundle.main.loadNibNamed("TweetTableViewCell", owner: self, options: nil)?.first as! TweetTableViewCell
@@ -437,10 +475,12 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offset = scrollView.contentOffset.y
-        let scrollToTop = profileView.frame.height + 45
+        let scrollToTop = profileView.frame.height + 55
         let difference = scrollToTop - offset
         var avatarTransform = CATransform3DIdentity
         var headerTransform = CATransform3DIdentity
+        
+//        print(offset)
         
         if difference >= 0 {
             userTweetsTableView.scrollIndicatorInsets = UIEdgeInsets(top: difference, left: 0, bottom: 0, right: 0)
@@ -452,7 +492,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
             headerTransform = CATransform3DTranslate(headerTransform, 0, headerSizevariation, 0)
             headerTransform = CATransform3DScale(headerTransform, 1.0 + headerScaleFactor, 1.0 + headerScaleFactor, 0)
             
-            backgroundImageView.subviews[0].alpha = min (0.7, (0 - offset)/20)
+            backgroundImageView.subviews[0].alpha = min (0.8, (0 - offset)/20)
             
             backgroundView.layer.transform = headerTransform
         }
@@ -460,10 +500,17 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         else {
             headerTransform = CATransform3DTranslate(headerTransform, 0, max(-offset_HeaderStop, -offset), 0)
             
-            backgroundImageView.subviews[0].alpha = min (0.7, (offset - offset_B_LabelHeader)/distance_W_LabelHeader)
+            backgroundImageView.subviews[0].alpha = min (0.8, (offset - offset_B_LabelHeader)/distance_W_LabelHeader)
             
-            nameBarLabel.alpha = min (1.0, (offset - offset_B_LabelHeader)/distance_W_LabelHeader)
-            numStatusLabel.alpha = min (1.0, (offset - offset_B_LabelHeader)/distance_W_LabelHeader)
+            var labelTransform = CATransform3DMakeTranslation(0, max(-distance_W_LabelHeader, offset_B_LabelHeader - offset), 0)
+            nameBarLabel.layer.transform = labelTransform
+            labelTransform = CATransform3DMakeTranslation(0, max(-distance_W_LabelHeader, offset_B_LabelHeader - offset), 0)
+            numStatusLabel.layer.transform = labelTransform
+            
+            if offset > 98 {
+                nameBarLabel.alpha = min (1.0, (offset - 98)/10)
+                numStatusLabel.alpha = min (1.0, (offset - 98)/10)
+            }
             
             let avatarScaleFactor = (min(offset_HeaderStop, offset)) / avatarImageView.bounds.height / 1.4 // Slow down the animation
             let avatarSizeVariation = ((avatarImageView.bounds.height * (1.0 + avatarScaleFactor)) - avatarImageView.bounds.height) / 2.0
@@ -487,6 +534,28 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         avatarImageView.layer.transform = avatarTransform
     }
 
+    @IBAction func SettingButtonTapped(_ sender: UIButton) {
+        let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        
+        let deleteAction = UIAlertAction(title: "Sign out", style: .default) { (action) in
+            
+            UIhelper.alertMessageWithAction("Log Out", userMessage: "Are you sure to logout?", left: "Cancel", right: "Logout", leftAction: nil, rightAction: { (action) in
+                if let client = TwitterClient.sharedInstance {
+                    client.logout()
+                }
+            }, sender: self)
+        }
+        
+        if userProfile?.id == UserModel.currentUser?.id {
+            alertController.addAction(deleteAction)
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        alertController.addAction(cancelAction)
+        
+        self.present(alertController, animated: true, completion: nil)
+    }
+    
     func tweetCellRetweetTapped(cell: TweetTableViewCell, isRetweeted: Bool) {
         var endpoint : String?
         
@@ -647,7 +716,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     internal func getNewTweet(data: TweetModel) {
         // print(data.dictionary)
-        requestData(parameters: ["since_id": since_id], type: 2)
+        requestData(endpoint: TwitterClient.APIScheme.UserTimelineEndpoint, parameters: ["since_id": since_id], type: 2)
     }
     
     internal func getPopoverImage(imageView: UIImageView) {
@@ -687,7 +756,12 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
             let popoverViewController = segue.destination as! PostViewController
             popoverViewController.delegate = self
             popoverViewController.popoverPresentationController?.delegate = self
-            popoverViewController.endpoint = 0
+            if userProfile?.id == UserModel.currentUser?.id {
+                popoverViewController.endpoint = 0
+            } else {
+                popoverViewController.endpoint = 2
+            }
+            
         }
         // popover segue
         if segue.identifier == "profileToImage" {

@@ -130,6 +130,7 @@ class TweetTableViewCell: UITableViewCell {
         contentImage.clipsToBounds = true
         
         self.layoutIfNeeded()
+        self.layoutSubviews()
         
         contentLabel.customize { contentLabel in
             
@@ -151,11 +152,11 @@ class TweetTableViewCell: UITableViewCell {
     }
     
     override func prepareForReuse() {
-        userAvatar.image = #imageLiteral(resourceName: "noImage")
-        reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon"), for: .normal)
-        favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)
-        numRetwitteLabel.setButtonTitleColor(option: .gray)
-        numFavoriteLabel.setButtonTitleColor(option: .gray)
+//        userAvatar.image = #imageLiteral(resourceName: "noImage")
+//        reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon"), for: .normal)
+//        favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)
+//        numRetwitteLabel.setButtonTitleColor(option: .gray)
+//        numFavoriteLabel.setButtonTitleColor(option: .gray)
         
         setupCell()
     }
@@ -163,27 +164,27 @@ class TweetTableViewCell: UITableViewCell {
     func setupCell () {
         userTweetForRetweet = nil
         
-        contentImage.isHidden = true
-        stackToContentImage.constant = 3
-        contentImageHeight.constant = 0
-        
-        retweetStack.isHidden = true
-        retweetLabelHeight.constant = 0
-        avatarToRetweeted.constant = 5
-        
-        for view in contentStack0.subviews {
-            view.removeGestureRecognizer(tapGesture)
-            view.removeFromSuperview()
-        }
-        for view in contentStack1.subviews {
-            view.removeGestureRecognizer(tapGesture)
-            view.removeFromSuperview()
-        }
-        
-        contentImage.distribution = .fill
-        contentStack0.distribution = .fill
-        contentStack1.distribution = .fill
-        stack1width.constant = 0
+//        contentImage.isHidden = true
+//        stackToContentImage.constant = 3
+//        contentImageHeight.constant = 0
+//        
+//        retweetStack.isHidden = true
+//        retweetLabelHeight.constant = 0
+//        avatarToRetweeted.constant = 5
+//        
+//        for view in contentStack0.subviews {
+//            view.removeGestureRecognizer(tapGesture)
+//            view.removeFromSuperview()
+//        }
+//        for view in contentStack1.subviews {
+//            view.removeGestureRecognizer(tapGesture)
+//            view.removeFromSuperview()
+//        }
+//        
+//        contentImage.distribution = .fill
+//        contentStack0.distribution = .fill
+//        contentStack1.distribution = .fill
+//        stack1width.constant = 0
         
         playButton.removeFromSuperview()
     }
@@ -201,8 +202,18 @@ class TweetTableViewCell: UITableViewCell {
             retweetStack.isHidden = false
         }
         
-        if let avatarURL = tweet?.user?.profile_image_url {
-            userAvatar.setImageWith(avatarURL)
+        if let avatarURL = tweet?.user?.profile_image_url_https {
+            userAvatar.setImageWith(URLRequest(url: avatarURL), placeholderImage: #imageLiteral(resourceName: "noImage"), success: { (request, response, image) in
+                self.userAvatar.alpha = 0.0
+                self.userAvatar.image = image
+                UIView.animate(withDuration: 0.8, animations: {
+                    self.userAvatar.alpha = 1.0
+                })
+            }, failure: { (request, response, error) in
+                if self.tweet?.user?.profile_image_url != nil {
+                    self.userAvatar.setImageWith((self.tweet?.user?.profile_image_url)!)
+                }
+            })
             userAvatar.isUserInteractionEnabled = true
             tapGesture = UITapGestureRecognizer(target: self, action: #selector(showProfile(sender:)))
             userAvatar.addGestureRecognizer(tapGesture)
