@@ -1,16 +1,14 @@
 //
-//  TweetReviewTableViewCell.swift
+//  ProfileTableViewCell.swift
 //  Twitter
 //
-//  Created by Shayin Feng on 2/25/17.
+//  Created by Shayin Feng on 3/2/17.
 //  Copyright © 2017 Shayin Feng. All rights reserved.
 //
 
 import UIKit
 
-class TweetReviewTableViewCell: UITableViewCell {
-    
-    var tweet: TweetModel!
+class ProfileTableViewCell: UITableViewCell {
 
     override func awakeFromNib() {
         super.awakeFromNib()

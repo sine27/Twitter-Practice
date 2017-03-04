@@ -11,7 +11,7 @@ import ESPullToRefresh
 import AVKit
 import AVFoundation
 
-class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPopoverPresentationControllerDelegate, TweetsTableViewCellDelegate, TweetTableViewDelegate, UpdateCellFromTableDelegate {
+class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPopoverPresentationControllerDelegate, TweetTableViewCellDelegate, TweetTableViewDelegate, UpdateCellFromTableDelegate {
     
     @IBOutlet weak var twitterTableView: UITableView!
     
@@ -20,6 +20,8 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
     var since_id = -1
     
     var tweets: [TweetModel] = []
+    
+    var cellUser: UserModel?
     
     var uiHelper = UIhelper()
     
@@ -52,7 +54,7 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
             
         // auto adjust table cell height
         twitterTableView.rowHeight = UITableViewAutomaticDimension
-        twitterTableView.estimatedRowHeight = 80
+        twitterTableView.estimatedRowHeight = 200
         
         twitterTableView.es_addPullToRefresh {
             if self.since_id == -1 {
@@ -85,12 +87,11 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         if selectedIndexPath != nil {
             twitterTableView.deselectRow(at: selectedIndexPath!, animated: false)
         }
-        self.tabBarController?.tabBar.barTintColor = UIColor.white
+        //self.tabBarController?.tabBar.barTintColor = UIColor.white
         self.tabBarController?.tabBar.tintColor = UIhelper.UIColorOption.twitterBlue
         UITabBarItem.appearance().titlePositionAdjustment = UIOffset(horizontal: 0, vertical: -2)
         
-        self.navigationController!.navigationBar.topItem?.title = ""
-        self.navigationController!.title = "Tweet"
+        self.navigationController?.navigationBar.topItem?.title = ""
     }
     
     func onTimer() {
@@ -166,7 +167,8 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "twitterCell") as! TwitterTableViewCell
+        //let cell = tableView.dequeueReusableCell(withIdentifier: "twitterCell") as! TweetTableViewCell
+        let cell = Bundle.main.loadNibNamed("TweetTableViewCell", owner: self, options: nil)?.first as! TweetTableViewCell
         
         let tweet = tweets[indexPath.row]
         
@@ -222,6 +224,10 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         let height = NSNumber(value: Float(cell.frame.size.height))
         heightAtIndexPath.setObject(height, forKey: indexPath as NSCopying)
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: "showTwitterDetail", sender: self)
+    }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
@@ -267,9 +273,13 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
             popoverViewController.popoverPresentationController?.delegate = self
             popoverViewController.image = popImage
         }
+        if segue.identifier == "showProfile" {
+            let vc = segue.destination as! ProfileViewController
+            vc.userProfile = self.cellUser
+        }
     }
 
-    func tweetCellRetweetTapped(cell: TwitterTableViewCell, isRetweeted: Bool) {
+    func tweetCellRetweetTapped(cell: TweetTableViewCell, isRetweeted: Bool) {
         var endpoint : String?
         
         // pop up menu
@@ -343,7 +353,7 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         self.present(alertController, animated: true, completion: nil)
     }
     
-    func tweetCellFavoritedTapped(cell: TwitterTableViewCell, isFavorited: Bool) {
+    func tweetCellFavoritedTapped(cell: TweetTableViewCell, isFavorited: Bool) {
         var endpoint : String?
         
         cell.favoriteButton.isEnabled = false
@@ -388,7 +398,7 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         cell.numFavoriteLabel.isEnabled = true
     }
     
-    func tweetCellMenuTapped(cell: TwitterTableViewCell, withId id: Int) {
+    func tweetCellMenuTapped(cell: TweetTableViewCell, withId id: Int) {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
         let deleteAction = UIAlertAction(title: "Delete Tweet", style: .destructive) { (action) in
@@ -440,5 +450,10 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
     internal func updateNumber(tweet: TweetModel, indexPath: IndexPath) {
         self.tweets[indexPath.row] = tweet
         twitterTableView.reloadRows(at: [indexPath], with: .fade)
+    }
+    
+    internal func tweetCellUserProfileImageTapped(cell: TweetTableViewCell, forTwitterUser user: UserModel?) {
+        self.cellUser = user
+        performSegue(withIdentifier: "showProfile", sender: self)
     }
 }

@@ -18,6 +18,7 @@ class UserModel: NSObject {
     var geo_enabled: Bool?
     var id: Int?
     var listed_count: Int?
+    var statuses_count: Int?
     var location: String?
     var name: String?
     var profile_background_color: String?
@@ -28,6 +29,12 @@ class UserModel: NSObject {
     var screen_name: String?
     var dictionary: NSDictionary
     var verified: Bool?
+    var hashtags: NSArray?
+    var media: NSArray?
+    var symbols: NSArray?
+    var urls: NSArray?
+    var user_mentions: NSArray?
+    var description_link: String?
     
     // Add more variables
     
@@ -75,6 +82,12 @@ class UserModel: NSObject {
             self.friend_count = 0
         }
         
+        if let statuses_count = dictionary["statuses_count"] as? Int {
+            self.statuses_count = statuses_count
+        } else {
+            self.statuses_count = 0
+        }
+        
         if let geoEnabled = dictionary["geo_enabled"] as? Bool {
             self.geo_enabled = geoEnabled
         } else {
@@ -120,17 +133,23 @@ class UserModel: NSObject {
         if let profile_background_image_url_https = dictionary["profile_background_image_url_https"] as? String? {
             self.profile_background_image_url_https = URL(string: profile_background_image_url_https!)
         } else {
-            self.profile_background_image_url_https = nil
+            if let profile_banner_url = dictionary["profile_banner_url"] as? String? {
+                self.profile_background_image_url_https = URL(string: profile_banner_url!)
+            } else {
+                self.profile_background_image_url_https = nil
+            }
         }
         
         if let profile_image_url = dictionary["profile_image_url"] as? String? {
-            self.profile_image_url = URL(string: profile_image_url!)
+            let new_profile_image_url = profile_image_url!.replacingOccurrences(of: "_normal", with: "")
+            self.profile_image_url = URL(string: new_profile_image_url)
         } else {
             self.profile_image_url = nil
         }
         
         if let profile_image_url_https = dictionary["profile_image_url_https"] as? String? {
-            self.profile_image_url_https = URL(string: profile_image_url_https!)
+            let new_profile_image_url_https = profile_image_url_https!.replacingOccurrences(of: "_normal", with: "")
+            self.profile_image_url_https = URL(string: new_profile_image_url_https)
         } else {
             self.profile_image_url_https = nil
         }
@@ -139,6 +158,43 @@ class UserModel: NSObject {
             self.screen_name = "@\(screen_name!)"
         } else {
             self.screen_name = nil
+        }
+        
+        if var entities = dictionary["entities"] as? NSDictionary {
+            
+            if let hashtags = entities["hashtags"] as? NSArray {
+                self.hashtags = hashtags
+            } else {
+                self.hashtags = nil
+            }
+            
+            if let symbols = entities["symbols"] as? NSArray {
+                self.symbols = symbols
+            } else {
+                self.symbols = nil
+            }
+            
+            if let urls = entities["urls"] as? NSArray {
+                self.urls = urls
+            } else {
+                self.urls = nil
+            }
+            
+            if let user_mentions = entities["user_mentions"] as? NSArray {
+                self.user_mentions = user_mentions
+            } else {
+                self.user_mentions = nil
+            }
+            
+            if let extended_entities = dictionary["extended_entities"] as? NSDictionary {
+                entities = extended_entities
+            }
+            
+            if let media = entities["media"] as? NSArray {
+                self.media = media
+            } else {
+                self.media = nil
+            }
         }
     }
     

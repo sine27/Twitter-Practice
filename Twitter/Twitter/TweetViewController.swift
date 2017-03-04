@@ -45,7 +45,8 @@ class TweetViewController: UIViewController, UITableViewDelegate, UITableViewDat
     override func viewWillAppear(_ animated: Bool) {
         self.automaticallyAdjustsScrollViewInsets = false
         
-        self.navigationController!.navigationBar.topItem?.title = ""
+        self.navigationController?.navigationBar.topItem?.title = ""
+        self.navigationController?.title = "Tweet"
         self.navigationItem.backBarButtonItem?.tintColor = UIhelper.UIColorOption.twitterBlue
     }
     
@@ -94,7 +95,7 @@ class TweetViewController: UIViewController, UITableViewDelegate, UITableViewDat
             return cell
         }
         else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "reviewCell") as! TweetReviewTableViewCell
+            let cell = tableView.dequeueReusableCell(withIdentifier: "reviewCell") as! TweetTableViewCell
             cell.layoutMargins = UIEdgeInsets.zero
             cell.tweet = self.tweet
             return cell

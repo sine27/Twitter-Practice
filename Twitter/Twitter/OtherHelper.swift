@@ -39,9 +39,14 @@ extension Date {
     // Returns the a custom time interval description from another date
     func offset(from date: Date) -> String {
         if days(from: date) >  6 {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "M/dd/yy"
+            return dateFormatter.string(from: date)
+        }
+        if days(from: date) <= 6, days(from: date) > 0 {
             return "\(days(from: date))d"
         }
-        if days(from: date) <= 6, hours(from: date) > 0 {
+        if days(from: date) <= 0, hours(from: date) > 0 {
             return "\(hours(from: date))h"
         }
         if hours(from: date) <= 0, minutes(from: date) > 0 {

@@ -27,9 +27,9 @@ import UIKit
 
 open class ESRefreshFooterAnimator: UIView, ESRefreshProtocol, ESRefreshAnimatorProtocol {
 
-    open var loadingMoreDescription: String = "Loading more"
-    open var noMoreDataDescription: String  = "No more data"
-    open var loadingDescription: String     = "Loading..."
+    open var loadingMoreDescription: String = ""
+    open var noMoreDataDescription: String  = ""
+    open var loadingDescription: String     = ""
 
     open var view: UIView { return self }
     open var duration: TimeInterval = 0.3
@@ -47,7 +47,7 @@ open class ESRefreshFooterAnimator: UIView, ESRefreshProtocol, ESRefreshAnimator
     }()
     
     fileprivate let indicatorView: UIActivityIndicatorView = {
-        let indicatorView = UIActivityIndicatorView.init(activityIndicatorStyle: .gray)
+        let indicatorView = UIActivityIndicatorView.init(activityIndicatorStyle: .white)
         indicatorView.isHidden = true
         return indicatorView
     }()
@@ -109,6 +109,6 @@ open class ESRefreshFooterAnimator: UIView, ESRefreshProtocol, ESRefreshAnimator
         
         titleLabel.sizeToFit()
         titleLabel.center = CGPoint.init(x: w / 2.0, y: h / 2.0 - 5.0)
-        indicatorView.center = CGPoint.init(x: titleLabel.frame.origin.x - 18.0, y: titleLabel.center.y)
+        indicatorView.center = CGPoint.init(x: titleLabel.frame.origin.x, y: titleLabel.center.y)
     }
 }

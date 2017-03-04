@@ -29,15 +29,15 @@ import QuartzCore
 import UIKit
 
 open class ESRefreshHeaderAnimator: UIView, ESRefreshProtocol, ESRefreshAnimatorProtocol, ESRefreshImpactProtocol {
-    open var pullToRefreshDescription = "Pull to refresh" {
+    open var pullToRefreshDescription = "" {
         didSet {
             if pullToRefreshDescription != oldValue {
                 titleLabel.text = pullToRefreshDescription;
             }
         }
     }
-    open var releaseToRefreshDescription = "Release to refresh"
-    open var loadingDescription = "Loading..."
+    open var releaseToRefreshDescription = ""
+    open var loadingDescription = ""
 
     open var view: UIView { return self }
     open var insets: UIEdgeInsets = UIEdgeInsets.zero
@@ -48,9 +48,9 @@ open class ESRefreshHeaderAnimator: UIView, ESRefreshProtocol, ESRefreshAnimator
     fileprivate let imageView: UIImageView = {
         let imageView = UIImageView.init()
         if #available(iOS 8, *) {
-            imageView.image = UIImage(named: "icon_pull_to_refresh_arrow", in: Bundle(for: ESRefreshHeaderAnimator.self), compatibleWith: nil)
+            imageView.image = #imageLiteral(resourceName: "icon_pull_to_refresh_arrow")
         } else {
-            imageView.image = UIImage(named: "icon_pull_to_refresh_arrow")
+            imageView.image = #imageLiteral(resourceName: "icon_pull_to_refresh_arrow")
         }
         return imageView
     }()
@@ -64,7 +64,7 @@ open class ESRefreshHeaderAnimator: UIView, ESRefreshProtocol, ESRefreshAnimator
     }()
     
     fileprivate let indicatorView: UIActivityIndicatorView = {
-        let indicatorView = UIActivityIndicatorView.init(activityIndicatorStyle: .gray)
+        let indicatorView = UIActivityIndicatorView.init(activityIndicatorStyle: .white)
         indicatorView.isHidden = true
         return indicatorView
     }()
@@ -73,7 +73,6 @@ open class ESRefreshHeaderAnimator: UIView, ESRefreshProtocol, ESRefreshAnimator
         super.init(frame: frame)
         titleLabel.text = pullToRefreshDescription
         self.addSubview(imageView)
-        self.addSubview(titleLabel)
         self.addSubview(indicatorView)
     }
     
@@ -85,7 +84,6 @@ open class ESRefreshHeaderAnimator: UIView, ESRefreshProtocol, ESRefreshAnimator
         indicatorView.startAnimating()
         indicatorView.isHidden = false
         imageView.isHidden = true
-        titleLabel.text = loadingDescription
         imageView.transform = CGAffineTransform(rotationAngle: 0.000001 - CGFloat(M_PI))
     }
   
@@ -93,7 +91,6 @@ open class ESRefreshHeaderAnimator: UIView, ESRefreshProtocol, ESRefreshAnimator
         indicatorView.stopAnimating()
         indicatorView.isHidden = true
         imageView.isHidden = false
-        titleLabel.text = pullToRefreshDescription
         imageView.transform = CGAffineTransform.identity
     }
     
@@ -142,10 +139,10 @@ open class ESRefreshHeaderAnimator: UIView, ESRefreshProtocol, ESRefreshAnimator
         let h = s.height
         
         UIView.performWithoutAnimation {
-            titleLabel.sizeToFit()
-            titleLabel.center = CGPoint.init(x: w / 2.0, y: h / 2.0)
-            indicatorView.center = CGPoint.init(x: titleLabel.frame.origin.x - 16.0, y: h / 2.0)
-            imageView.frame = CGRect.init(x: titleLabel.frame.origin.x - 28.0, y: (h - 18.0) / 2.0, width: 18.0, height: 18.0)
+//            titleLabel.sizeToFit()
+//            titleLabel.center = CGPoint.init(x: w / 2.0, y: h / 2.0)
+            indicatorView.center = CGPoint.init(x: w / 2.0, y: h / 2.0)
+            imageView.frame = CGRect.init(x: w / 2.0 - 10, y: (h - 18.0) / 2.0, width: 20.0, height: 20.0)
         }
     }
     

@@ -1,8 +1,8 @@
 //
-//  TwitterTableViewCell.swift
+//  TweetTableViewCell.swift
 //  Twitter
 //
-//  Created by Shayin Feng on 2/21/17.
+//  Created by Shayin Feng on 3/2/17.
 //  Copyright © 2017 Shayin Feng. All rights reserved.
 //
 
@@ -13,15 +13,15 @@ import SwiftGifOrigin
 import AVKit
 import AVFoundation
 
-@objc protocol TweetsTableViewCellDelegate: class {
-    @objc optional func tweetCellFavoritedTapped(cell: TwitterTableViewCell, isFavorited: Bool)
-    @objc optional func tweetCellRetweetTapped(cell: TwitterTableViewCell, isRetweeted: Bool)
-    @objc optional func tweetCellMenuTapped(cell: TwitterTableViewCell, withId id: Int)
-    @objc optional func tweetCellUserProfileImageTapped(cell: TwitterTableViewCell, forTwitterUser user: UserModel?)
+@objc protocol TweetTableViewCellDelegate: class {
+    @objc optional func tweetCellFavoritedTapped(cell: TweetTableViewCell, isFavorited: Bool)
+    @objc optional func tweetCellRetweetTapped(cell: TweetTableViewCell, isRetweeted: Bool)
+    @objc optional func tweetCellMenuTapped(cell: TweetTableViewCell, withId id: Int)
+    @objc optional func tweetCellUserProfileImageTapped(cell: TweetTableViewCell, forTwitterUser user: UserModel?)
 }
 
-class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
-    
+class TweetTableViewCell: UITableViewCell {
+
     @IBOutlet weak var userAvatar: UIImageView!
     
     @IBOutlet weak var nameLabel: UILabel!
@@ -42,9 +42,9 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     @IBOutlet weak var reTwitteButton: UIButton!
     
     @IBOutlet weak var numRetwitteLabel: UIButton!
-
+    
     @IBOutlet weak var favoriteButton: UIButton!
-
+    
     @IBOutlet weak var numFavoriteLabel: UIButton!
     
     @IBOutlet weak var messageButton: UIButton!
@@ -73,7 +73,7 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     
     var tapGesture = UITapGestureRecognizer()
     
-    var delegate: TweetsTableViewCellDelegate?
+    var delegate: TweetTableViewCellDelegate?
     
     var popDelegate: TweetTableViewDelegate?
     
@@ -104,7 +104,7 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     }
     
     var userTweetForRetweet: TweetModel?
-
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -130,7 +130,7 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
         contentImage.clipsToBounds = true
         
         self.layoutIfNeeded()
-
+        
         contentLabel.customize { contentLabel in
             
             contentLabel.handleHashtagTap { hashtag in
@@ -143,10 +143,10 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
         }
         setupCell()
     }
-
+    
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
+        
         // Configure the view for the selected state
     }
     
@@ -203,6 +203,9 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
         
         if let avatarURL = tweet?.user?.profile_image_url {
             userAvatar.setImageWith(avatarURL)
+            userAvatar.isUserInteractionEnabled = true
+            tapGesture = UITapGestureRecognizer(target: self, action: #selector(showProfile(sender:)))
+            userAvatar.addGestureRecognizer(tapGesture)
         }
         
         if tweet.isUserRetweeted! == true {
@@ -226,7 +229,6 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
                 if verified == true {
                     let attachment = NSTextAttachment()
                     attachment.image = #imageLiteral(resourceName: "verified-account")
-                    // attachment.image = UIImage(cgImage: (attachment.image?.cgImage)!, scale: 6, orientation: .up)
                     attachment.bounds = CGRect(x: 0, y: -3, width: 15, height: 15)
                     let attachmentString = NSAttributedString(attachment: attachment)
                     let myString = NSMutableAttributedString(string: "\(nameString) ")
@@ -273,7 +275,7 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
                     }
                     
                     if type == "animated_gif" {
-
+                        
                         let size = mediaDictionary["sizes"] as! NSDictionary
                         let large = size["large"] as! NSDictionary
                         let h = large["h"] as! CGFloat
@@ -316,7 +318,7 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
                         contentStack0.addArrangedSubview(imageView)
                         contentImage.addSubview(playButton)
                     }
-                    
+                        
                     else if type == "photo" {
                         contentImageHeight.constant = contentImage.frame.width * 0.56
                         let imageView = UIImageView()
@@ -447,7 +449,12 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
         playButton.setImage(#imageLiteral(resourceName: "video-icon"), for: .normal)
         contentImage.addSubview(playButton)
     }
-
+    
+    func showProfile(sender: UITapGestureRecognizer) {
+        print("Tapped")
+        self.delegate?.tweetCellUserProfileImageTapped!(cell: self, forTwitterUser: tweet.user)
+    }
+    
     @IBAction func replyTapped(_ sender: UIButton) {
         
     }
@@ -463,7 +470,7 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
             delegate?.tweetCellFavoritedTapped?(cell: self, isFavorited: isFavorited)
         }
     }
-
+    
     @IBAction func messageTapped(_ sender: UIButton) {
         
     }
@@ -471,6 +478,5 @@ class TwitterTableViewCell: UITableViewCell, UITextViewDelegate {
     @IBAction func menuButtonTapped(_ sender: UIButton) {
         delegate?.tweetCellMenuTapped?(cell: self, withId: tweet.id!)
     }
-    
-}
 
+}

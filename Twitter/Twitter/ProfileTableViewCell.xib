@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="ZcK-Yq-cH9" customClass="TwitterProfileHeaderView" customModule="Twitter" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="226"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gRq-az-lGb">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="55"/>
+                    <subviews>
+                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="noImage" translatesAutoresizingMaskIntoConstraints="NO" id="g87-lo-dml">
+                            <rect key="frame" x="13" y="5" width="50" height="50"/>
+                            <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                            <constraints>
+                                <constraint firstAttribute="width" secondItem="g87-lo-dml" secondAttribute="height" multiplier="1:1" id="L0M-ed-Fq0"/>
+                                <constraint firstAttribute="height" constant="50" id="Qzw-DL-Y7c"/>
+                            </constraints>
+                        </imageView>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstItem="g87-lo-dml" firstAttribute="leading" secondItem="gRq-az-lGb" secondAttribute="leading" constant="12.5" id="5oo-nw-wbs"/>
+                        <constraint firstAttribute="bottom" secondItem="g87-lo-dml" secondAttribute="bottom" id="AN6-YW-VXi"/>
+                        <constraint firstAttribute="height" constant="55" id="o9J-ac-SjK"/>
+                    </constraints>
+                </view>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Username" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9AA-eY-m4F">
+                    <rect key="frame" x="16" y="63" width="87" height="22"/>
+                    <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="18"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="@screenName" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7g2-dm-0e1">
+                    <rect key="frame" x="16" y="85" width="82" height="15"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                    <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="location" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zTu-aI-7WN">
+                    <rect key="frame" x="16" y="108" width="52" height="17"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                    <color key="textColor" red="0.61383507010000005" green="0.61383507010000005" blue="0.61383507010000005" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qmZ-eW-xKS">
+                    <rect key="frame" x="16" y="133" width="343" height="18"/>
+                    <attributedString key="attributedText">
+                        <fragment content="1,994">
+                            <attributes>
+                                <color key="NSColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <font key="NSFont" size="14" name="HelveticaNeue-Bold"/>
+                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                            </attributes>
+                        </fragment>
+                        <fragment content=" ">
+                            <attributes>
+                                <color key="NSColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                <font key="NSFont" size="14" name=".SFNSText"/>
+                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                            </attributes>
+                        </fragment>
+                        <fragment content="FOLLOWING       ">
+                            <attributes>
+                                <color key="NSColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                <font key="NSFont" size="14" name=".AppleSystemUIFont"/>
+                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                            </attributes>
+                        </fragment>
+                        <fragment content="6,593">
+                            <attributes>
+                                <color key="NSColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <font key="NSFont" size="14" name="HelveticaNeue-Bold"/>
+                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                            </attributes>
+                        </fragment>
+                        <fragment content=" FOLLOWERS">
+                            <attributes>
+                                <color key="NSColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                <font key="NSFont" size="14" name=".AppleSystemUIFont"/>
+                                <paragraphStyle key="NSParagraphStyle" alignment="left" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
+                            </attributes>
+                        </fragment>
+                    </attributedString>
+                    <nil key="highlightedColor"/>
+                </label>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="gRq-az-lGb" secondAttribute="trailing" id="DEY-L2-9sV"/>
+                <constraint firstItem="qmZ-eW-xKS" firstAttribute="top" secondItem="zTu-aI-7WN" secondAttribute="bottom" constant="8" id="Ea6-XF-V17"/>
+                <constraint firstItem="9AA-eY-m4F" firstAttribute="leading" secondItem="ZcK-Yq-cH9" secondAttribute="leading" constant="16" id="Ffr-2W-FnN"/>
+                <constraint firstAttribute="trailing" secondItem="qmZ-eW-xKS" secondAttribute="trailing" constant="16" id="P1L-Sc-k9n"/>
+                <constraint firstItem="zTu-aI-7WN" firstAttribute="leading" secondItem="ZcK-Yq-cH9" secondAttribute="leading" constant="16" id="Pkf-YT-MZf"/>
+                <constraint firstItem="7g2-dm-0e1" firstAttribute="top" secondItem="9AA-eY-m4F" secondAttribute="bottom" id="QzK-SS-W8X"/>
+                <constraint firstItem="9AA-eY-m4F" firstAttribute="top" secondItem="gRq-az-lGb" secondAttribute="bottom" constant="8" id="SCE-Tv-wyg"/>
+                <constraint firstItem="qmZ-eW-xKS" firstAttribute="leading" secondItem="ZcK-Yq-cH9" secondAttribute="leading" constant="16" id="Uvw-BD-3YF"/>
+                <constraint firstItem="gRq-az-lGb" firstAttribute="leading" secondItem="ZcK-Yq-cH9" secondAttribute="leading" id="W7i-Je-TRl"/>
+                <constraint firstItem="7g2-dm-0e1" firstAttribute="leading" secondItem="ZcK-Yq-cH9" secondAttribute="leading" constant="16" id="csU-6P-7zL"/>
+                <constraint firstItem="zTu-aI-7WN" firstAttribute="top" secondItem="7g2-dm-0e1" secondAttribute="bottom" constant="8" id="li2-iX-k9W"/>
+                <constraint firstItem="gRq-az-lGb" firstAttribute="top" secondItem="ZcK-Yq-cH9" secondAttribute="top" id="tIU-ai-eKP"/>
+            </constraints>
+            <nil key="simulatedStatusBarMetrics"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <connections>
+                <outlet property="contentView" destination="gRq-az-lGb" id="fef-0N-lR4"/>
+                <outlet property="descriptionLabel" destination="qmZ-eW-xKS" id="a8i-G6-uMM"/>
+                <outlet property="iconHeightConstraint" destination="Qzw-DL-Y7c" id="rtW-yW-CoP"/>
+                <outlet property="iconImageView" destination="g87-lo-dml" id="eu7-yO-dgv"/>
+                <outlet property="locationLabel" destination="zTu-aI-7WN" id="EDF-Sd-F4v"/>
+                <outlet property="titleLabel" destination="9AA-eY-m4F" id="nEx-k0-Pxx"/>
+                <outlet property="usernameLabel" destination="7g2-dm-0e1" id="bb0-E9-hKl"/>
+            </connections>
+            <point key="canvasLocation" x="33.5" y="57"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="noImage" width="60" height="60"/>
+    </resources>
+</document>
