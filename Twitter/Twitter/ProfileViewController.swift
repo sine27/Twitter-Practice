@@ -272,7 +272,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         if let followingCount = userProfile?.friend_count {
             
             let attributeNum = [ NSFontAttributeName: UIFont.systemFont(ofSize: 13, weight: UIFontWeightSemibold) ]
-            let numString = NSMutableAttributedString(string: "\(followingCount)", attributes: attributeNum )
+            let numString = NSMutableAttributedString(string: followingCount.displayCountWithFormat(), attributes: attributeNum )
             
             var range = NSRange(location: 0, length: numString.length)
             numString.addAttribute(NSForegroundColorAttributeName, value: UIColor.black, range: range)
@@ -289,7 +289,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         if let followerCount = userProfile?.followers_count {
             let attributeNum = [ NSFontAttributeName: UIFont.systemFont(ofSize: 13, weight: UIFontWeightSemibold) ]
-            let numString = NSMutableAttributedString(string: "\(followerCount)", attributes: attributeNum )
+            let numString = NSMutableAttributedString(string: followerCount.displayCountWithFormat(), attributes: attributeNum )
             
             var range = NSRange(location: 0, length: numString.length)
             numString.addAttribute(NSForegroundColorAttributeName, value: UIColor.black, range: range)
@@ -710,6 +710,8 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
                 
                 cell.client.post(endpoint, parameters: nil, progress: nil, success: { (task, response) in
                     print("Delete tweet: Success")
+                    
+                    UserModel.currentUser?.statuses_count! -= 1
                     
                     self.tweets.remove(at: cell.index.row)
                     self.userTweetsTableView.deleteRows(at: [cell.index], with: .fade)
