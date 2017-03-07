@@ -30,6 +30,8 @@ class PostViewController: UIViewController, UITextViewDelegate {
     
     var tweet: TweetModel?
     
+    var tweetOrg: TweetModel?
+    
     var endpoint = -1
     
     @IBAction func crossButtonTapped(_ sender: UIBarButtonItem) {
@@ -37,6 +39,8 @@ class PostViewController: UIViewController, UITextViewDelegate {
         let defaults = UserDefaults.standard
         
         inputTextView.resignFirstResponder()
+        
+        self.delegate?.getNewTweet(data: nil)
         
         if inputTextView.text != "" {
             let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
@@ -72,13 +76,29 @@ class PostViewController: UIViewController, UITextViewDelegate {
     @IBAction func tweetButtonTapped(_ sender: Any) {
         inputTextView.resignFirstResponder()
         
+        var parameters: Any?
+        
+        if endpoint == 0 {
+            parameters = ["status": inputTextView.text]
+        } else if endpoint == 3 {
+            if let id = tweet?.id {
+                parameters = ["status": inputTextView.text, "in_reply_to_status_id": id]
+            }
+        }
+        
         if let client = TwitterClient.sharedInstance {
-            client.post(TwitterClient.APIScheme.TweetStatusUpdateEndpoint, parameters: ["status": inputTextView.text], progress: { (progress) in
+            client.post(TwitterClient.APIScheme.TweetStatusUpdateEndpoint, parameters: parameters, progress: { (progress) in
                 print(progress)
             }, success: { (task, response) in
                 print("Tweet: Success")
+                
                 let defaults = UserDefaults.standard
                 defaults.set(nil, forKey: "twitter_saved_draft")
+                
+                if UserModel.currentUser!.statuses_count != nil {
+                    UserModel.currentUser!.statuses_count! += 1
+                }
+                
                 self.tweet = TweetModel(dictionary: response as! NSDictionary)
                 self.presentingViewController!.dismiss(animated: true, completion: nil)
                 self.delegate?.getNewTweet(data: self.tweet!)
@@ -107,8 +127,22 @@ class PostViewController: UIViewController, UITextViewDelegate {
         inputTextView.becomeFirstResponder()
         
         wordCountLabel.text = "140"
+        
         let defaults = UserDefaults.standard
-        if let data = defaults.object(forKey: "twitter_saved_draft") as? String {
+        
+        if let mentionUser = tweet?.user?.screen_name {
+            var mentionString = "\(mentionUser) "
+            var mentionStringOrg = ""
+            if tweetOrg?.user?.screen_name != nil {
+                mentionStringOrg = "\(tweetOrg!.user!.screen_name!) "
+            }
+            mentionString += mentionStringOrg
+            inputTextView.text = mentionString
+            wordCountLabel.text = "\(140 - mentionString.characters.count)"
+            buttonColorChange(hidden: false)
+            placeholderLabel.isHidden = true
+        }
+        else if let data = defaults.object(forKey: "twitter_saved_draft") as? String {
             inputTextView.text = data
             placeholderLabel.isHidden = true
             wordCountLabel.text = "\(140 - data.characters.count)"

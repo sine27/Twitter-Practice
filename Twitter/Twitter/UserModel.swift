@@ -35,6 +35,8 @@ class UserModel: NSObject {
     var urls: NSArray?
     var user_mentions: NSArray?
     var description_link: String?
+
+    var imageViews: [UIImageView]?
     
     // Add more variables
     

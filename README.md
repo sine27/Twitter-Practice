@@ -29,21 +29,18 @@ The following **optional** features are implemented:
 
 The following **additional** features are implemented:
 
-- [ ] List anything else that you can get done to improve the app functionality!
-
-Please list two areas of the assignment you'd like to **discuss further with your peers** during the next class (examples include better ways to implement something, how to extend your app in certain ways, etc):
-
-1. 
-2. 
+- [x] Images in Tweet are displayed in stack format
+- [x] User can open the image through both table and detail view
+- [x] User can zoom image
+- [x] User can save draft message in user defaults 
+- [x] User can tapto view a video
+- [x] User can open url in text view
 
 ## Video Walkthrough 
 
 Here's a walkthrough of implemented user stories:
 
-
-## Notes
-
-Describe any challenges encountered while building the app.
+ <img src='https://github.com/sine27/Twitter/blob/master/demo/version1_5.gif' width='320' alt='Video Walkthrough' />
 
 ## License
 

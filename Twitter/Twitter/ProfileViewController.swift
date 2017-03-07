@@ -81,8 +81,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     var popImage = UIImage()
     
     var endpoint = TwitterClient.APIScheme.UserTimelineEndpoint
-    
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -90,6 +89,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         userTweetsTableView.delegate = self
         userTweetsTableView.rowHeight = UITableViewAutomaticDimension
         userTweetsTableView.estimatedRowHeight = 80
+        userTweetsTableView.alpha = 0.0
         
         // Do any additional setup after loading the view.
         self.automaticallyAdjustsScrollViewInsets = false
@@ -110,7 +110,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         nameBarLabel.alpha = 0.0
         numStatusLabel.alpha = 0.0
         
-        userTweetsTableView.scrollIndicatorInsets = UIEdgeInsets(top: profileView.frame.height + 55, left: 0, bottom: 0, right: 0)
+        userTweetsTableView.scrollIndicatorInsets = UIEdgeInsets(top: profileView.frame.height + 50, left: 0, bottom: 0, right: 0)
         
         profileViewHeight = profileView.frame.height
         
@@ -164,8 +164,8 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         self.tabBarController?.tabBar.tintColor = UIhelper.UIColorOption.twitterBlue
         UITabBarItem.appearance().titlePositionAdjustment = UIOffset(horizontal: 0, vertical: -2)
         
-        self.navigationController!.navigationBar.topItem?.title = ""
-        self.navigationItem.backBarButtonItem?.tintColor = UIColor.white
+        self.navigationController?.navigationBar.topItem?.title = ""
+        self.navigationController?.navigationBar.tintColor = UIColor.white
         
         // Transparent NavigationBar
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
@@ -175,7 +175,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         self.navigationController?.navigationBar.backgroundColor = UIColor.clear
         // Set translucent. (Default value is already true, so this can be removed if desired.)
         self.navigationController?.navigationBar.isTranslucent = true
-        
+
         sizeHeaderToFit()
     }
     
@@ -185,6 +185,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
             self.navigationController?.navigationBar.shadowImage = nil
             self.navigationController?.navigationBar.backgroundColor = UIColor.white
             self.navigationController?.navigationBar.isTranslucent = false
+            self.navigationController?.navigationBar.tintColor = UIhelper.UIColorOption.twitterBlue
         }
     }
     
@@ -328,6 +329,8 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         if let client = TwitterClient.sharedInstance {
             client.get(endpoint, parameters: parameters, progress: nil, success: { (task, response) in
                 
+                print("Profile: Success type \(type)")
+                
                 if type != 3 {
                     let dictionary = response as! [NSDictionary]
                     var tweetsTmp: [TweetModel] = []
@@ -342,6 +345,13 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
                         self.max_id = self.tweets[self.tweets.count - 1].id!
                         
                         self.userTweetsTableView.reloadData()
+                        self.userTweetsTableView.layoutIfNeeded()
+                        self.userTweetsTableView.beginUpdates()
+                        self.userTweetsTableView.endUpdates()
+                        
+                        UIView.animate(withDuration: 0.6, animations: {
+                            self.userTweetsTableView.alpha = 1.0
+                        })
                         self.userTweetsTableView.es_stopPullToRefresh()
                     }
                     
@@ -354,6 +364,9 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
                         
                         self.max_id = self.tweets[self.tweets.count - 1].id!
                         self.userTweetsTableView.reloadData()
+                        self.userTweetsTableView.layoutIfNeeded()
+                        self.userTweetsTableView.beginUpdates()
+                        self.userTweetsTableView.endUpdates()
                         self.userTweetsTableView.es_stopLoadingMore()
                     }
                         
@@ -367,6 +380,8 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
                         let offset = self.userTweetsTableView.contentOffset
                         self.userTweetsTableView.reloadData()
                         self.userTweetsTableView.layoutIfNeeded()
+                        self.userTweetsTableView.beginUpdates()
+                        self.userTweetsTableView.endUpdates()
                         self.userTweetsTableView.contentOffset = offset
                     }
                 }
@@ -379,7 +394,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
                         let large = sizes["1500x500"] as! NSDictionary
                         let urlString = large["url"] as! String
                         
-                        self.backgroundImageView.setImageWith(URLRequest(url: URL(string: urlString)!), placeholderImage: #imageLiteral(resourceName: "loadingImage"), success: { (request, response, image) in
+                        self.backgroundImageView.setImageWith(URLRequest(url: URL(string: urlString)!), placeholderImage: nil, success: { (request, response, image) in
                             self.backgroundImageView.alpha = 0.0
                             self.backgroundImageView.image = image
                             UIView.animate(withDuration: 0.8, animations: {
@@ -389,6 +404,9 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
                             self.backgroundImageView.image = nil
                             self.backgroundView.backgroundColor = UIhelper.UIColorOption.twitterBlue
                         })
+                    }
+                    if type == 4 {
+                        
                     }
                 }
                 
@@ -401,8 +419,8 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
                     self.backgroundImageView.image = nil
                     self.backgroundView.backgroundColor = UIhelper.UIColorOption.twitterBlue
                 } else {
-                    UIhelper.alertMessage("Request type\(type)", userMessage: error.localizedDescription, action: nil, sender: self)
-                    // print("FetchTimelineData: Error >>> \(error.localizedDescription)")
+                    //UIhelper.alertMessage("Request type \(type)", userMessage: error.localizedDescription, action: nil, sender: self)
+                    print("FetchTimelineData: Error >>> \(error.localizedDescription)")
                     self.uiHelper.stopActivityIndicator()
                     
                     if type == 0 {
@@ -462,11 +480,15 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let headerCell = Bundle.main.loadNibNamed("ProfileHeaderTableViewCell", owner: self, options: nil)?.first as! ProfileHeaderTableViewCell
-        return headerCell
+        return headerCell.contentView
     }
     
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 55
+        return 50
+    }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 0
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -475,7 +497,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let offset = scrollView.contentOffset.y
-        let scrollToTop = profileView.frame.height + 55
+        let scrollToTop = profileView.frame.height + 50
         let difference = scrollToTop - offset
         var avatarTransform = CATransform3DIdentity
         var headerTransform = CATransform3DIdentity
@@ -714,9 +736,11 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         self.navigationController?.pushViewController(vc, animated: true)
     }
     
-    internal func getNewTweet(data: TweetModel) {
+    internal func getNewTweet(data: TweetModel?) {
         // print(data.dictionary)
-        requestData(endpoint: TwitterClient.APIScheme.UserTimelineEndpoint, parameters: ["since_id": since_id], type: 2)
+        if data != nil {
+            requestData(endpoint: TwitterClient.APIScheme.UserTimelineEndpoint, parameters: ["since_id": since_id], type: 2)
+        }
     }
     
     internal func getPopoverImage(imageView: UIImageView) {

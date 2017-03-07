@@ -26,6 +26,12 @@ class TweetViewController: UIViewController, UITableViewDelegate, UITableViewDat
     var indexPath: IndexPath!
     
     var popImage = UIImage()
+    
+    var postEndpoint = 3
+    
+    var postTweet: TweetModel?
+    
+    var postTweetOrg: TweetModel?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -104,6 +110,10 @@ class TweetViewController: UIViewController, UITableViewDelegate, UITableViewDat
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 3
+    }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 0
     }
     
     // show twitter logo at the end of the table
@@ -263,24 +273,40 @@ class TweetViewController: UIViewController, UITableViewDelegate, UITableViewDat
         self.present(alertController, animated: true, completion: nil)
     }
     
+    func tweetCellReplyTapped(cell: TweetButtonTableViewCell) {
+        print("Reply Tapped")
+        postEndpoint = 3
+        postTweet = cell.tweet
+        if self.retweet != nil {
+            postTweetOrg = self.retweet
+        }
+        performSegue(withIdentifier: "toReply", sender: self)
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         // popover segue
         if segue.identifier == "toReply" {
-            let popoverViewController = segue.destination as! PostViewController
-            // popoverViewController.delegate = self
-            // popoverViewController.popoverPresentationController?.delegate = self
-            popoverViewController.endpoint = 1
+            let postViewController = segue.destination as! PostViewController
+            postViewController.delegate = self
+            postViewController.popoverPresentationController?.delegate = self
+            postViewController.endpoint = postEndpoint
+            if self.postTweetOrg != nil {
+                postViewController.tweetOrg = self.postTweetOrg
+            }
+            postViewController.tweet = self.postTweet
         }
         if segue.identifier == "detailShowImage" {
-            let popoverViewController = segue.destination as! PreviewViewController
-             popoverViewController.delegate = self
-             popoverViewController.popoverPresentationController?.delegate = self
-            popoverViewController.image = self.popImage
+            let previewViewController = segue.destination as! PreviewViewController
+            previewViewController.delegate = self
+            previewViewController.popoverPresentationController?.delegate = self
+            previewViewController.image = self.popImage
         }
     }
     
-    func getNewTweet(data: TweetModel) {
-        /// new tweet as reply
+    func getNewTweet(data: TweetModel?) {
+        postEndpoint = 3
+        postTweet = nil
+        postTweetOrg = nil
     }
 
     func getPopoverImage(imageView: UIImageView) {

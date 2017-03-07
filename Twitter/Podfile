@@ -10,7 +10,6 @@ target 'Twitter' do
   pod 'BDBOAuth1Manager'
   pod "ESPullToRefresh"
   pod "ActiveLabel"
-pod 'SwiftGifOrigin'
 
   target 'TwitterTests' do
     inherit! :search_paths

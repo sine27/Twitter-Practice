@@ -31,6 +31,12 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     var popImage = UIImage()
     
+    var postEndpoint = -1
+    
+    var postTweet: TweetModel?
+    
+    var postTweetOrg: TweetModel?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -78,6 +84,8 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
             self.twitterTableView.es_startPullToRefresh()
         }
         
+        postEndpoint = 0
+        
         // Timer.scheduledTimer(timeInterval: 60, target: self, selector: #selector(TwitterViewController.onTimer), userInfo: nil, repeats: true)
     }
     
@@ -105,6 +113,14 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
     
+    func do_table_refresh()
+    {
+        DispatchQueue.main.async(execute: {
+            self.twitterTableView.reloadData()
+            return
+        })
+    }
+    
     func requestData (parameters: Any?, type: Int) {
         
         if let client = TwitterClient.sharedInstance {
@@ -117,7 +133,7 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
                     tweetsTmp.append(TweetModel(dictionary: tweet))
                 }
                 
-                //self.twitterTableView.contentSize.height = 3000
+                self.twitterTableView.layoutIfNeeded()
                 
                 if type == 0 {
                     self.tweets = tweetsTmp + self.tweets
@@ -125,7 +141,8 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
                     self.since_id = self.tweets[0].id!
                     self.max_id = self.tweets[self.tweets.count - 1].id!
                     
-                    self.twitterTableView.reloadData()
+                    //self.twitterTableView.reloadData()
+                    self.do_table_refresh()
                     self.twitterTableView.es_stopPullToRefresh()
                 }
                 else if type == 1 {
@@ -135,7 +152,8 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
                     self.tweets += tweetsTmp
                     
                     self.max_id = self.tweets[self.tweets.count - 1].id!
-                    self.twitterTableView.reloadData()
+                    //self.twitterTableView.reloadData()
+                    self.do_table_refresh()
                     self.twitterTableView.es_stopLoadingMore()
                 }
                 else if type == 2 {
@@ -145,8 +163,8 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
                     self.max_id = self.tweets[self.tweets.count - 1].id!
                     
                     let offset = self.twitterTableView.contentOffset
-                    self.twitterTableView.reloadData()
-                    self.twitterTableView.layoutIfNeeded()
+                    //self.twitterTableView.reloadData()
+                    self.do_table_refresh()
                     self.twitterTableView.contentOffset = offset
                 }
                 
@@ -214,15 +232,7 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         return tweets.count
     }
     
-//    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-//        if let height = heightAtIndexPath.object(forKey: indexPath) as? NSNumber {
-//            return CGFloat(height.floatValue)
-//        } else {
-//            return UITableViewAutomaticDimension
-//        }
-//    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
         if let height = heightAtIndexPath.object(forKey: indexPath) as? NSNumber {
             return CGFloat(height.floatValue)
         } else {
@@ -231,12 +241,27 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        
+        /// slide in cell
+//        cell.alpha = 0.0
+//        let transform = CATransform3DTranslate(CATransform3DIdentity, -250, 20, 0)
+//        cell.layer.transform = transform
+//        
+//        UIView.animate(withDuration: 0.6) {
+//            cell.alpha = 1.0
+//            cell.layer.transform = CATransform3DIdentity
+//        }
+        
         let height = NSNumber(value: Float(cell.frame.size.height))
         heightAtIndexPath.setObject(height, forKey: indexPath as NSCopying)
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: "showTwitterDetail", sender: self)
+    }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return 0
     }
 
     override func didReceiveMemoryWarning() {
@@ -267,17 +292,21 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         // popover segue
         if segue.identifier == "popoverSegue" {
-            let popoverViewController = segue.destination as! PostViewController
-            popoverViewController.delegate = self
-            popoverViewController.popoverPresentationController?.delegate = self
-            popoverViewController.endpoint = 0
+            let postViewController = segue.destination as! PostViewController
+            postViewController.delegate = self
+            postViewController.popoverPresentationController?.delegate = self
+            postViewController.endpoint = postEndpoint
+            if postEndpoint == 3 {
+                postViewController.tweet = self.postTweet
+                postViewController.tweetOrg = self.postTweetOrg
+            }
         }
         // popover segue
         if segue.identifier == "showImage" {
-            let popoverViewController = segue.destination as! PreviewViewController
-            popoverViewController.delegate = self
-            popoverViewController.popoverPresentationController?.delegate = self
-            popoverViewController.image = popImage
+            let previewViewController = segue.destination as! PreviewViewController
+            previewViewController.delegate = self
+            previewViewController.popoverPresentationController?.delegate = self
+            previewViewController.image = popImage
         }
         if segue.identifier == "showProfile" {
             let vc = segue.destination as! ProfileViewController
@@ -437,9 +466,25 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         self.present(alertController, animated: true, completion: nil)
     }
     
-    internal func getNewTweet(data: TweetModel) {
-        // print(data.dictionary)
-        requestData(parameters: ["since_id": since_id], type: 2)
+    func tweetCellReplyTapped(cell: TweetTableViewCell, withId: Int) {
+        print("Reply Tapped")
+        postEndpoint = 3
+        postTweet = cell.tweet
+        if cell.userTweetForRetweet != nil {
+            postTweetOrg = cell.userTweetForRetweet
+        }
+        performSegue(withIdentifier: "popoverSegue", sender: self)
+    }
+    
+    internal func getNewTweet(data: TweetModel?) {
+        print("PostViewController Back...")
+        
+        postEndpoint = 0
+        postTweet = nil
+        postTweetOrg = nil
+        if data != nil {
+            requestData(parameters: ["since_id": since_id], type: 2)
+        }
     }
     
     internal func getPopoverImage(imageView: UIImageView) {

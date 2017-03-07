@@ -9,7 +9,7 @@
 import UIKit
 
 protocol TweetTableViewDelegate {
-    func getNewTweet(data: TweetModel)
+    func getNewTweet(data: TweetModel?)
     func getPopoverImage(imageView: UIImageView)
 }
 
