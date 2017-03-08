@@ -504,7 +504,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         
 //        print(offset)
         
-        if difference >= 0 {
+        if difference >= 50 {
             userTweetsTableView.scrollIndicatorInsets = UIEdgeInsets(top: difference, left: 0, bottom: 0, right: 0)
         }
         

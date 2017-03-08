@@ -37,7 +37,7 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qJP-cc-yg5">
-                        <rect key="frame" x="112" y="10.5" width="31" height="14.5"/>
+                        <rect key="frame" x="112" y="11.5" width="31" height="14.5"/>
                         <constraints>
                             <constraint firstAttribute="width" relation="lessThanOrEqual" priority="250" constant="150" id="sO7-xd-sZ1"/>
                         </constraints>
@@ -46,7 +46,7 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="・" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="td6-co-kNZ">
-                        <rect key="frame" x="143" y="10.5" width="13" height="14.5"/>
+                        <rect key="frame" x="143" y="11.5" width="13" height="14.5"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="12.5" id="a7t-2g-tpF"/>
                         </constraints>
@@ -55,7 +55,7 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="752" verticalCompressionResistancePriority="752" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gCh-p7-BIm">
-                        <rect key="frame" x="156" y="10.5" width="31" height="14.5"/>
+                        <rect key="frame" x="156" y="11.5" width="31" height="14.5"/>
                         <constraints>
                             <constraint firstAttribute="width" relation="greaterThanOrEqual" priority="750" constant="20" id="5xq-eG-wSw"/>
                         </constraints>

@@ -44,6 +44,8 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         twitterTableView.delegate = self
         twitterTableView.dataSource = self
         
+        twitterTableView.register(UINib(nibName: "TweetTableViewCell", bundle: nil), forCellReuseIdentifier: "twitterCell")
+        
         twitterTableView.alpha = 0
         self.uiHelper.stopActivityIndicator()
         uiHelper.activityIndicator(sender: self, style: UIActivityIndicatorViewStyle.gray)
@@ -187,8 +189,9 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        //let cell = tableView.dequeueReusableCell(withIdentifier: "twitterCell") as! TweetTableViewCell
+       
         let cell = Bundle.main.loadNibNamed("TweetTableViewCell", owner: self, options: nil)?.first as! TweetTableViewCell
+        // let cell = tableView.dequeueReusableCell(withIdentifier: "twitterCell") as! TweetTableViewCell
         
         let tweet = tweets[indexPath.row]
         
