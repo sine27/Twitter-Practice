@@ -40,7 +40,9 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
- <img src='https://github.com/sine27/Twitter/blob/master/demo/version1_5.gif' width='320' alt='Video Walkthrough' />
+version 1_5 | version 1_4
+:-------------------------:|:-------------------------:
+ <img src='demo/version1_5.gif' width='320' alt='Video Walkthrough' /> |  <img src='demo/version1_4.gif' width='320' alt='Video Walkthrough' />
 
 ## License
 
