@@ -8,59 +8,8 @@
 
 import UIKit
 
-// set button title color for favorited, retweeted
-enum ButtonTitleColorOption: Int {
-    case green = 0, gray, red, blue, yellow
-}
 
-extension UIButton {
-    func setButtonTitleColor(option: ButtonTitleColorOption) {
-        if option == ButtonTitleColorOption.gray {
-            self.setTitleColor(UIhelper.UIColorOption.gray, for: .normal)
-        } else if option == ButtonTitleColorOption.green {
-            self.setTitleColor(UIhelper.UIColorOption.green, for: .normal)
-        } else if option == ButtonTitleColorOption.red {
-            self.setTitleColor(UIhelper.UIColorOption.red, for: .normal)
-        } else if option == ButtonTitleColorOption.blue {
-            self.setTitleColor(UIhelper.UIColorOption.blue, for: .normal)
-        } else if option == ButtonTitleColorOption.yellow {
-            self.setTitleColor(UIhelper.UIColorOption.yellow, for: .normal)
-        }
-    }
-}
 
-extension UIView {
-    // Name this function in a way that makes sense to you...
-    // slideFromLeft, slideRight, slideLeftToRight, etc. are great alternative names
-    func slideInFromLeft(duration: TimeInterval = 1.0, completionDelegate: AnyObject? = nil) {
-        // Create a CATransition animation
-        let slideInFromLeftTransition = CATransition()
-        
-        // Set its callback delegate to the completionDelegate that was provided (if any)
-        if let delegate: CAAnimationDelegate = completionDelegate as! CAAnimationDelegate? {
-            slideInFromLeftTransition.delegate = delegate
-        }
-        
-        // Customize the animation's properties
-        slideInFromLeftTransition.type = kCATransitionPush
-        slideInFromLeftTransition.subtype = kCATransitionFromLeft
-        slideInFromLeftTransition.duration = duration
-        slideInFromLeftTransition.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
-        slideInFromLeftTransition.fillMode = kCAFillModeRemoved
-        
-        // Add the animation to the View's layer
-        self.layer.add(slideInFromLeftTransition, forKey: "slideInFromLeftTransition")
-    }
-}
-
-extension UIView {
-    func roundCorners(corners:UIRectCorner, radius: CGFloat) {
-        let path = UIBezierPath(roundedRect: self.bounds, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
-        let mask = CAShapeLayer()
-        mask.path = path.cgPath
-        self.layer.mask = mask
-    }
-}
 class UIhelper: NSObject {
     
     var spinner = UIActivityIndicatorView(activityIndicatorStyle: UIActivityIndicatorViewStyle.white)

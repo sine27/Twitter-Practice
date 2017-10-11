@@ -72,7 +72,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 client.handleOpenUrl(url: url)
             }
         }
-        
         return true
     }
     

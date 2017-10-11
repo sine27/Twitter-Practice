@@ -11,6 +11,11 @@ import ActiveLabel
 
 class TweetViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPopoverPresentationControllerDelegate, TweetTableViewDelegate, TweetDetailTableViewCellDelegate,  TweetButtonTableViewCellDelegate {
     
+    let transform_start: CGFloat = 25.0
+    let image_height: CGFloat = 30.0
+    let transform_stop: CGFloat = 55.0
+    
+    @IBOutlet weak var logo: UIImageView!
     @IBOutlet weak var tweetTableView: UITableView!
     
     var tweet: TweetModel!
@@ -43,9 +48,6 @@ class TweetViewController: UIViewController, UITableViewDelegate, UITableViewDat
         
         tweetTableView.rowHeight = UITableViewAutomaticDimension
         tweetTableView.estimatedRowHeight = 60
-        
-        tweetTableView.tableFooterView = UIView()
-        tweetTableView.tableFooterView?.backgroundColor = UIColor.gray
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -57,7 +59,6 @@ class TweetViewController: UIViewController, UITableViewDelegate, UITableViewDat
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        uiHelper.removeTwitterFooter()
     }
 
     override func didReceiveMemoryWarning() {
@@ -95,7 +96,6 @@ class TweetViewController: UIViewController, UITableViewDelegate, UITableViewDat
             // print("didEndEditingRowAt: \(diff)")
             if diff >= 75 {
                 let footerPositionY = tweetTableView.frame.height - diff + 70
-                uiHelper.showTwitterFooter(sender: self, positionX: self.view.center.x - 25, positionY: footerPositionY)
             }
             
             return cell
@@ -103,7 +103,7 @@ class TweetViewController: UIViewController, UITableViewDelegate, UITableViewDat
         else {
             let cell = tableView.dequeueReusableCell(withIdentifier: "reviewCell") as! TweetTableViewCell
             cell.layoutMargins = UIEdgeInsets.zero
-            cell.tweet = self.tweet
+            cell.viewModel.tweet = self.tweet
             return cell
         }
     }
@@ -114,19 +114,6 @@ class TweetViewController: UIViewController, UITableViewDelegate, UITableViewDat
     
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return 0
-    }
-    
-    // show twitter logo at the end of the table
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        uiHelper.removeTwitterFooter()
-        let diff = self.tweetTableView.frame.height - scrollView.contentSize.height + scrollView.contentOffset.y
-        // print("scrollViewDidScroll: \(diff)")
-        if diff >= 75 {
-            let footerPositionY = tweetTableView.frame.height - diff + 75
-            uiHelper.showTwitterFooter(sender: self, positionX: self.view.center.x - 25, positionY: footerPositionY)
-        } else {
-            uiHelper.removeTwitterFooter()
-        }
     }
     
     func tweetCellRetweetTapped(cell: TweetButtonTableViewCell, isRetweeted: Bool) {

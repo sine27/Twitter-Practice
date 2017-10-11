@@ -11,84 +11,50 @@ import ESPullToRefresh
 import AVKit
 import AVFoundation
 
-class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIPopoverPresentationControllerDelegate, TweetTableViewCellDelegate, TweetTableViewDelegate, UpdateCellFromTableDelegate {
+// MARK: - UI Popover Presentation Controller Delegate
+
+extension TwitterViewController: UIPopoverPresentationControllerDelegate {}
+
+class TwitterViewController: UIViewController {
+    
+    var viewModel = TwitterTableViewModel()
     
     @IBOutlet weak var twitterTableView: UITableView!
     
-    var max_id = -1
-    
-    var since_id = -1
-    
-    var tweets: [TweetModel] = []
-    
-    var cellUser: UserModel?
+    // UI Index
+    let TABLE_FOOTER_HEIGHT: CGFloat = 0
     
     var uiHelper = UIhelper()
     
-    var parameters: Any?
-    
-    var heightAtIndexPath = NSMutableDictionary()
-    
     var popImage = UIImage()
+
+    // MARK: - IBAction
     
-    var postEndpoint = -1
+    @IBAction func logoutTapped(_ sender: Any) {
+        UIhelper.alertMessage("Add Contacts", userMessage: "Unavailable", action: nil, sender: self)
+    }
     
-    var postTweet: TweetModel?
-    
-    var postTweetOrg: TweetModel?
+    // MARK: - Override
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        setupUIProperties()
+        
+        setupStartupUIAnimation()
+        
+        setupTableView()
 
-        // Do any additional setup after loading the view.
-        twitterTableView.delegate = self
-        twitterTableView.dataSource = self
-        
-        twitterTableView.register(UINib(nibName: "TweetTableViewCell", bundle: nil), forCellReuseIdentifier: "twitterCell")
-        
-        twitterTableView.alpha = 0
-        self.uiHelper.stopActivityIndicator()
-        uiHelper.activityIndicator(sender: self, style: UIActivityIndicatorViewStyle.gray)
-        
-        self.automaticallyAdjustsScrollViewInsets = false
-        
-        let imageView = UIImageView(image: UIImage(named: "TwitterLogoBlue"))
-        
-        imageView.layer.bounds = CGRect(x: 0, y: 0, width: 40, height: 40)
-        
-        imageView.contentMode = .scaleAspectFit
-        
-        self.navigationItem.titleView = imageView
-            
-        // auto adjust table cell height
-        twitterTableView.rowHeight = UITableViewAutomaticDimension
-        twitterTableView.estimatedRowHeight = 200
-        
-        twitterTableView.es_addPullToRefresh {
-            if self.since_id == -1 {
-                self.parameters = ["count": 20]
-            } else {
-                self.parameters = ["since_id": self.since_id, "count": 5]
-            }
-            self.requestData(parameters: self.parameters, type: 0)
-        }
-        
-        twitterTableView.es_addInfiniteScrolling {
-            if self.max_id == -1 {
-                self.twitterTableView.es_noticeNoMoreData()
-            } else {
-                self.parameters = ["max_id": self.max_id, "count": 10]
-                self.requestData(parameters: self.parameters, type: 1)
-            }
-        }
-        
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.0) {
             self.twitterTableView.es_startPullToRefresh()
         }
-        
-        postEndpoint = 0
-        
+ 
         // Timer.scheduledTimer(timeInterval: 60, target: self, selector: #selector(TwitterViewController.onTimer), userInfo: nil, repeats: true)
+    }
+    
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+        // Dispose of any resources that can be recreated.
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -97,17 +63,86 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         if selectedIndexPath != nil {
             twitterTableView.deselectRow(at: selectedIndexPath!, animated: false)
         }
-        //self.tabBarController?.tabBar.barTintColor = UIColor.white
-        self.tabBarController?.tabBar.tintColor = UIhelper.UIColorOption.twitterBlue
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showTwitterDetail" {
+            let vc = segue.destination as! TweetViewController
+
+            if let index = twitterTableView.indexPathForSelectedRow {
+                if let retweeted_status = viewModel.getTweetModel(at: index.row).retweeted_status {
+                    vc.tweet = retweeted_status
+                    vc.retweet = viewModel.getTweetModel(at: index.row)
+                } else {
+                    vc.tweet = viewModel.getTweetModel(at: index.row)
+                }
+                vc.indexPath = index
+                vc.delegate = self
+            }
+        }
+        
+        // popover segue
+        if segue.identifier == "popoverSegue" {
+            let postViewController = segue.destination as! PostViewController
+            postViewController.delegate = self
+            postViewController.popoverPresentationController?.delegate = self
+            postViewController.endpoint = viewModel.postEndpoint
+            if viewModel.postEndpoint == 3 {
+                postViewController.tweet = viewModel.postTweet
+                postViewController.tweetOrg = viewModel.postTweetOrg
+            }
+        }
+        
+        // popover segue
+        if segue.identifier == "showImage" {
+            let previewViewController = segue.destination as! PreviewViewController
+            previewViewController.delegate = self
+            previewViewController.popoverPresentationController?.delegate = self
+            previewViewController.image = popImage
+        }
+        if segue.identifier == "showProfile" {
+            let vc = segue.destination as! ProfileViewController
+            if viewModel.screenName != nil {
+                vc.screenName = viewModel.screenName
+            } else {
+                vc.userProfile = viewModel.cellUser
+            }
+        }
+    }
+    
+    // MARK: - UI Setup
+    
+    func setupStartupUIAnimation() {
+        twitterTableView.alpha = 0
+        uiHelper.stopActivityIndicator()
+        uiHelper.activityIndicator(sender: self, style: UIActivityIndicatorViewStyle.gray)
+    }
+    
+    func setupUIProperties() {
+        automaticallyAdjustsScrollViewInsets = false
+        
+        // navigation bar logo
+        let imageView = UIImageView(image: UIImage(named: "TwitterLogoBlue"))
+        imageView.layer.bounds = CGRect(x: 0, y: 0, width: 40, height: 40)
+        imageView.contentMode = .scaleAspectFit
+        navigationItem.titleView = imageView
+        
+        // Navigation
+        tabBarController?.tabBar.tintColor = UIhelper.UIColorOption.twitterBlue
         UITabBarItem.appearance().titlePositionAdjustment = UIOffset(horizontal: 0, vertical: -2)
         
-        self.navigationController?.navigationBar.topItem?.title = ""
+        // TabBar
+        navigationController?.navigationBar.topItem?.title = ""
+        
+        viewModel.delegate = self
     }
+    
+    // MARK: - Helper
     
     func onTimer() {
         // Add code to be run periodically
         // requestData(parameters: parameters, type: 2)
-        if tweets.count != 0 {
+        if viewModel.tweets.count != 0 {
             let offset = self.twitterTableView.contentOffset
             twitterTableView.reloadData()
             twitterTableView.layoutIfNeeded()
@@ -115,112 +150,79 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
     
-    func do_table_refresh()
-    {
-        DispatchQueue.main.async(execute: {
+    func do_table_refresh() {
+        DispatchQueue.main.async {
             self.twitterTableView.reloadData()
-            return
-        })
-    }
-    
-    func requestData (parameters: Any?, type: Int) {
-        
-        if let client = TwitterClient.sharedInstance {
-            client.get(TwitterClient.APIScheme.HomeTimelineEndpoint, parameters: parameters, progress: nil, success: { (task, response) in
-
-                let dictionary = response as! [NSDictionary]
-        
-                var tweetsTmp: [TweetModel] = []
-                for tweet in dictionary {
-                    tweetsTmp.append(TweetModel(dictionary: tweet))
-                }
-                
-                self.twitterTableView.layoutIfNeeded()
-                
-                if type == 0 {
-                    self.tweets = tweetsTmp + self.tweets
-                    
-                    self.since_id = self.tweets[0].id!
-                    self.max_id = self.tweets[self.tweets.count - 1].id!
-                    
-                    //self.twitterTableView.reloadData()
-                    self.do_table_refresh()
-                    self.twitterTableView.es_stopPullToRefresh()
-                }
-                else if type == 1 {
-                    
-                    tweetsTmp.remove(at: 0)
-                    
-                    self.tweets += tweetsTmp
-                    
-                    self.max_id = self.tweets[self.tweets.count - 1].id!
-                    //self.twitterTableView.reloadData()
-                    self.do_table_refresh()
-                    self.twitterTableView.es_stopLoadingMore()
-                }
-                else if type == 2 {
-                    self.tweets = tweetsTmp + self.tweets
-                    
-                    self.since_id = self.tweets[0].id!
-                    self.max_id = self.tweets[self.tweets.count - 1].id!
-                    
-                    let offset = self.twitterTableView.contentOffset
-                    //self.twitterTableView.reloadData()
-                    self.do_table_refresh()
-                    self.twitterTableView.contentOffset = offset
-                }
-                
-                self.uiHelper.stopActivityIndicator()
+            self.twitterTableView.es_stopLoadingMore()
+            self.twitterTableView.es_stopPullToRefresh()
+            if self.twitterTableView.alpha == 0 {
                 UIView.animate(withDuration: 1.0, animations: {
                     self.twitterTableView.alpha = 1
                 })
-            }, failure: { (task, error) in
-                UIhelper.alertMessage("Request", userMessage: error.localizedDescription, action: nil, sender: self)
-                // print("FetchTimelineData: Error >>> \(error.localizedDescription)")
-                self.uiHelper.stopActivityIndicator()
-                
-                if type == 0 {
-                    self.twitterTableView.es_stopPullToRefresh()
-                } else if type == 1 {
-                    self.twitterTableView.es_stopLoadingMore()
-                }
-            })
+            }
+        }
+    }
+}
+
+// MARK: - Table View Delegate
+
+extension TwitterViewController: UITableViewDelegate, UITableViewDataSource {
+    
+    func setupTableView() {
+        // Do any additional setup after loading the view.
+        twitterTableView.delegate = self
+        twitterTableView.dataSource = self
+        
+        // auto adjust table cell height
+        twitterTableView.rowHeight = UITableViewAutomaticDimension
+        twitterTableView.estimatedRowHeight = 200
+        
+        twitterTableView.es_addPullToRefresh {
+            self.viewModel.pullRefresh()
+        }
+        
+        twitterTableView.es_addInfiniteScrolling {
+            if self.viewModel.max_id == -1 {
+                self.twitterTableView.es_noticeNoMoreData()
+            }
+            else { self.viewModel.loadMore() }
         }
     }
     
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return viewModel.getNumbersOfTweets()
+    }
+    
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        if let height = viewModel.getTweetCellViewHeight(at: String(describing: indexPath)) {
+            return CGFloat(height)
+        }
+      return UITableViewAutomaticDimension
+    }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        return TABLE_FOOTER_HEIGHT
+    }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        // slide in cell
+        //        cell.alpha = 0.0
+        //        let transform = CATransform3DTranslate(CATransform3DIdentity, -250, 20, 0)
+        //        cell.layer.transform = transform
+        //
+        //        UIView.animate(withDuration: 0.6) {
+        //            cell.alpha = 1.0
+        //            cell.layer.transform = CATransform3DIdentity
+        //        }
+        
+        viewModel.setTweetCellViewHeight(at: String(describing: indexPath), with: Float(cell.frame.size.height))
+    }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-       
+        //let cell = tableView.dequeueReusableCell(withIdentifier: "twitterCell") as! TweetTableViewCell
         let cell = Bundle.main.loadNibNamed("TweetTableViewCell", owner: self, options: nil)?.first as! TweetTableViewCell
-        // let cell = tableView.dequeueReusableCell(withIdentifier: "twitterCell") as! TweetTableViewCell
         
-        let tweet = tweets[indexPath.row]
-        
-        if tweet.isUserRetweeted! == true {
-            cell.reTwitteButton.imageView?.image = #imageLiteral(resourceName: "retweet-icon-green")
-        } else {
-            cell.reTwitteButton.imageView?.image = #imageLiteral(resourceName: "retweet-icon")
-        }
-        
-        if tweet.isUserFavorited! == true {
-            cell.favoriteButton.imageView?.image = #imageLiteral(resourceName: "favor-icon-red")
-        } else {
-            cell.favoriteButton.imageView?.image = #imageLiteral(resourceName: "favor-icon")
-        }
-        
-        if let timeCreated = tweet.createdAt {
-            let now = Date()
-            let difference = now.offset(from: timeCreated)
-            cell.timeCreateLabel.text = difference
-        } else {
-            cell.timeCreateLabel.text = "unkown"
-        }
-        
-        if let retweeted_status = tweet.retweeted_status {
-            cell.userTweetForRetweet = tweet
-            cell.tweet = retweeted_status
-        } else {
-            cell.tweet = tweet
-        }
+        cell.viewModel = viewModel.viewModelForCell(at: indexPath.row)
         
         cell.index = indexPath
         
@@ -231,107 +233,28 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         return cell
     }
     
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return tweets.count
-    }
-    
-    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
-        if let height = heightAtIndexPath.object(forKey: indexPath) as? NSNumber {
-            return CGFloat(height.floatValue)
-        } else {
-            return UITableViewAutomaticDimension
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        
-        /// slide in cell
-//        cell.alpha = 0.0
-//        let transform = CATransform3DTranslate(CATransform3DIdentity, -250, 20, 0)
-//        cell.layer.transform = transform
-//        
-//        UIView.animate(withDuration: 0.6) {
-//            cell.alpha = 1.0
-//            cell.layer.transform = CATransform3DIdentity
-//        }
-        
-        let height = NSNumber(value: Float(cell.frame.size.height))
-        heightAtIndexPath.setObject(height, forKey: indexPath as NSCopying)
-    }
-    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: "showTwitterDetail", sender: self)
     }
-    
-    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return 0
-    }
+}
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
+// MARK: - Tweet Table View Cell Delegate
 
-    @IBAction func logoutTapped(_ sender: Any) {
-        
-        UIhelper.alertMessage("Add Contacts", userMessage: "Unavailable", action: nil, sender: self)
-    }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "showTwitterDetail" {
-            let vc = segue.destination as! TweetViewController
-            
-            let indexPath = twitterTableView.indexPathForSelectedRow
-            if let index = indexPath {
-                if let retweeted_status = self.tweets[index.row].retweeted_status {
-                    vc.tweet = retweeted_status
-                    vc.retweet = self.tweets[index.row]
-                } else {
-                    vc.tweet = self.tweets[index.row]
-                }
-                vc.indexPath = index
-                vc.delegate = self
-            }
-        }
-        // popover segue
-        if segue.identifier == "popoverSegue" {
-            let postViewController = segue.destination as! PostViewController
-            postViewController.delegate = self
-            postViewController.popoverPresentationController?.delegate = self
-            postViewController.endpoint = postEndpoint
-            if postEndpoint == 3 {
-                postViewController.tweet = self.postTweet
-                postViewController.tweetOrg = self.postTweetOrg
-            }
-        }
-        // popover segue
-        if segue.identifier == "showImage" {
-            let previewViewController = segue.destination as! PreviewViewController
-            previewViewController.delegate = self
-            previewViewController.popoverPresentationController?.delegate = self
-            previewViewController.image = popImage
-        }
-        if segue.identifier == "showProfile" {
-            let vc = segue.destination as! ProfileViewController
-            vc.userProfile = self.cellUser
-        }
-    }
-
+extension TwitterViewController: TweetTableViewCellDelegate {
     func tweetCellRetweetTapped(cell: TweetTableViewCell, isRetweeted: Bool) {
         var endpoint : String?
-        
         // pop up menu
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
         cell.reTwitteButton.isEnabled = false
         cell.numRetwitteLabel.isEnabled = false
         
-        let tweetid = cell.tweet.id!
+        let tweetid = cell.viewModel.tweetForShow.id!
         var title = "Retweet"
         var style = UIAlertActionStyle.default
         
-        if cell.tweet.isUserRetweeted! {
-            title = "Unretweet"
+        if cell.viewModel.isTweetRetweeted() {
+            title = "Undo Retweet"
             style = UIAlertActionStyle.destructive
             endpoint = TwitterClient.APIScheme.UnretweetStatusEndpoint
         } else {
@@ -350,20 +273,25 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
             cell.client.post(endpoint!, parameters: nil, progress: nil, success: { (task, response) in
                 print("retweet: success")
                 
-                var count = cell.tweet.retweetCount!
+                var count = cell.viewModel.tweetForShow.retweetCount ?? 0
                 
-                if cell.tweet.isUserRetweeted! {
+                if cell.viewModel.isTweetRetweeted() {
                     cell.reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon"), for: .normal)
                     cell.numRetwitteLabel.setButtonTitleColor(option: .gray)
                     count -= 1
-                    cell.tweet.isUserRetweeted = false
+//                    if cell.viewModel.tweet == cell.viewModel.tweetForShow {
+//                        self.viewModel.tweets.remove(at: cell.index.row)
+//                        self.twitterTableView.reloadData()
+//                    } else {
+                        cell.viewModel.tweetForShow.isUserRetweeted = false
+//                    }
                 } else {
                     cell.reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon-green"), for: .normal)
                     cell.numRetwitteLabel.setButtonTitleColor(option: .green)
-                    cell.tweet.isUserRetweeted = true
+                    cell.viewModel.tweetForShow.isUserRetweeted = true
                     count += 1
                 }
-                cell.tweet.retweetCount = count
+                cell.viewModel.tweetForShow.retweetCount = count
                 
                 cell.numRetwitteLabel.setTitle((count as Int).displayCountWithFormat(), for: .normal)
             }) { (task, error) in
@@ -400,30 +328,30 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         cell.favoriteButton.setImage(#imageLiteral(resourceName: "favorited-icon-blue"), for: .normal)
         cell.numFavoriteLabel.setButtonTitleColor(option: .blue)
         
-        if cell.tweet.isUserFavorited! {
+        if cell.viewModel.isTweetFavorited() {
             endpoint = TwitterClient.APIScheme.FavoriteDestroyEndpoint
         } else {
             endpoint = TwitterClient.APIScheme.FavoriteCreateEndpoint
         }
         
-        cell.client.post(endpoint!, parameters: ["id" : cell.tweet.id!], progress: nil, success: { (task, response) in
+        cell.client.post(endpoint!, parameters: ["id" : cell.viewModel.tweetForShow.id!], progress: nil, success: { (task, response) in
             print("retweet: success")
             
-            var count = cell.tweet.favoriteCount!
+            var count = cell.viewModel.tweetForShow.favoriteCount ?? 0
             
-            if cell.tweet.isUserFavorited! {
+            if cell.viewModel.isTweetFavorited() {
                 cell.favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)
                 cell.numFavoriteLabel.setButtonTitleColor(option: .gray)
-                cell.tweet.isUserFavorited = false
+                cell.viewModel.tweetForShow.isUserFavorited = false
                 count -= 1
             } else {
                 cell.favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon-red"), for: .normal)
                 cell.numFavoriteLabel.setButtonTitleColor(option: .red)
-                cell.tweet.isUserFavorited = true
+                cell.viewModel.tweetForShow.isUserFavorited = true
                 count += 1
             }
             
-            cell.tweet.favoriteCount = count
+            cell.viewModel.tweetForShow.favoriteCount = count
             
             cell.numFavoriteLabel.setTitle((count as Int).displayCountWithFormat(), for: .normal)
         }) { (task, error) in
@@ -444,13 +372,13 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
             UIhelper.alertMessageWithAction("Delete Tweet", userMessage: "Are you sure you want to delete this Tweet?", left: "Cancel", right: "Delete", leftAction: nil, rightAction: { (action) in
                 var endpoint = TwitterClient.APIScheme.TweetStatusDestroyEndpoint
                 if let range = endpoint.range(of: ":id") {
-                    endpoint = endpoint.replacingCharacters(in: range, with: "\(cell.tweet.id!)")
+                    endpoint = endpoint.replacingCharacters(in: range, with: "\(cell.viewModel.tweetForShow.id!)")
                 }
                 
                 cell.client.post(endpoint, parameters: nil, progress: nil, success: { (task, response) in
                     print("Delete tweet: Success")
                     
-                    self.tweets.remove(at: cell.index.row)
+                    self.viewModel.tweets.remove(at: cell.index.row)
                     self.twitterTableView.deleteRows(at: [cell.index], with: .fade)
                     self.twitterTableView.reloadData()
                     
@@ -459,7 +387,7 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
                 })
             }, sender: self)
         }
-        if cell.tweet.user?.id == UserModel.currentUser?.id {
+        if cell.viewModel.tweetForShow.user?.id == UserModel.currentUser?.id {
             alertController.addAction(deleteAction)
         }
         
@@ -471,22 +399,35 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     func tweetCellReplyTapped(cell: TweetTableViewCell, withId: Int) {
         print("Reply Tapped")
-        postEndpoint = 3
-        postTweet = cell.tweet
-        if cell.userTweetForRetweet != nil {
-            postTweetOrg = cell.userTweetForRetweet
+        viewModel.postEndpoint = 3
+        viewModel.postTweet = cell.viewModel.tweetForShow
+        if cell.viewModel.tweet != cell.viewModel.tweetForShow {
+            viewModel.postTweetOrg = cell.viewModel.tweet
         }
         performSegue(withIdentifier: "popoverSegue", sender: self)
     }
     
+    internal func tweetCellMentionTapped(with screenName: String) {
+        viewModel.screenName = screenName
+        performSegue(withIdentifier: "showProfile", sender: self)
+    }
+    
+    internal func tweetCellUserProfileImageTapped(cell: TweetTableViewCell, forTwitterUser user: UserModel?) {
+        viewModel.cellUser = user
+        performSegue(withIdentifier: "showProfile", sender: self)
+    }
+}
+
+// MARK: - Tweet Table View Delegate
+
+extension TwitterViewController: TweetTableViewDelegate {
     internal func getNewTweet(data: TweetModel?) {
         print("PostViewController Back...")
-        
-        postEndpoint = 0
-        postTweet = nil
-        postTweetOrg = nil
+        viewModel.postEndpoint = 0
+        viewModel.postTweet = nil
+        viewModel.postTweetOrg = nil
         if data != nil {
-            requestData(parameters: ["since_id": since_id], type: 2)
+            viewModel.getTweets(parameters: ["since_id": viewModel.since_id], type: .getNew)
         }
     }
     
@@ -494,20 +435,54 @@ class TwitterViewController: UIViewController, UITableViewDelegate, UITableViewD
         popImage = imageView.image!
         performSegue(withIdentifier: "showImage", sender: self)
     }
-    
+}
+
+// MARK: - Update Cell From Table Delegate
+
+extension TwitterViewController: UpdateCellFromTableDelegate {
     internal func removeCell(indexPath: IndexPath) {
-        self.tweets.remove(at: indexPath.row)
+        viewModel.tweets.remove(at: indexPath.row)
         self.twitterTableView.deleteRows(at: [indexPath], with: .fade)
         self.twitterTableView.reloadData()
     }
     
     internal func updateNumber(tweet: TweetModel, indexPath: IndexPath) {
-        self.tweets[indexPath.row] = tweet
+        viewModel.tweets[indexPath.row] = tweet
         twitterTableView.reloadRows(at: [indexPath], with: .fade)
     }
+}
+
+extension TwitterViewController: ViewModelDelegate {
+    func presentAltertWithAction(message: String) {
+        twitterTableView.es_stopPullToRefresh()
+        twitterTableView.es_stopLoadingMore()
+        OtherHelper.alertWithAction("Error", message: message, numActions: 1, actionTitles: ["OK"], actionStyles: [.default], actions: [nil], sender: self)
+    }
     
-    internal func tweetCellUserProfileImageTapped(cell: TweetTableViewCell, forTwitterUser user: UserModel?) {
-        self.cellUser = user
-        performSegue(withIdentifier: "showProfile", sender: self)
+    func reloadTable(section: Int?, row: Int?, loadType: LoadType?) {
+        DispatchQueue.main.async {
+            self.uiHelper.stopActivityIndicator()
+        }
+        if section != nil {
+            if row != nil {
+                return twitterTableView.reloadRows(at: [IndexPath(row: row!, section: section!)], with: .none)
+            }
+            return twitterTableView.reloadSections([section!], with: .none)
+        }
+        if loadType != nil {
+            switch loadType! {
+            case .loadMore:
+                do_table_refresh()
+             case .pullRefresh:
+                do_table_refresh()
+            case .getNew:
+                let offset = self.twitterTableView.contentOffset
+                //self.twitterTableView.reloadData()
+                do_table_refresh()
+                twitterTableView.contentOffset = offset
+            }
+        } else {
+            do_table_refresh()
+        }
     }
 }

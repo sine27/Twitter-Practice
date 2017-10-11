@@ -15,6 +15,8 @@ class TwitterClient: BDBOAuth1SessionManager {
     
     static let sharedInstance = TwitterClient(baseURL: URL(string: "https://api.twitter.com")!, consumerKey: "GA7uRToJE2eK6uXMTQSDLt62y", consumerSecret: "XnSjp3wOW6DnfAqjp5dLLz70kMFn0N1DwU6EAGIudx9z3AGqZq")
     
+    static var uploadClient = TwitterClient(baseURL: URL(string: "https://upload.twitter.com")!, consumerKey: "GA7uRToJE2eK6uXMTQSDLt62y", consumerSecret: "XnSjp3wOW6DnfAqjp5dLLz70kMFn0N1DwU6EAGIudx9z3AGqZq")
+    
     var loginSuccess : (() -> ())?
     var loginFailure : ((Error) -> ())?
     
@@ -29,6 +31,7 @@ class TwitterClient: BDBOAuth1SessionManager {
         static let UserCredentialEndpoint = "1.1/account/verify_credentials.json"
         static let UserShowEndpoint = "1.1/users/lookup.json"
         static let UserBannerEndpoint = "1.1/users/profile_banner.json"
+        static let UserShowOneEndpoint = "1.1/users/show.json"
         
         static let HomeTimelineEndpoint = "1.1/statuses/home_timeline.json"
         static let UserTimelineEndpoint = "1.1/statuses/user_timeline.json"
@@ -55,9 +58,7 @@ class TwitterClient: BDBOAuth1SessionManager {
         loginFailure = failure
         
         if let client = TwitterClient.sharedInstance {
-            
             client.deauthorize()
-            
             client.fetchRequestToken(withPath: "oauth/request_token", method: "GET", callbackURL: URL(string: "twitterdemo://oauth")!, scope: nil, success: { (requestToken) in
                 
                 if let token = requestToken?.token {

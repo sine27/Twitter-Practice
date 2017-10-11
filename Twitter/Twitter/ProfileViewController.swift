@@ -13,6 +13,8 @@ let offset_B_LabelHeader:CGFloat = 95.0 // At this offset the Black label reache
 let distance_W_LabelHeader:CGFloat = 35.0 // The distance between the bottom of the Header and the top
 
 class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate, UIPopoverPresentationControllerDelegate, TweetTableViewCellDelegate, TweetTableViewDelegate, UpdateCellFromTableDelegate {
+    
+    var viewModel = TwitterTableViewModel()
 
     @IBOutlet weak var followingButton: UIButton!
     
@@ -66,11 +68,17 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     var userProfile: UserModel?
     
+    var screenName: String?
+    
     var max_id = -1
     
     var since_id = -1
     
-    var tweets: [TweetModel] = []
+    var tweets: [TweetModel] = [] {
+        didSet {
+            viewModel.tweets = tweets
+        }
+    }
     
     var uiHelper = UIhelper()
     
@@ -114,7 +122,9 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         profileViewHeight = profileView.frame.height
         
-        if userProfile == nil {
+        if screenName != nil {
+            parameters = ["screen_name": screenName!]
+        } else if userProfile == nil {
             userProfile = UserModel.currentUser
             parameters = nil
         } else {
@@ -122,8 +132,6 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         
         setupProfile ()
-        
-        print(userProfile!.dictionary)
         
         userTweetsTableView.es_addPullToRefresh {
             if self.since_id == -1 {
@@ -190,6 +198,11 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     }
     
     func setupProfile () {
+        
+        if userProfile == nil, screenName != nil {
+            requestData(endpoint: TwitterClient.APIScheme.UserShowOneEndpoint, parameters: parameters, type: 5)
+            return
+        }
 
         if let avatarURL = userProfile?.profile_image_url_https {
             avatarImageView.setImageWith(URLRequest(url: avatarURL), placeholderImage: #imageLiteral(resourceName: "noImage"), success: { (request, response, image) in
@@ -272,7 +285,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         if let followingCount = userProfile?.friend_count {
             
             let attributeNum = [ NSFontAttributeName: UIFont.systemFont(ofSize: 13, weight: UIFontWeightSemibold) ]
-            let numString = NSMutableAttributedString(string: followingCount.displayCountWithFormat(), attributes: attributeNum )
+            let numString = NSMutableAttributedString(string: "\(followingCount)", attributes: attributeNum )
             
             var range = NSRange(location: 0, length: numString.length)
             numString.addAttribute(NSForegroundColorAttributeName, value: UIColor.black, range: range)
@@ -289,7 +302,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         if let followerCount = userProfile?.followers_count {
             let attributeNum = [ NSFontAttributeName: UIFont.systemFont(ofSize: 13, weight: UIFontWeightSemibold) ]
-            let numString = NSMutableAttributedString(string: followerCount.displayCountWithFormat(), attributes: attributeNum )
+            let numString = NSMutableAttributedString(string: "\(followerCount)", attributes: attributeNum )
             
             var range = NSRange(location: 0, length: numString.length)
             numString.addAttribute(NSForegroundColorAttributeName, value: UIColor.black, range: range)
@@ -331,6 +344,13 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
                 
                 print("Profile: Success type \(type)")
                 
+                if type == 5 {
+                    let dictionary = response as! NSDictionary
+                    self.userProfile = UserModel(dictionary: dictionary)
+                    self.setupProfile()
+                    return 
+                }
+                
                 if type != 3 {
                     let dictionary = response as! [NSDictionary]
                     var tweetsTmp: [TweetModel] = []
@@ -360,6 +380,10 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
                         
                         tweetsTmp.remove(at: 0)
                         
+                        if tweetsTmp.count <= 0 {
+                            return self.userTweetsTableView.es_removeRefreshFooter()
+                        }
+                        
                         self.tweets += tweetsTmp
                         
                         self.max_id = self.tweets[self.tweets.count - 1].id!
@@ -388,7 +412,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
                 else {
                     let dictionary = response as! NSDictionary
                     print(dictionary)
-                    // type 3
+                    // type 3 banner
                     if type == 3 {
                         let sizes = dictionary["sizes"] as! NSDictionary
                         let large = sizes["1500x500"] as! NSDictionary
@@ -404,9 +428,6 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
                             self.backgroundImageView.image = nil
                             self.backgroundView.backgroundColor = UIhelper.UIColorOption.twitterBlue
                         })
-                    }
-                    if type == 4 {
-                        
                     }
                 }
                 
@@ -436,34 +457,8 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
 
         let cell = Bundle.main.loadNibNamed("TweetTableViewCell", owner: self, options: nil)?.first as! TweetTableViewCell
-        let tweet = tweets[indexPath.row]
         
-        if tweet.isUserRetweeted! == true {
-            cell.reTwitteButton.imageView?.image = #imageLiteral(resourceName: "retweet-icon-green")
-        } else {
-            cell.reTwitteButton.imageView?.image = #imageLiteral(resourceName: "retweet-icon")
-        }
-        
-        if tweet.isUserFavorited! == true {
-            cell.favoriteButton.imageView?.image = #imageLiteral(resourceName: "favor-icon-red")
-        } else {
-            cell.favoriteButton.imageView?.image = #imageLiteral(resourceName: "favor-icon")
-        }
-        
-        if let timeCreated = tweet.createdAt {
-            let now = Date()
-            let difference = now.offset(from: timeCreated)
-            cell.timeCreateLabel.text = difference
-        } else {
-            cell.timeCreateLabel.text = "unkown"
-        }
-        
-        if let retweeted_status = tweet.retweeted_status {
-            cell.userTweetForRetweet = tweet
-            cell.tweet = retweeted_status
-        } else {
-            cell.tweet = tweet
-        }
+        cell.viewModel = viewModel.viewModelForCell(at: indexPath.row)
         
         cell.index = indexPath
         
@@ -504,7 +499,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         
 //        print(offset)
         
-        if difference >= 50 {
+        if difference >= 0 {
             userTweetsTableView.scrollIndicatorInsets = UIEdgeInsets(top: difference, left: 0, bottom: 0, right: 0)
         }
         
@@ -580,18 +575,17 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     func tweetCellRetweetTapped(cell: TweetTableViewCell, isRetweeted: Bool) {
         var endpoint : String?
-        
         // pop up menu
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
         cell.reTwitteButton.isEnabled = false
         cell.numRetwitteLabel.isEnabled = false
         
-        let tweetid = cell.tweet.id!
+        let tweetid = cell.viewModel.tweetForShow.user!.id!
         var title = "Retweet"
         var style = UIAlertActionStyle.default
         
-        if cell.tweet.isUserRetweeted! {
+        if cell.viewModel.isTweetRetweeted() {
             title = "Unretweet"
             style = UIAlertActionStyle.destructive
             endpoint = TwitterClient.APIScheme.UnretweetStatusEndpoint
@@ -611,20 +605,20 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
             cell.client.post(endpoint!, parameters: nil, progress: nil, success: { (task, response) in
                 print("retweet: success")
                 
-                var count = cell.tweet.retweetCount!
+                var count = cell.viewModel.tweetForShow.retweetCount ?? 0
                 
-                if cell.tweet.isUserRetweeted! {
+                if cell.viewModel.isTweetRetweeted() {
                     cell.reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon"), for: .normal)
                     cell.numRetwitteLabel.setButtonTitleColor(option: .gray)
                     count -= 1
-                    cell.tweet.isUserRetweeted = false
+                    cell.viewModel.tweetForShow.isUserRetweeted = false
                 } else {
                     cell.reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon-green"), for: .normal)
                     cell.numRetwitteLabel.setButtonTitleColor(option: .green)
-                    cell.tweet.isUserRetweeted = true
+                    cell.viewModel.tweetForShow.isUserRetweeted = true
                     count += 1
                 }
-                cell.tweet.retweetCount = count
+                cell.viewModel.tweetForShow.retweetCount = count
                 
                 cell.numRetwitteLabel.setTitle((count as Int).displayCountWithFormat(), for: .normal)
             }) { (task, error) in
@@ -652,51 +646,6 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         self.present(alertController, animated: true, completion: nil)
     }
     
-    func tweetCellFavoritedTapped(cell: TweetTableViewCell, isFavorited: Bool) {
-        var endpoint : String?
-        
-        cell.favoriteButton.isEnabled = false
-        cell.numFavoriteLabel.isEnabled = false
-        
-        cell.favoriteButton.setImage(#imageLiteral(resourceName: "favorited-icon-blue"), for: .normal)
-        cell.numFavoriteLabel.setButtonTitleColor(option: .blue)
-        
-        if cell.tweet.isUserFavorited! {
-            endpoint = TwitterClient.APIScheme.FavoriteDestroyEndpoint
-        } else {
-            endpoint = TwitterClient.APIScheme.FavoriteCreateEndpoint
-        }
-        
-        cell.client.post(endpoint!, parameters: ["id" : cell.tweet.id!], progress: nil, success: { (task, response) in
-            print("retweet: success")
-            
-            var count = cell.tweet.favoriteCount!
-            
-            if cell.tweet.isUserFavorited! {
-                cell.favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)
-                cell.numFavoriteLabel.setButtonTitleColor(option: .gray)
-                cell.tweet.isUserFavorited = false
-                count -= 1
-            } else {
-                cell.favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon-red"), for: .normal)
-                cell.numFavoriteLabel.setButtonTitleColor(option: .red)
-                cell.tweet.isUserFavorited = true
-                count += 1
-            }
-            
-            cell.tweet.favoriteCount = count
-            
-            cell.numFavoriteLabel.setTitle((count as Int).displayCountWithFormat(), for: .normal)
-        }) { (task, error) in
-            print("retweet: Error >>> \(error.localizedDescription)")
-            cell.favoriteButton.setImage(#imageLiteral(resourceName: "favorited-icon-yellow"), for: .normal)
-            cell.numFavoriteLabel.setButtonTitleColor(option: .yellow)
-        }
-        
-        cell.favoriteButton.isEnabled = true
-        cell.numFavoriteLabel.isEnabled = true
-    }
-    
     func tweetCellMenuTapped(cell: TweetTableViewCell, withId id: Int) {
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         
@@ -705,24 +654,22 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
             UIhelper.alertMessageWithAction("Delete Tweet", userMessage: "Are you sure you want to delete this Tweet?", left: "Cancel", right: "Delete", leftAction: nil, rightAction: { (action) in
                 var endpoint = TwitterClient.APIScheme.TweetStatusDestroyEndpoint
                 if let range = endpoint.range(of: ":id") {
-                    endpoint = endpoint.replacingCharacters(in: range, with: "\(cell.tweet.id!)")
+                    endpoint = endpoint.replacingCharacters(in: range, with: "\(cell.viewModel.tweetForShow.id!)")
                 }
                 
                 cell.client.post(endpoint, parameters: nil, progress: nil, success: { (task, response) in
                     print("Delete tweet: Success")
                     
-                    UserModel.currentUser?.statuses_count! -= 1
-                    
-                    self.tweets.remove(at: cell.index.row)
+                    self.viewModel.tweets.remove(at: cell.index.row)
                     self.userTweetsTableView.deleteRows(at: [cell.index], with: .fade)
                     self.userTweetsTableView.reloadData()
                     
                 }, failure: { (task, error) in
                     print("\(error.localizedDescription)")
                 })
-            }, sender: (UIApplication.shared.keyWindow?.rootViewController)!)
+            }, sender: self)
         }
-        if cell.tweet.user?.id == UserModel.currentUser?.id {
+        if cell.viewModel.tweetForShow.user?.id == UserModel.currentUser?.id {
             alertController.addAction(deleteAction)
         }
         
@@ -730,6 +677,22 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         alertController.addAction(cancelAction)
         
         self.present(alertController, animated: true, completion: nil)
+    }
+    
+    func tweetCellReplyTapped(cell: TweetTableViewCell, withId: Int) {
+        print("Reply Tapped")
+        viewModel.postEndpoint = 3
+        viewModel.postTweet = cell.viewModel.tweetForShow
+        if cell.viewModel.tweet != cell.viewModel.tweetForShow {
+            viewModel.postTweetOrg = cell.viewModel.tweet
+        }
+        performSegue(withIdentifier: "popoverSegue", sender: self)
+    }
+    
+    internal func tweetCellMentionTapped(with screenName: String) {
+        let vc = storyboard?.instantiateViewController(withIdentifier: "profileViewController") as! ProfileViewController
+        vc.screenName = screenName
+        self.navigationController?.pushViewController(vc, animated: true)
     }
     
     internal func tweetCellUserProfileImageTapped(cell: TweetTableViewCell, forTwitterUser user: UserModel?) {
@@ -798,4 +761,38 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
     }
 
+}
+
+extension ProfileViewController: ViewModelDelegate {
+    func presentAltertWithAction(message: String) {
+        userTweetsTableView.es_stopPullToRefresh()
+        userTweetsTableView.es_stopLoadingMore()
+        OtherHelper.alertWithAction("Error", message: message, numActions: 1, actionTitles: ["OK"], actionStyles: [.default], actions: [nil], sender: self)
+    }
+    
+    func reloadTable(section: Int?, row: Int?, loadType: LoadType?) {
+        if section != nil {
+            if row != nil {
+                return userTweetsTableView.reloadRows(at: [IndexPath(row: row!, section: section!)], with: .none)
+            }
+            return userTweetsTableView.reloadSections([section!], with: .none)
+        }
+        if loadType != nil {
+            switch loadType! {
+            case .loadMore:
+                userTweetsTableView.reloadData()
+                self.userTweetsTableView.es_stopPullToRefresh()
+            case .pullRefresh:
+                userTweetsTableView.reloadData()
+                self.userTweetsTableView.es_stopLoadingMore()
+            case .getNew:
+                let offset = self.userTweetsTableView.contentOffset
+                //self.twitterTableView.reloadData()
+                userTweetsTableView.reloadData()
+                userTweetsTableView.contentOffset = offset
+            }
+        } else {
+            userTweetsTableView.reloadData()
+        }
+    }
 }

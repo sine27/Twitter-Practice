@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -17,7 +17,7 @@
             <rect key="frame" x="0.0" y="0.0" width="320" height="191"/>
             <autoresizingMask key="autoresizingMask"/>
             <tableViewCellContentView key="contentView" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="XoP-3L-6GQ" id="Tji-Ih-SeE">
-                <rect key="frame" x="0.0" y="0.0" width="320" height="190"/>
+                <rect key="frame" x="0.0" y="0.0" width="320" height="190.5"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="noImage" translatesAutoresizingMaskIntoConstraints="NO" id="jqL-5b-KPk">
@@ -63,16 +63,6 @@
                         <color key="textColor" red="0.40000000600000002" green="0.40000000600000002" blue="0.40000000600000002" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VzW-oI-Lcx">
-                        <rect key="frame" x="282" y="7.5" width="30" height="22"/>
-                        <constraints>
-                            <constraint firstAttribute="width" constant="30" id="VJ9-RP-Gsk"/>
-                        </constraints>
-                        <state key="normal" image="downButton"/>
-                        <connections>
-                            <action selector="menuButtonTapped:" destination="XoP-3L-6GQ" eventType="touchUpInside" id="wa0-ee-nLV"/>
-                        </connections>
-                    </button>
                     <stackView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eWW-Cq-ohc">
                         <rect key="frame" x="38" y="8" width="58" height="0.0"/>
                         <subviews>
@@ -209,6 +199,16 @@
                             <constraint firstAttribute="height" constant="27" id="f6O-vh-dOF"/>
                         </constraints>
                     </stackView>
+                    <button contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="VzW-oI-Lcx">
+                        <rect key="frame" x="290" y="7.5" width="30" height="22"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="30" id="VJ9-RP-Gsk"/>
+                        </constraints>
+                        <state key="normal" image="downButton"/>
+                        <connections>
+                            <action selector="menuButtonTapped:" destination="XoP-3L-6GQ" eventType="touchUpInside" id="wa0-ee-nLV"/>
+                        </connections>
+                    </button>
                 </subviews>
                 <constraints>
                     <constraint firstItem="v6N-X8-nSY" firstAttribute="top" secondItem="ROF-iy-6WU" secondAttribute="bottom" constant="3" id="2Vi-5z-Che"/>
@@ -219,10 +219,10 @@
                     <constraint firstAttribute="trailingMargin" secondItem="v6N-X8-nSY" secondAttribute="trailing" constant="20" id="LFK-KY-yJG"/>
                     <constraint firstItem="eWW-Cq-ohc" firstAttribute="top" secondItem="Tji-Ih-SeE" secondAttribute="topMargin" id="LhL-pf-asu"/>
                     <constraint firstItem="ROF-iy-6WU" firstAttribute="leading" secondItem="mWk-Zl-s00" secondAttribute="leading" id="Mdy-HG-uFQ"/>
-                    <constraint firstAttribute="trailingMargin" secondItem="VzW-oI-Lcx" secondAttribute="trailing" id="N4a-N6-o3r"/>
+                    <constraint firstAttribute="trailing" secondItem="VzW-oI-Lcx" secondAttribute="trailing" id="N4a-N6-o3r"/>
                     <constraint firstItem="td6-co-kNZ" firstAttribute="leading" secondItem="qJP-cc-yg5" secondAttribute="trailing" id="OhI-e3-tNM"/>
                     <constraint firstItem="gCh-p7-BIm" firstAttribute="leading" secondItem="td6-co-kNZ" secondAttribute="trailing" id="Pcb-YF-Gx7"/>
-                    <constraint firstItem="VzW-oI-Lcx" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="gCh-p7-BIm" secondAttribute="trailing" id="R9e-0r-N0Z"/>
+                    <constraint firstItem="VzW-oI-Lcx" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="gCh-p7-BIm" secondAttribute="trailing" constant="-5" id="R9e-0r-N0Z"/>
                     <constraint firstItem="baz-jC-Fz4" firstAttribute="leading" secondItem="jqL-5b-KPk" secondAttribute="trailing" constant="8" id="ScY-AG-sEk"/>
                     <constraint firstItem="mWk-Zl-s00" firstAttribute="top" secondItem="jqL-5b-KPk" secondAttribute="top" constant="-3" id="W4L-2b-IjC"/>
                     <constraint firstItem="ROF-iy-6WU" firstAttribute="top" secondItem="baz-jC-Fz4" secondAttribute="bottom" constant="10" id="aWO-bw-cRX"/>

@@ -9,7 +9,7 @@
 import UIKit
 
 class PostViewController: UIViewController, UITextViewDelegate {
-
+    
     @IBOutlet weak var avatarImage: UIImageView!
     
     @IBOutlet weak var inputTextView: UITextView!
@@ -26,6 +26,10 @@ class PostViewController: UIViewController, UITextViewDelegate {
     
     @IBOutlet weak var navigationBar: UINavigationBar!
     
+    @IBOutlet weak var cameraBuuton: UIBarButtonItem!
+    
+    @IBOutlet weak var imageStackView: UIStackView!
+    
     var delegate: TweetTableViewDelegate?
     
     var tweet: TweetModel?
@@ -33,6 +37,14 @@ class PostViewController: UIViewController, UITextViewDelegate {
     var tweetOrg: TweetModel?
     
     var endpoint = -1
+    
+    var images: [UIImage] = [] {
+        didSet {
+            if let imageView = imageStackView.arrangedSubviews[3] as? UIImageView, imageView.image == nil {
+                imageStackView.removeArrangedSubview(imageView)
+            }
+        }
+    }
     
     @IBAction func crossButtonTapped(_ sender: UIBarButtonItem) {
         
@@ -75,7 +87,6 @@ class PostViewController: UIViewController, UITextViewDelegate {
     
     @IBAction func tweetButtonTapped(_ sender: Any) {
         inputTextView.resignFirstResponder()
-        
         var parameters: Any?
         
         if endpoint == 0 {
@@ -83,11 +94,45 @@ class PostViewController: UIViewController, UITextViewDelegate {
         } else if endpoint == 3 {
             if let id = tweet?.id {
                 parameters = ["status": inputTextView.text, "in_reply_to_status_id": id]
+                
             }
         }
         
+        if images.count > 0 {
+            var imageParam: Any?
+            let urlEndPoint = "1.1/media/upload.json"
+            //            var medias: [Any] = []
+            //            for image in images {
+            //                let data: Data = UIImagePNGRepresentation(image)!
+            //                imageParam = ["media":String(data: data, encoding: String.Encoding.utf8) as String!]
+            ////                imageParam["media_data"] = data.base64EncodedString()
+            //            }
+            let image = #imageLiteral(resourceName: "verified-account")
+            let data: Data = UIImagePNGRepresentation(image)!
+            imageParam = ["media_data":data.base64EncodedString()]
+            
+            if let client = TwitterClient.uploadClient {
+                client.requestSerializer.setValue("multipart/form-data", forHTTPHeaderField: "Content-Type")
+                client.post(urlEndPoint, parameters: imageParam, progress: { (progress) in
+                    debugPrint(progress)
+                }, success: { (task, response) in
+                    print("Media: Success")
+                    self.postTweet(parameters)
+                }, failure: { (task, error) in
+                    debugPrint(task)
+                    debugPrint(error)
+                    UIhelper.alertMessage("Tweet", userMessage: error.localizedDescription, action: nil, sender: self)
+                })
+            }
+        } else {
+            postTweet(parameters)
+        }
+        
+    }
+    
+    func postTweet(_ parameters: Any?) {
         if let client = TwitterClient.sharedInstance {
-            client.post(TwitterClient.APIScheme.TweetStatusUpdateEndpoint, parameters: parameters, progress: { (progress) in
+            client.post(TwitterClient.APIScheme.TweetStatusUpdateEndpoint, parameters: parameters as Any?, progress: { (progress) in
                 print(progress)
             }, success: { (task, response) in
                 print("Tweet: Success")
@@ -109,6 +154,45 @@ class PostViewController: UIViewController, UITextViewDelegate {
         }
     }
     
+    @IBAction func cameraButtonTapped(_ sender: Any) {
+        if images.count < 4 {
+            let alert = UIAlertController(title: "Photo", message: "", preferredStyle: .actionSheet)
+            let openCameraAction = UIAlertAction(title: "Camera", style: .default) { (action) in
+                let vc = UIImagePickerController()
+                vc.delegate = self
+                /// if camera available
+                if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                    vc.allowsEditing = true
+                    vc.sourceType = .camera
+                    vc.cameraCaptureMode = .photo
+                    self.present(vc, animated: true, completion: nil)
+                }
+            }
+            
+            alert.addAction(openCameraAction)
+            
+            let openLibraryAction = UIAlertAction(title: "Library", style: .default) { (action) in
+                let vc = UIImagePickerController()
+                vc.delegate = self
+                vc.allowsEditing = true
+                vc.sourceType = .photoLibrary
+                self.present(vc, animated: true, completion: nil)
+            }
+            alert.addAction(openLibraryAction)
+            
+            let cancelAction = UIAlertAction(title: "Cancel", style: .destructive, handler: nil)
+            alert.addAction(cancelAction)
+            present(alert, animated: true, completion: nil)
+        }
+    }
+    
+    func tapToRemove(_ sender: UITapGestureRecognizer) {
+        if let imageView = sender.view {
+            imageView.removeFromSuperview()
+            imageStackView.addArrangedSubview(UIImageView(image: nil))
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -123,10 +207,13 @@ class PostViewController: UIViewController, UITextViewDelegate {
         tweetButton.layer.masksToBounds = true
         tweetButton.layer.cornerRadius = 7
         tweetButton.isEnabled = false
-
+        
         inputTextView.becomeFirstResponder()
         
         wordCountLabel.text = "140"
+        
+        let imageBackView = UIView()
+        imageBackView.backgroundColor = .clear
         
         let defaults = UserDefaults.standard
         
@@ -179,7 +266,7 @@ class PostViewController: UIViewController, UITextViewDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: Notification.Name.UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: Notification.Name.UIKeyboardWillHide, object: nil)
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -235,5 +322,38 @@ class PostViewController: UIViewController, UITextViewDelegate {
             tweetButton.layer.borderColor = UIhelper.UIColorOption.twitterBlue.cgColor
         }
     }
-
+    
 }
+
+extension PostViewController: UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        print("picker cancelled")
+        picker.dismiss(animated: true, completion: nil)
+    }
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+        if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
+            addImage(image)
+        }
+        else {
+            print("Failed to load image")
+        }
+        picker.dismiss(animated: true, completion: nil)
+    }
+
+    // Add image to stack view
+    func addImage(_ image: UIImage) {
+        images.append(image)
+        // let h = imageStackView.frame.height
+        let imageView = UIImageView(image: image)
+        imageView.frame = CGRect(origin: CGPoint(x: 0, y: 0), size: CGSize(width: 60, height: 60))
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.layer.masksToBounds = true
+        imageView.layer.cornerRadius = 5
+        imageView.isUserInteractionEnabled = true
+        imageView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(tapToRemove)))
+        imageStackView.insertArrangedSubview(imageView, at: images.count - 1)
+    }
+}
+

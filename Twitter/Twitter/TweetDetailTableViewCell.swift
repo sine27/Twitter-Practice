@@ -11,12 +11,6 @@ import ActiveLabel
 import AVKit
 import AVFoundation
 
-@objc protocol TweetDetailTableViewCellDelegate: class {
-    @objc optional func tweetCellMenuTapped(cell: TweetDetailTableViewCell, withId id: Int)
-    @objc optional func tweetCellUserProfileImageTapped(cell: TweetDetailTableViewCell, forTwitterUser user: UserModel?)
-    
-}
-
 class TweetDetailTableViewCell: UITableViewCell {
     
     @IBOutlet weak var avatarImage: UIImageView!
@@ -202,7 +196,7 @@ class TweetDetailTableViewCell: UITableViewCell {
                 }
                 
                 // madia is NSArray which stores NSDictionaries
-                for mediaDictionary in media as! [NSDictionary] {
+                for mediaDictionary in media as? [NSDictionary] ?? []{
                     
                     let media_url = mediaDictionary["media_url"] as! String
                     let url_should_be_replaced = mediaDictionary["url"] as! String

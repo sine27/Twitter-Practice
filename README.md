@@ -1,6 +1,6 @@
 # Project 5 - *Twitter*
 
-Time spent: **28** hours spent in total
+Time spent: **X** hours spent in total
 
 ## User Stories
 
@@ -40,9 +40,7 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-version 1_5 | version 1_4
-:-------------------------:|:-------------------------:
- <img src='demo/version1_5.gif' width='320' alt='Video Walkthrough' /> |  <img src='demo/version1_4.gif' width='320' alt='Video Walkthrough' />
+ <img src='https://github.com/sine27/Twitter/blob/master/demo/version1_5.gif' width='320' alt='Video Walkthrough' />
 
 ## License
 

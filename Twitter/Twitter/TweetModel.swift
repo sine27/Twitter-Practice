@@ -22,7 +22,7 @@ class TweetModel: NSObject {
     var isUserFavorited: Bool?
     
     var hashtags: NSArray?
-    var media: NSArray?
+    var media: [MediaModel]?
     var symbols: NSArray?
     var urls: NSArray?
     var user_mentions: NSArray?
@@ -122,7 +122,11 @@ class TweetModel: NSObject {
             }
             
             if let media = entities["media"] as? NSArray {
-                self.media = media
+                var ms: [MediaModel] = []
+                for m in media as! [NSDictionary] {
+                    ms.append(MediaModel(dict: m))
+                }
+                self.media = ms.count > 0 ? ms:nil
             } else {
                 self.media = nil
             }

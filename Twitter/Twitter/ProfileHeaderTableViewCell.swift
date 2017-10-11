@@ -25,5 +25,6 @@ class ProfileHeaderTableViewCell: UITableViewCell {
     }
     
     @IBAction func onSegmentedControllerChanged(_ sender: UISegmentedControl) {
+        
     }
 }

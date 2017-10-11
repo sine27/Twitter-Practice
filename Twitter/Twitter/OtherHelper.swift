@@ -8,88 +8,45 @@
 
 import UIKit
 
-protocol TweetTableViewDelegate {
-    func getNewTweet(data: TweetModel?)
-    func getPopoverImage(imageView: UIImageView)
-}
-
-protocol UpdateCellFromTableDelegate {
-    func removeCell (indexPath: IndexPath )
-    func updateNumber (tweet: TweetModel, indexPath: IndexPath)
-}
-
-extension Date {
-
-    // Returns the amount of days from another date
-    func days(from date: Date) -> Int {
-        return Calendar.current.dateComponents([.day], from: date, to: self).day ?? 0
-    }
-    // Returns the amount of hours from another date
-    func hours(from date: Date) -> Int {
-        return Calendar.current.dateComponents([.hour], from: date, to: self).hour ?? 0
-    }
-    // Returns the amount of minutes from another date
-    func minutes(from date: Date) -> Int {
-        return Calendar.current.dateComponents([.minute], from: date, to: self).minute ?? 0
-    }
-    // Returns the amount of seconds from another date
-    func seconds(from date: Date) -> Int {
-        return Calendar.current.dateComponents([.second], from: date, to: self).second ?? 0
-    }
-    // Returns the a custom time interval description from another date
-    func offset(from date: Date) -> String {
-        if days(from: date) >  6 {
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "M/dd/yy"
-            return dateFormatter.string(from: date)
-        }
-        if days(from: date) <= 6, days(from: date) > 0 {
-            return "\(days(from: date))d"
-        }
-        if days(from: date) <= 0, hours(from: date) > 0 {
-            return "\(hours(from: date))h"
-        }
-        if hours(from: date) <= 0, minutes(from: date) > 0 {
-            return "\(minutes(from: date))m"
-        }
-        if minutes(from: date) <= 0, seconds(from: date) > 0 {
-            return "\(seconds(from: date))s"
-        }
-        return "0s"
-    }
-}
-
-struct Number {
-    static let withSeparator: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.groupingSeparator = "," // or possibly "." / ","
-        formatter.numberStyle = .decimal
-        return formatter
-    }()
-}
-
-extension Int {
-    func displayCountWithFormat () -> String {
-        var newNum = 0.0
-        if self == 0 {
-            return ""
-        }
-        if self >= 10000, self < 1000000 {
-            newNum = Double(self) / 1000
-            return "\(Number.withSeparator.string(from: NSNumber(value: (round(newNum * 10) / 10))) ?? "")K"
-        }
-        if self >= 1000000, self < 1000000000 {
-            newNum = Double(self) / 1000000
-            return "\(Number.withSeparator.string(from: NSNumber(value: (round(newNum * 10) / 10))) ?? "")M"
-        }
-        if self >= 1000000000 {
-            newNum = Double(self) / 1000000000
-            return "\(Number.withSeparator.string(from: NSNumber(value: (round(newNum * 10) / 10))) ?? "")B"
-        }
-        return Number.withSeparator.string(from: NSNumber(value: self)) ?? ""
-    }
-}
-
 class OtherHelper: NSObject {
-
+    class func alertWithAction(_ title: String, message: String, image: UIImage? = nil, numActions: Int, actionTitles: [String], actionStyles:  [UIAlertActionStyle], actions: [((UIAlertAction) -> Void)?], sender: UIViewController)
+    {
+        guard numActions == actionTitles.count, numActions == actions.count else {
+            debugPrint("alertWithAction: Number of actions does not match")
+            return
+        }
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        for i in 0..<numActions {
+            alert.addAction(UIAlertAction(title: actionTitles[i], style: actionStyles[i], handler: actions[i]))
+        }
+        sender.present(alert, animated: true, completion: nil)
+    }
 }
+
+// UIImagePickerControllerDelegate
+
+//
+// func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
+// // Get the image captured by the UIImagePickerController
+// // let originalImage = info[UIImagePickerControllerOriginalImage] as! UIImage
+// let editedImage = info[UIImagePickerControllerEditedImage] as! UIImage
+// 
+// // Do something with the images (based on your use case)
+// updateAvatar(image: editedImage)
+// 
+// // Dismiss UIImagePickerController to go back to your original view controller
+// dismiss(animated: true, completion: nil)
+// }
+// 
+// func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+// picker.dismiss(animated: true, completion: nil)
+// }
+// 
+// func addImage(_ sender: UIImage) {
+// let vc = UIImagePickerController()
+// vc.delegate = self
+// vc.allowsEditing = true
+// vc.sourceType = .photoLibrary
+// present(vc, animated: true, completion: nil)
+// }
+ 

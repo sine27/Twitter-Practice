@@ -13,15 +13,14 @@ import SwiftGifOrigin
 import AVKit
 import AVFoundation
 
-@objc protocol TweetTableViewCellDelegate: class {
-    @objc optional func tweetCellFavoritedTapped(cell: TweetTableViewCell, isFavorited: Bool)
-    @objc optional func tweetCellRetweetTapped(cell: TweetTableViewCell, isRetweeted: Bool)
-    @objc optional func tweetCellReplyTapped(cell: TweetTableViewCell, withId: Int)
-    @objc optional func tweetCellMenuTapped(cell: TweetTableViewCell, withId id: Int)
-    @objc optional func tweetCellUserProfileImageTapped(cell: TweetTableViewCell, forTwitterUser user: UserModel?)
-}
-
 class TweetTableViewCell: UITableViewCell {
+    
+    var viewModel: TwitterTableCellViewModel! {
+        didSet {
+            updateButtonImageWithState()
+            configure()
+        }
+    }
 
     @IBOutlet weak var userAvatar: UIImageView!
     
@@ -66,6 +65,8 @@ class TweetTableViewCell: UITableViewCell {
     
     @IBOutlet weak var contentToName: NSLayoutConstraint!
     
+    let AVATAR_PLAEHOLDER_IMAGE = #imageLiteral(resourceName: "noImage")
+    
     var tapGesture = UITapGestureRecognizer()
     
     var delegate: TweetTableViewCellDelegate?
@@ -82,19 +83,35 @@ class TweetTableViewCell: UITableViewCell {
     
     var playButton = UIButton()
     
-    var tweet: TweetModel! {
-        didSet {
-            updateUIWithTweetDetails()
-        }
+    
+    
+    @IBAction func replyTapped(_ sender: UIButton) {
+        self.delegate?.tweetCellReplyTapped!(cell: self, withId: viewModel.tweetForShow.id!)
     }
     
-    var userTweetForRetweet: TweetModel?
+    @IBAction func retweetTapped(_ sender: UIButton) {
+        delegate?.tweetCellRetweetTapped?(cell: self, isRetweeted: viewModel.isTweetRetweeted())
+    }
+    
+    @IBAction func favoritedTapped(_ sender: UIButton) {
+        delegate?.tweetCellFavoritedTapped?(cell: self, isFavorited: viewModel.isTweetFavorited())
+    }
+    
+    @IBAction func messageTapped(_ sender: UIButton) {
+        
+    }
+    
+    @IBAction func menuButtonTapped(_ sender: UIButton) {
+        delegate?.tweetCellMenuTapped?(cell: self, withId: viewModel.tweetForShow.id!)
+    }
     
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
         userAvatar.layer.masksToBounds = true
         userAvatar.layer.cornerRadius = 5
+        userAvatar.layer.borderColor = UIColor.lightGray.cgColor
+        userAvatar.layer.borderWidth = 0.5
         userAvatar.image = #imageLiteral(resourceName: "noImage")
         reTwitteButton.isEnabled = true
         numRetwitteLabel.isEnabled = true
@@ -102,17 +119,21 @@ class TweetTableViewCell: UITableViewCell {
         numFavoriteLabel.isEnabled = true
         contentMediaView.layer.masksToBounds = true
         contentMediaView.layer.cornerRadius = 5
-
+        
+        favoriteButton.setImage(#imageLiteral(resourceName: "favorited-icon-dark"), for: .disabled)
+        reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon-green"), for: .normal)
+        reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon-dark"), for: .disabled)
+        
         self.layoutIfNeeded()
         self.layoutSubviews()
         
         contentLabel.customize { contentLabel in
-            
             contentLabel.handleHashtagTap { hashtag in
                 print("Success. You just tapped the \(hashtag) hashtag")
             }
             contentLabel.handleMentionTap { (mention) in
                 print("Success. You just tapped the \(mention) mention")
+                self.delegate?.tweetCellMentionTapped!(with: mention)
             }
             contentLabel.removeHandle(for: ActiveType.url)
         }
@@ -126,18 +147,23 @@ class TweetTableViewCell: UITableViewCell {
     }
     
     override func prepareForReuse() {
-//        userAvatar.image = #imageLiteral(resourceName: "noImage")
-//        reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon"), for: .normal)
-//        favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)
-//        numRetwitteLabel.setButtonTitleColor(option: .gray)
-//        numFavoriteLabel.setButtonTitleColor(option: .gray)
+        //        userAvatar.image = #imageLiteral(resourceName: "noImage")
+        //        reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon"), for: .normal)
+        //        favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)
+        //        numRetwitteLabel.setButtonTitleColor(option: .gray)
+        //        numFavoriteLabel.setButtonTitleColor(option: .gray)
         
         setupCell()
     }
     
+    func updateButtonImageWithState() {
+        favoriteButton.setImage(viewModel.isTweetFavorited() ? #imageLiteral(resourceName: "favor-icon-red"):#imageLiteral(resourceName: "favor-icon"), for: .normal)
+        reTwitteButton.setImage(viewModel.isTweetRetweeted() ? #imageLiteral(resourceName: "retweet-icon-green"):#imageLiteral(resourceName: "retweet-icon"), for: .normal)
+        numFavoriteLabel.setButtonTitleColor(option: viewModel.isTweetFavorited() ? .red:.gray)
+        numRetwitteLabel.setButtonTitleColor(option: viewModel.isTweetRetweeted() ? .green:.gray)
+    }
+    
     func setupCell () {
-        userTweetForRetweet = nil
-        
         contentMediaView.isHidden = true
         stackToContentMedia.constant = 3
         contentMediaHeight.constant = 0
@@ -147,277 +173,70 @@ class TweetTableViewCell: UITableViewCell {
         retweetStack.isHidden = true
         retweetLabelHeight.constant = 0
         avatarToRetweeted.constant = 5
-
+        
         playButton.removeFromSuperview()
     }
     
-    private func updateUIWithTweetDetails () {
+    func configure() {
+        timeCreateLabel.text = viewModel.getTimePosted()
+        screenNameLabel.text = viewModel.getScreenName()
+        numRetwitteLabel.setTitle(viewModel.tweetForShow.retweetCount?.displayCountWithFormat(), for: .normal)
+        numFavoriteLabel.setTitle(viewModel.tweetForShow.favoriteCount?.displayCountWithFormat(), for: .normal)
+        numReplyLabel.setTitle("", for: .normal)
         
-        if let username = userTweetForRetweet?.user?.name {
-            if username == (UserModel.currentUser!.name) {
-                retweetLabel.text = " You Retweeted"
-            } else {
-                retweetLabel.text = " \(username) Retweeted"
+        /// retweet note
+        if viewModel.isTweetRetweeted() {
+            if let note = viewModel.getRetweetNote() {
+                retweetLabel.text = note
+                avatarToRetweeted.constant = 5
+                retweetLabelHeight.constant = 20
+                retweetStack.isHidden = false
             }
-            avatarToRetweeted.constant = 5
-            retweetLabelHeight.constant = 20
-            retweetStack.isHidden = false
         }
         
-        if let avatarURL = tweet?.user?.profile_image_url_https {
-            userAvatar.setImageWith(URLRequest(url: avatarURL), placeholderImage: #imageLiteral(resourceName: "noImage"), success: { (request, response, image) in
+        /// User avatar
+        if let avatarURL = viewModel.getAvatarImageURL(withHttps: true) {
+            userAvatar.setImageWith(URLRequest(url: avatarURL), placeholderImage: AVATAR_PLAEHOLDER_IMAGE, success: { (request, response, image) in
                 self.userAvatar.image = image
             }, failure: { (request, response, error) in
-                if self.tweet?.user?.profile_image_url != nil {
-                    self.userAvatar.setImageWith((self.tweet?.user?.profile_image_url)!)
+                if let url = self.viewModel.getAvatarImageURL(withHttps: false) {
+                    self.userAvatar.setImageWith(url)
                 }
             })
             userAvatar.isUserInteractionEnabled = true
             tapGesture = UITapGestureRecognizer(target: self, action: #selector(showProfile(sender:)))
             userAvatar.addGestureRecognizer(tapGesture)
-        }
-        
-        if tweet.isUserRetweeted! == true {
-            reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon-green"), for: .normal)
-            numRetwitteLabel.setButtonTitleColor(option: .green)
         } else {
-            reTwitteButton.setImage(#imageLiteral(resourceName: "retweet-icon"), for: .normal)
-            numRetwitteLabel.setButtonTitleColor(option: .gray)
+            userAvatar.image = AVATAR_PLAEHOLDER_IMAGE
         }
         
-        if tweet.isUserFavorited! == true {
-            favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon-red"), for: .normal)
-            numFavoriteLabel.setButtonTitleColor(option: .red)
+        /// Username
+        let nameString = viewModel.getUsername()
+        if viewModel.isUserVerified() {
+            let attachment = NSTextAttachment()
+            attachment.image = #imageLiteral(resourceName: "verified-account")
+            attachment.bounds = CGRect(x: 0, y: -3, width: 15, height: 15)
+            let attachmentString = NSAttributedString(attachment: attachment)
+            let myString = NSMutableAttributedString(string: "\(nameString) ")
+            myString.append(attachmentString)
+            nameLabel.attributedText = myString
         } else {
-            favoriteButton.setImage(#imageLiteral(resourceName: "favor-icon"), for: .normal)
-            numFavoriteLabel.setButtonTitleColor(option: .gray)
+            nameLabel.text = nameString
         }
         
-        if let nameString = tweet?.user?.name {
-            if let verified = tweet.user?.verified {
-                if verified == true {
-                    let attachment = NSTextAttachment()
-                    attachment.image = #imageLiteral(resourceName: "verified-account")
-                    attachment.bounds = CGRect(x: 0, y: -3, width: 15, height: 15)
-                    let attachmentString = NSAttributedString(attachment: attachment)
-                    let myString = NSMutableAttributedString(string: "\(nameString) ")
-                    myString.append(attachmentString)
-                    nameLabel.attributedText = myString
-                } else {
-                    nameLabel.text = nameString
-                }
+        /// Content
+        var contentString = viewModel.tweetForShow.text ?? ""
+        if contentString.characters.count > 0 {
+            if viewModel.hasMedia() {
+                contentString = setUpMediaStack(for: viewModel.tweetForShow.media!.count, with: viewModel.tweetForShow.media!, content: contentString)
             }
+            contentString = setupUrls(content: contentString)
         } else {
-            nameLabel.text = ""
-        }
-        
-        if let screenNameString = tweet?.user!.screen_name {
-            screenNameLabel.text = screenNameString
-        } else {
-            screenNameLabel.text = ""
-        }
-        
-        if var contentString = tweet?.text {
-            
-            var tmpContentString = contentString
-            
-            // should show medias
-            if let media = tweet.media {
-                
-                // should show media view, height should be set based on situation
-                contentMediaView.isHidden = false
-                stackToContentMedia.constant = 15
-                
-                // width of contentMediaView
-                let frameWidth = contentMediaView.frame.width
-                
-                // count of images or video in data model
-                let mediaCount = media.count
-                var photoCount = 0
-                
-                // image collection frames 
-                let imageCollectionHeight = frameWidth * 0.56
-                let frame1 = CGRect(x: 0, y: 0, width: frameWidth, height: imageCollectionHeight)
-
-                let stack0 = UIStackView(frame: frame1)
-                let stack1 = UIStackView()
-                let stack2 = UIStackView()
-                
-                stack0.axis = .horizontal
-                stack0.distribution = .fillEqually
-                stack0.alignment = .fill
-                stack0.spacing = 4
-                
-                stack1.axis = .vertical
-                stack1.distribution = .fillEqually
-                stack1.alignment = .fill
-                stack1.spacing = 4
-                
-                stack2.axis = .vertical
-                stack2.distribution = .fillEqually
-                stack2.alignment = .fill
-                stack2.spacing = 4
-                
-                if mediaCount > 2 {
-                    stack0.addArrangedSubview(stack1)
-                    stack0.addArrangedSubview(stack2)
-                }
-                
-                // madia is NSArray which stores NSDictionaries
-                for mediaDictionary in media as! [NSDictionary] {
-                    
-                    let media_url = mediaDictionary["media_url"] as! String
-                    let url_should_be_replaced = mediaDictionary["url"] as! String
-                    
-                    // photo, animated_gif
-                    let type = mediaDictionary["type"] as! String
-                    
-                    // range of url which should be replaced by images or video
-                    if let range = tmpContentString.range(of: url_should_be_replaced) {
-                        tmpContentString = contentString.replacingCharacters(in: range, with: "")
-                        contentString = tmpContentString
-                    }
-                    
-                    let imageView = UIImageView()
-                    imageView.image = #imageLiteral(resourceName: "loadingImage")
-                    imageView.clipsToBounds = true
-                    imageView.contentMode = .scaleAspectFill
-                    
-                    if type == "animated_gif" {
-                        
-                        // view for animated gif is original
-                        let size = mediaDictionary["sizes"] as! NSDictionary
-                        let large = size["large"] as! NSDictionary
-                        let h = large["h"] as! CGFloat
-                        let w = large["w"] as! CGFloat
-                        let ratio = h / w
-                        
-                        // content media view height
-                        let frameHeight = frameWidth * ratio
-                        contentMediaHeight.constant = frameHeight
-                        
-                        // setup image frame
-                        imageView.frame = CGRect(x: 0, y: 0, width: frameWidth, height: frameHeight)
-
-                        // cache image
-                        let imageRequest = URLRequest(url: URL(string: media_url)!)
-                        imageView.setImageWith(imageRequest, placeholderImage: #imageLiteral(resourceName: "loadingImage"), success: { (request, response, image) in
-                            imageView.image = image
-                        })
-                        
-                        // tap to view image in fullscreen
-                        imageView.isUserInteractionEnabled = true
-                        tapGesture = UITapGestureRecognizer(target: self, action: #selector(openVideo(sender:)))
-                        imageView.addGestureRecognizer(tapGesture)
-
-                        // play Button for video
-                        playButton = UIButton(frame: CGRect(x: (frameWidth / 2 - 25), y: (frameHeight / 2 - 25), width: 50, height: 50))
-                        playButton.setImage(#imageLiteral(resourceName: "play-icon"), for: .normal)
-                        playButton.addTarget(self, action: #selector(playTapped(sender:)), for: .touchUpInside)
-                        
-                        // video infromation in dictionary
-                        let video_info = mediaDictionary["video_info"] as! NSDictionary
-                        let variants = video_info["variants"] as! [NSDictionary]
-                        let variant = variants[0]
-                        let urlString = variant["url"] as! String
-                        
-                        videoUrl = urlString
-                        
-                        contentMediaView.addSubview(imageView)
-                        contentMediaView.addSubview(playButton)
-                    }
-                        
-                    else if type == "photo" {
-                        
-                        contentMediaHeight.constant = imageCollectionHeight
-                        
-                        let imageRequest = URLRequest(url: URL(string: media_url)!)
-                        imageView.setImageWith(imageRequest, placeholderImage: #imageLiteral(resourceName: "loadingImage"), success: { (request, response, image) in
-                            UIView.animate(withDuration: 1.0, delay: 0.0, options: UIViewAnimationOptions.curveEaseIn, animations: {
-                                imageView.image = image
-                            })
-                        })
-                        
-                        imageView.isUserInteractionEnabled = true
-                        tapGesture = UITapGestureRecognizer(target: self, action: #selector(popOverImage(sender:)))
-                        imageView.addGestureRecognizer(tapGesture)
-                        
-                        
-                        if mediaCount == 1 {
-                            imageView.frame = frame1
-                            contentMediaView.addSubview(imageView)
-                        }
-                        else if mediaCount == 2 {
-                            stack0.addArrangedSubview(imageView)
-                        }
-                        else if mediaCount == 3 {
-                            if photoCount == 0 {
-                                stack1.addArrangedSubview(imageView)
-                            } else {
-                                stack2.addArrangedSubview(imageView)
-                            }
-                        }
-                        else if mediaCount == 4 {
-                            if photoCount == 0 || photoCount == 2 {
-                                stack1.addArrangedSubview(imageView)
-                            } else {
-                                stack2.addArrangedSubview(imageView)
-                            }
-                        }
-                        else {
-                            print("Photo Collection: Media count invalid")
-                        }
-                        photoCount += 1
-                    }
-                }
-                if mediaCount >= 2 {
-                    contentMediaView.addSubview(stack0)
-                }
-            }
-            
-            if let urls = tweet.urls {
-                for item in urls {
-                    if let urlDictionary = item as? NSDictionary {
-                        let display_url = urlDictionary["display_url"] as! String
-                        let url = urlDictionary["url"] as! String
-                        
-                        let urlPattern = display_url
-                        let urlType = ActiveType.custom(pattern: urlPattern)
-                        contentLabel.enabledTypes.append(urlType)
-                        
-                        contentLabel.customColor[urlType] = UIhelper.UIColorOption.twitterBlue
-                        contentLabel.customSelectedColor[urlType] = UIhelper.UIColorOption.twitterGray
-                        
-                        contentLabel.handleCustomTap(for: urlType, handler: { (urlString) in
-                            print(url)
-                            UIApplication.shared.open(URL(string: url)!)
-                        })
-                        
-                        // find the range in contentString where contains url
-                        if let range = tmpContentString.range(of: url) {
-                            // replace url to displayed url
-                            tmpContentString = contentString.replacingCharacters(in: range, with: display_url)
-                            // reset attributedString with displayed url
-                            contentString = tmpContentString
-                        }
-                    }
-                }
-            }
-            
-            contentLabel.text = contentString
-
-        } else {
-            contentLabel.text = ""
-        }
-        
-        if contentLabel.text == "" {
             contentToName.constant = -18
         }
+        contentLabel.text = contentString
         
-        numReplyLabel.setTitle("", for: .normal)
         
-        numRetwitteLabel.setTitle(self.tweet.retweetCount?.displayCountWithFormat(), for: .normal)
-        numFavoriteLabel.setTitle(self.tweet.favoriteCount?.displayCountWithFormat(), for: .normal)
     }
     
     /// detect link only
@@ -466,31 +285,174 @@ class TweetTableViewCell: UITableViewCell {
     
     func showProfile(sender: UITapGestureRecognizer) {
         print("Tapped")
-        self.delegate?.tweetCellUserProfileImageTapped!(cell: self, forTwitterUser: tweet.user)
+        self.delegate?.tweetCellUserProfileImageTapped!(cell: self, forTwitterUser: viewModel.tweetForShow.user)
     }
     
-    @IBAction func replyTapped(_ sender: UIButton) {
-        self.delegate?.tweetCellReplyTapped!(cell: self, withId: tweet.id!)
-    }
-    
-    @IBAction func retweetTapped(_ sender: UIButton) {
-        if let isRetweeted = tweet.isUserRetweeted {
-            delegate?.tweetCellRetweetTapped?(cell: self, isRetweeted: isRetweeted)
-        }
-    }
-    
-    @IBAction func favoritedTapped(_ sender: UIButton) {
-        if let isFavorited = tweet.isUserFavorited {
-            delegate?.tweetCellFavoritedTapped?(cell: self, isFavorited: isFavorited)
-        }
-    }
-    
-    @IBAction func messageTapped(_ sender: UIButton) {
+    func setUpMediaStack(for count: Int, with media: [MediaModel], content: String) -> String {
+        // should show media view, height should be set based on situation
+        contentMediaView.isHidden = false
+        stackToContentMedia.constant = 15
         
+        // width of contentMediaView
+        let frameWidth = contentMediaView.frame.width
+        
+        // count of images or video in data model
+        var photoCount = 0
+        
+        // image collection frames
+        let imageCollectionHeight = frameWidth * 0.56
+        let frame1 = CGRect(x: 0, y: 0, width: frameWidth, height: imageCollectionHeight)
+        
+        let stack0 = UIStackView(frame: frame1)
+        let stack1 = UIStackView()
+        let stack2 = UIStackView()
+        
+        stack0.axis = .horizontal
+        stack0.distribution = .fillEqually
+        stack0.alignment = .fill
+        stack0.spacing = 4
+        
+        stack1.axis = .vertical
+        stack1.distribution = .fillEqually
+        stack1.alignment = .fill
+        stack1.spacing = 4
+        
+        stack2.axis = .vertical
+        stack2.distribution = .fillEqually
+        stack2.alignment = .fill
+        stack2.spacing = 4
+        
+        if count > 2 {
+            stack0.addArrangedSubview(stack1)
+            stack0.addArrangedSubview(stack2)
+        }
+        
+        var contentCopy = content
+        
+        // madia is NSArray which stores NSDictionaries
+        for m in media {
+            contentCopy = viewModel.getContentAfterMediaUrlReplaced(with: m, content: contentCopy)
+            
+            let imageView = UIImageView()
+            imageView.image = #imageLiteral(resourceName: "loadingImage")
+            imageView.clipsToBounds = true
+            imageView.contentMode = .scaleAspectFill
+            imageView.layer.borderColor = UIColor.lightGray.cgColor
+            imageView.layer.borderWidth = 0.5
+            
+            if m.type == "animated_gif" {
+                
+                // content media view height
+                let frameHeight = frameWidth * m.mediaRatio
+                contentMediaHeight.constant = frameHeight
+                
+                // setup image frame
+                imageView.frame = CGRect(x: 0, y: 0, width: frameWidth, height: frameHeight)
+                
+                // cache image
+                let imageRequest = URLRequest(url: URL(string: m.media_url)!)
+                imageView.setImageWith(imageRequest, placeholderImage: #imageLiteral(resourceName: "loadingImage"), success: { (request, response, image) in
+                    imageView.image = image
+                })
+                
+                // tap to view image in fullscreen
+                imageView.isUserInteractionEnabled = true
+                tapGesture = UITapGestureRecognizer(target: self, action: #selector(openVideo(sender:)))
+                imageView.addGestureRecognizer(tapGesture)
+                
+                // play Button for video
+                playButton = UIButton(frame: CGRect(x: (frameWidth / 2 - 25), y: (frameHeight / 2 - 25), width: 50, height: 50))
+                playButton.setImage(#imageLiteral(resourceName: "play-icon"), for: .normal)
+                playButton.addTarget(self, action: #selector(playTapped(sender:)), for: .touchUpInside)
+                
+                // video infromation in dictionary
+                
+                
+                videoUrl = viewModel.getVideoUrlString(with: m)
+                
+                contentMediaView.addSubview(imageView)
+                contentMediaView.addSubview(playButton)
+            }
+                
+            else if m.type == "photo" {
+                
+                contentMediaHeight.constant = imageCollectionHeight
+                
+                let imageRequest = URLRequest(url: URL(string: m.media_url)!)
+                imageView.setImageWith(imageRequest, placeholderImage: #imageLiteral(resourceName: "loadingImage"), success: { (request, response, image) in
+                    UIView.animate(withDuration: 1.0, delay: 0.0, options: UIViewAnimationOptions.curveEaseIn, animations: {
+                        imageView.image = image
+                    })
+                })
+                
+                imageView.isUserInteractionEnabled = true
+                tapGesture = UITapGestureRecognizer(target: self, action: #selector(popOverImage(sender:)))
+                imageView.addGestureRecognizer(tapGesture)
+                
+                
+                if count == 1 {
+                    imageView.frame = frame1
+                    contentMediaView.addSubview(imageView)
+                }
+                else if count == 2 {
+                    stack0.addArrangedSubview(imageView)
+                }
+                else if count == 3 {
+                    if photoCount == 0 {
+                        stack1.addArrangedSubview(imageView)
+                    } else {
+                        stack2.addArrangedSubview(imageView)
+                    }
+                }
+                else if count == 4 {
+                    if photoCount == 0 || photoCount == 2 {
+                        stack1.addArrangedSubview(imageView)
+                    } else {
+                        stack2.addArrangedSubview(imageView)
+                    }
+                }
+                else {
+                    print("Photo Collection: Media count invalid")
+                }
+                photoCount += 1
+            }
+        }
+        if count >= 2 {
+            contentMediaView.addSubview(stack0)
+        }
+        return content
     }
     
-    @IBAction func menuButtonTapped(_ sender: UIButton) {
-        delegate?.tweetCellMenuTapped?(cell: self, withId: tweet.id!)
+    func setupUrls(content: String) -> String {
+        if let urls = viewModel.tweetForShow.urls {
+            for item in urls {
+                if let urlDictionary = item as? NSDictionary {
+                    let display_url = urlDictionary["display_url"] as! String
+                    let url = urlDictionary["url"] as! String
+                    
+                    let urlPattern = display_url
+                    let urlType = ActiveType.custom(pattern: urlPattern)
+                    contentLabel.enabledTypes.append(urlType)
+                    
+                    contentLabel.customColor[urlType] = UIhelper.UIColorOption.twitterBlue
+                    contentLabel.customSelectedColor[urlType] = UIhelper.UIColorOption.twitterGray
+                    
+                    contentLabel.handleCustomTap(for: urlType, handler: { (urlString) in
+                        print(url)
+                        UIApplication.shared.open(URL(string: url)!)
+                    })
+                    
+                    var tmp = content
+                    // find the range in contentString where contains url
+                    if let range = tmp.range(of: url) {
+                        // replace url to displayed url
+                        tmp = content.replacingCharacters(in: range, with: display_url)
+                        // reset attributedString with displayed url
+                        return tmp
+                    }
+                }
+            }
+        }
+        return content
     }
-
 }

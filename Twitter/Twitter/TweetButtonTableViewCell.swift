@@ -8,12 +8,6 @@
 
 import UIKit
 
-@objc protocol TweetButtonTableViewCellDelegate: class {
-    @objc optional func tweetCellFavoritedTapped(cell: TweetButtonTableViewCell, isFavorited: Bool)
-    @objc optional func tweetCellRetweetTapped(cell: TweetButtonTableViewCell, isRetweeted: Bool)
-    @objc optional func tweetCellReplyTapped(cell: TweetButtonTableViewCell)
-}
-
 class TweetButtonTableViewCell: UITableViewCell {
     
     @IBOutlet weak var replyButton: UIButton!
