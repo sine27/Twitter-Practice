@@ -40,8 +40,10 @@ class PostViewController: UIViewController, UITextViewDelegate {
     
     var images: [UIImage] = [] {
         didSet {
-            if let imageView = imageStackView.arrangedSubviews[3] as? UIImageView, imageView.image == nil {
-                imageStackView.removeArrangedSubview(imageView)
+            if imageStackView.arrangedSubviews.count >= 4 {
+                if let imageView = imageStackView.arrangedSubviews[3] as? UIImageView, imageView.image == nil {
+                    imageStackView.removeArrangedSubview(imageView)
+                }
             }
         }
     }
@@ -187,9 +189,13 @@ class PostViewController: UIViewController, UITextViewDelegate {
     }
     
     func tapToRemove(_ sender: UITapGestureRecognizer) {
-        if let imageView = sender.view {
+        if let imageView = sender.view as? UIImageView {
             imageView.removeFromSuperview()
             imageStackView.addArrangedSubview(UIImageView(image: nil))
+            if let index = images.index(of: imageView.image!) {
+                images.remove(at: index)
+                imageStackView.addArrangedSubview(UIImageView(image: nil))
+            }
         }
     }
     
